@@ -55,6 +55,64 @@ label {
     }
 }
 
+/* Carbon Meter Styling */
+#carbon-meter-container {
+    background-color: rgba(33, 37, 41, 0.5);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#carbon-meter {
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.carbon-meter-svg {
+    filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.3));
+}
+
+#carbon-meter-value {
+    font-size: 18px !important;
+    font-weight: bold;
+}
+
+.carbon-category {
+    margin-bottom: 15px;
+}
+
+.carbon-category .progress {
+    height: 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.carbon-category .progress-bar {
+    transition: width 1s ease-in-out;
+}
+
+/* Animation for carbon meter needle */
+@keyframes pulse {
+    0% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    100% {
+        opacity: 0.8;
+        transform: scale(1);
+    }
+}
+
+#carbon-meter-needle {
+    animation: pulse 2s infinite;
+    transform-origin: 150px 180px;
+    transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
 /* Custom footer spacing */
 footer {
     margin-top: 3rem;
@@ -70,5 +128,9 @@ footer {
     
     .chart-container {
         height: 250px;
+    }
+    
+    #carbon-meter {
+        max-width: 250px;
     }
 }

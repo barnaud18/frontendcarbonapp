@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load properties for the property list page
     loadProperties();
+    
+    // Initialize the carbon meter visualization
+    if (window.carbonViz && typeof window.carbonViz.initCarbonMeter === 'function') {
+        window.carbonViz.initCarbonMeter();
+    }
 });
 
 /**
@@ -302,6 +307,12 @@ function displayResults(data) {
     
     // Update the results container
     resultadoContainer.innerHTML = `
+        <div id="carbon-meter-container" class="my-4">
+            <h4 class="text-center mb-3">Pegada de Carbono</h4>
+            <div id="carbon-meter" class="text-center"></div>
+            <div id="carbon-breakdown" class="mt-4"></div>
+        </div>
+        
         <div class="card mb-3">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">Pegada de Carbono Total</h5>
@@ -347,6 +358,16 @@ function displayResults(data) {
     // Update charts
     updateEmissionsChart(data.detalhes);
     updateReductionChart(data.recomendacoes);
+    
+    // Initialize and update the carbon meter
+    if (window.carbonViz) {
+        // Wait for SVG to be available in the DOM
+        setTimeout(() => {
+            window.carbonViz.initCarbonMeter();
+            window.carbonViz.updateCarbonMeter(data.pegada_total_kg_co2e);
+            window.carbonViz.updateCategoryBreakdown(data.detalhes);
+        }, 100);
+    }
 }
 
 /**
