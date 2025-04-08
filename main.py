@@ -33,6 +33,10 @@ CORS(app)
 # Initialize the app with the extension
 db.init_app(app)
 
+# Create tables
+with app.app_context():
+    db.create_all()
+
 # Configure Swagger
 SWAGGER_URL = '/api/docs'
 API_URL = '/static/swagger.json'
