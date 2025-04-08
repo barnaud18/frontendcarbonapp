@@ -194,13 +194,22 @@
                 <div class="card">
                     <h2>Créditos de Carbono</h2>
                     <p>Calcule os potenciais créditos de carbono da sua propriedade:</p>
-                    <form action="/creditos" method="post">
-                        <div class="form-group">
-                            <label for="area_pastagem_credito">Área de Pastagem para Recuperação (ha):</label>
-                            <input type="number" id="area_pastagem_credito" name="area_pastagem" min="0.1" step="0.1" required>
-                        </div>
-                        <button type="submit" class="btn-success">Calcular Créditos de Carbono</button>
-                    </form>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <a href="/creditos" class="btn-success" style="text-align: center; text-decoration: none;">
+                            Calculadora Multi-Metodologias
+                        </a>
+                        
+                        <p style="margin: 5px 0; text-align: center;">OU</p>
+                        
+                        <form action="/creditos" method="post">
+                            <div class="form-group">
+                                <label for="area_pastagem_credito">Cálculo Rápido - Área de Pastagem (ha):</label>
+                                <input type="number" id="area_pastagem_credito" name="area_pastagem" min="0.1" step="0.1" required>
+                            </div>
+                            <button type="submit" class="btn-success">Calcular Créditos de Carbono</button>
+                        </form>
+                    </div>
                 </div>
             </div>
             

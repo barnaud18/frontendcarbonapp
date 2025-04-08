@@ -65,7 +65,10 @@ class Agricultura(db.Model):
     area_agricola = db.Column(db.Float, nullable=False)  # Agricultural area in hectares
     uso_fertilizante = db.Column(db.Float, nullable=False)  # Fertilizer use in kg/ha/year
     consumo_combustivel = db.Column(db.Float, nullable=False)  # Fuel consumption in liters/year
-    area_pastagem = db.Column(db.Float, nullable=True)  # Pasture area in hectares for carbon credit calculation
+    area_pastagem = db.Column(db.Float, nullable=True)  # Pasture area in hectares
+    area_florestal = db.Column(db.Float, nullable=True, default=0)  # Forest area in hectares
+    area_renovacao_cultura = db.Column(db.Float, nullable=True, default=0)  # Crop rotation area in hectares
+    area_integracao_lavoura = db.Column(db.Float, nullable=True, default=0)  # Integrated crop-livestock area in hectares
     
     def to_dict(self):
         return {
@@ -74,7 +77,10 @@ class Agricultura(db.Model):
             'area_agricola': self.area_agricola,
             'uso_fertilizante': self.uso_fertilizante,
             'consumo_combustivel': self.consumo_combustivel,
-            'area_pastagem': self.area_pastagem
+            'area_pastagem': self.area_pastagem,
+            'area_florestal': self.area_florestal,
+            'area_renovacao_cultura': self.area_renovacao_cultura,
+            'area_integracao_lavoura': self.area_integracao_lavoura
         }
 
 class Pecuaria(db.Model):
@@ -174,21 +180,79 @@ def calcular_emissoes(area_agricola, uso_fertilizante, num_bovinos, consumo_comb
         'combustivel': emissao_combustivel
     }
 
-def calcular_creditos_carbono(area_pastagem):
+def calcular_creditos_carbono(area_pastagem=0, area_florestal=0, area_renovacao_cultura=0, area_integracao_lavoura=0, metodologia=None):
     """
-    Calculate carbon credit potential for pasture recovery
+    Calculate carbon credit potential for multiple methodologies
     
     Parameters:
     - area_pastagem: Pasture area in hectares
+    - area_florestal: Forest area in hectares
+    - area_renovacao_cultura: Crop rotation area in hectares
+    - area_integracao_lavoura: Integrated crop-livestock area in hectares
+    - metodologia: Specific methodology to use (if None, calculates all)
     
     Returns:
-    - Carbon credit potential in tCO2e/year
+    - Carbon credit potential in tCO2e/year or dictionary with details by methodology
     """
-    # Conservative carbon sequestration factor for pasture recovery (tCO2e/ha/year)
-    # Based on VCS VM0032 methodology
-    fator_sequestro = 0.5  # tCO2e/ha/year
+    resultados = {}
     
-    return area_pastagem * fator_sequestro
+    # Conservative carbon sequestration factors (tCO2e/ha/year) for each methodology
+    # 1. Pasture recovery (VCS VM0032)
+    fator_pastagem = 0.5  # tCO2e/ha/year
+    
+    # 2. Forestry (AR-ACM0003 - Afforestation and Reforestation of Lands)
+    fator_florestal = 8.0  # tCO2e/ha/year
+    
+    # 3. Crop rotation (CDM AMS-III.AU - Small-scale methodology for low carbon farming practices)
+    fator_renovacao = 1.2  # tCO2e/ha/year
+    
+    # 4. Integrated crop-livestock-forest systems (VCS VM0017)
+    fator_integracao = 3.0  # tCO2e/ha/year
+    
+    # Calculate credits for each methodology
+    if metodologia == "pastagem" or metodologia is None:
+        resultados["pastagem"] = {
+            "area": area_pastagem,
+            "fator": fator_pastagem,
+            "creditos": area_pastagem * fator_pastagem,
+            "metodologia": "VCS VM0032 - Recuperação de pastagens degradadas"
+        }
+        
+    if metodologia == "florestal" or metodologia is None:
+        resultados["florestal"] = {
+            "area": area_florestal,
+            "fator": fator_florestal,
+            "creditos": area_florestal * fator_florestal,
+            "metodologia": "AR-ACM0003 - Florestamento e reflorestamento"
+        }
+        
+    if metodologia == "renovacao" or metodologia is None:
+        resultados["renovacao"] = {
+            "area": area_renovacao_cultura,
+            "fator": fator_renovacao,
+            "creditos": area_renovacao_cultura * fator_renovacao,
+            "metodologia": "CDM AMS-III.AU - Práticas agrícolas de baixo carbono"
+        }
+        
+    if metodologia == "integracao" or metodologia is None:
+        resultados["integracao"] = {
+            "area": area_integracao_lavoura,
+            "fator": fator_integracao,
+            "creditos": area_integracao_lavoura * fator_integracao,
+            "metodologia": "VCS VM0017 - Sistemas de integração lavoura-pecuária"
+        }
+    
+    # If only one methodology requested, return its value directly
+    if metodologia is not None:
+        return resultados.get(metodologia, {}).get("creditos", 0)
+    
+    # Calculate total credits (sum from all methodologies)
+    total_creditos = sum(metodo["creditos"] for metodo in resultados.values())
+    
+    # Add total to results
+    resultados["total"] = total_creditos
+    
+    return resultados
 
 def gerar_recomendacoes(emissao_agricultura, emissao_pecuaria, emissao_combustivel, num_bovinos, uso_fertilizante):
     """
@@ -322,6 +386,11 @@ def cadastrar():
         num_bovinos = int(request.form.get('num_bovinos'))
         consumo_combustivel = float(request.form.get('consumo_combustivel'))
         
+        # Get optional form data for new carbon credit methodologies
+        area_florestal = float(request.form.get('area_florestal', 0))
+        area_renovacao_cultura = float(request.form.get('area_renovacao_cultura', 0))
+        area_integracao_lavoura = float(request.form.get('area_integracao_lavoura', 0))
+        
         # Create property
         nova_propriedade = Propriedade(
             nome=nome,
@@ -336,7 +405,10 @@ def cadastrar():
             area_agricola=area_agricola,
             uso_fertilizante=uso_fertilizante,
             consumo_combustivel=consumo_combustivel,
-            area_pastagem=area_pastagem
+            area_pastagem=area_pastagem,
+            area_florestal=area_florestal,
+            area_renovacao_cultura=area_renovacao_cultura,
+            area_integracao_lavoura=area_integracao_lavoura
         )
         db.session.add(agricultura)
         
@@ -346,6 +418,51 @@ def cadastrar():
             num_bovinos=num_bovinos
         )
         db.session.add(pecuaria)
+        
+        # Calculate emissions
+        resultado_emissoes = calcular_emissoes(
+            area_agricola=area_agricola,
+            uso_fertilizante=uso_fertilizante,
+            num_bovinos=num_bovinos,
+            consumo_combustivel=consumo_combustivel
+        )
+        
+        # Calculate carbon credits if areas are provided
+        resultados_creditos = calcular_creditos_carbono(
+            area_pastagem=area_pastagem,
+            area_florestal=area_florestal,
+            area_renovacao_cultura=area_renovacao_cultura,
+            area_integracao_lavoura=area_integracao_lavoura
+        )
+        
+        # Create emission record
+        emissao = Emissao(
+            propriedade_id=nova_propriedade.id,
+            total_emissao=resultado_emissoes['total'],
+            emissao_agricultura=resultado_emissoes['agricultura'],
+            emissao_pecuaria=resultado_emissoes['pecuaria'],
+            emissao_combustivel=resultado_emissoes['combustivel'],
+            potencial_credito=resultados_creditos['total']
+        )
+        db.session.add(emissao)
+        
+        # Create recommendations
+        recomendacoes = gerar_recomendacoes(
+            emissao_agricultura=resultado_emissoes['agricultura'],
+            emissao_pecuaria=resultado_emissoes['pecuaria'],
+            emissao_combustivel=resultado_emissoes['combustivel'],
+            num_bovinos=num_bovinos,
+            uso_fertilizante=uso_fertilizante
+        )
+        
+        for recomendacao in recomendacoes:
+            nova_recomendacao = Recomendacao(
+                propriedade_id=nova_propriedade.id,
+                acao=recomendacao['acao'],
+                descricao=recomendacao['descricao'],
+                potencial_reducao=recomendacao['potencial_reducao']
+            )
+            db.session.add(nova_recomendacao)
         
         # Commit all changes
         db.session.commit()
@@ -365,24 +482,44 @@ def cadastrar():
         flash(f"Erro ao cadastrar: {str(e)}", 'error')
         return redirect(url_for('index'))
 
-@app.route('/creditos', methods=['POST'])
+@app.route('/creditos', methods=['GET', 'POST'])
 def creditos():
+    if request.method == 'GET':
+        # Display the carbon credits calculator form
+        return render_template('calculadora_creditos.html')
+        
     try:
         # Get form data
         area_pastagem = float(request.form.get('area_pastagem', 0))
+        area_florestal = float(request.form.get('area_florestal', 0))
+        area_renovacao_cultura = float(request.form.get('area_renovacao_cultura', 0))
+        area_integracao_lavoura = float(request.form.get('area_integracao_lavoura', 0))
         
-        if area_pastagem <= 0:
-            raise ValueError("A área de pastagem deve ser maior que zero")
+        # Check if at least one area is provided
+        if area_pastagem <= 0 and area_florestal <= 0 and area_renovacao_cultura <= 0 and area_integracao_lavoura <= 0:
+            raise ValueError("Pelo menos uma área deve ser maior que zero")
         
-        # Calculate credits
-        creditos = calcular_creditos_carbono(area_pastagem)
-        valor_estimado = creditos * 50  # Assuming R$50 per tCO2e
+        # Calculate credits for all methodologies
+        resultados_creditos = calcular_creditos_carbono(
+            area_pastagem=area_pastagem,
+            area_florestal=area_florestal,
+            area_renovacao_cultura=area_renovacao_cultura,
+            area_integracao_lavoura=area_integracao_lavoura
+        )
+        
+        # Total credits and estimated value
+        total_creditos = resultados_creditos['total']
+        valor_estimado = total_creditos * 50  # Assuming R$50 per tCO2e
         
         # Render template with results
         return render_template(
             'creditos.html',
             area_pastagem=area_pastagem,
-            potencial_credito=creditos,
+            area_florestal=area_florestal,
+            area_renovacao_cultura=area_renovacao_cultura,
+            area_integracao_lavoura=area_integracao_lavoura,
+            resultados=resultados_creditos,
+            potencial_credito=total_creditos,
             valor_estimado=valor_estimado
         )
         
@@ -392,7 +529,7 @@ def creditos():
         
         # Redirect back with error message
         flash(f"Erro ao calcular créditos: {str(e)}", 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('creditos'))
 
 @app.route('/propriedades')
 def listar_propriedades():
@@ -453,10 +590,28 @@ def api_cadastrar_propriedade():
     try:
         data = request.get_json()
         
+        # Property data
+        nome = data.get('nome')
+        tamanho_total = data.get('tamanho_total')
+        
+        # Agricultural data
+        area_agricola = data.get('area_agricola')
+        uso_fertilizante = data.get('uso_fertilizante')
+        consumo_combustivel = data.get('consumo_combustivel')
+        area_pastagem = data.get('area_pastagem', 0)
+        
+        # New carbon credit methodology data
+        area_florestal = data.get('area_florestal', 0)
+        area_renovacao_cultura = data.get('area_renovacao_cultura', 0)
+        area_integracao_lavoura = data.get('area_integracao_lavoura', 0)
+        
+        # Livestock data
+        num_bovinos = data.get('num_bovinos', 0)
+        
         # Create property
         nova_propriedade = Propriedade(
-            nome=data.get('nome'),
-            tamanho_total=data.get('tamanho_total')
+            nome=nome,
+            tamanho_total=tamanho_total
         )
         db.session.add(nova_propriedade)
         db.session.flush()  # Get ID without committing
@@ -464,26 +619,64 @@ def api_cadastrar_propriedade():
         # Create agriculture data
         agricultura = Agricultura(
             propriedade_id=nova_propriedade.id,
-            area_agricola=data.get('area_agricola'),
-            uso_fertilizante=data.get('uso_fertilizante'),
-            consumo_combustivel=data.get('consumo_combustivel'),
-            area_pastagem=data.get('area_pastagem', 0)
+            area_agricola=area_agricola,
+            uso_fertilizante=uso_fertilizante,
+            consumo_combustivel=consumo_combustivel,
+            area_pastagem=area_pastagem,
+            area_florestal=area_florestal,
+            area_renovacao_cultura=area_renovacao_cultura,
+            area_integracao_lavoura=area_integracao_lavoura
         )
         db.session.add(agricultura)
         
         # Create livestock data
         pecuaria = Pecuaria(
             propriedade_id=nova_propriedade.id,
-            num_bovinos=data.get('num_bovinos', 0)
+            num_bovinos=num_bovinos
         )
         db.session.add(pecuaria)
+        
+        # Calculate emissions
+        resultado_emissoes = calcular_emissoes(
+            area_agricola=area_agricola,
+            uso_fertilizante=uso_fertilizante,
+            num_bovinos=num_bovinos,
+            consumo_combustivel=consumo_combustivel
+        )
+        
+        # Calculate carbon credits
+        resultados_creditos = calcular_creditos_carbono(
+            area_pastagem=area_pastagem,
+            area_florestal=area_florestal,
+            area_renovacao_cultura=area_renovacao_cultura,
+            area_integracao_lavoura=area_integracao_lavoura
+        )
+        
+        # Create emission record
+        emissao = Emissao(
+            propriedade_id=nova_propriedade.id,
+            total_emissao=resultado_emissoes['total'],
+            emissao_agricultura=resultado_emissoes['agricultura'],
+            emissao_pecuaria=resultado_emissoes['pecuaria'],
+            emissao_combustivel=resultado_emissoes['combustivel'],
+            potencial_credito=resultados_creditos['total']
+        )
+        db.session.add(emissao)
         
         # Commit all changes
         db.session.commit()
         
         return jsonify({
             "message": "Propriedade cadastrada com sucesso",
-            "propriedade_id": nova_propriedade.id
+            "propriedade_id": nova_propriedade.id,
+            "pegada_carbono": {
+                "total_emissao_kg_co2e": resultado_emissoes['total'],
+                "detalhes_emissao": resultado_emissoes,
+                "potencial_credito_tco2e": resultados_creditos['total'],
+                "detalhes_creditos": {
+                    k: v for k, v in resultados_creditos.items() if k != 'total'
+                }
+            }
         }), 201
         
     except Exception as e:
@@ -495,14 +688,40 @@ def api_calcular_creditos():
     try:
         data = request.get_json()
         area_pastagem = data.get('area_pastagem', 0)
+        area_florestal = data.get('area_florestal', 0)
+        area_renovacao_cultura = data.get('area_renovacao_cultura', 0)
+        area_integracao_lavoura = data.get('area_integracao_lavoura', 0)
         
-        creditos = calcular_creditos_carbono(area_pastagem)
+        # Calculate credits for all methodologies
+        resultados = calcular_creditos_carbono(
+            area_pastagem=area_pastagem,
+            area_florestal=area_florestal,
+            area_renovacao_cultura=area_renovacao_cultura,
+            area_integracao_lavoura=area_integracao_lavoura
+        )
         
-        return jsonify({
-            "area_pastagem_ha": area_pastagem,
-            "potencial_credito_tco2e": round(creditos, 2),
-            "valor_estimado_reais": round(creditos * 50, 2)  # Assuming R$50 per tCO2e
-        }), 200
+        # Get total credits
+        total_creditos = resultados['total']
+        
+        # Format response
+        response = {
+            "areas": {
+                "pastagem_ha": area_pastagem,
+                "florestal_ha": area_florestal,
+                "renovacao_cultura_ha": area_renovacao_cultura,
+                "integracao_lavoura_ha": area_integracao_lavoura
+            },
+            "resultados_por_metodologia": {
+                k: {
+                    "creditos": v["creditos"],
+                    "metodologia": v["metodologia"]
+                } for k, v in resultados.items() if k != 'total'
+            },
+            "potencial_credito_total_tco2e": round(total_creditos, 2),
+            "valor_estimado_reais": round(total_creditos * 50, 2)  # Assuming R$50 per tCO2e
+        }
+        
+        return jsonify(response), 200
         
     except Exception as e:
         return jsonify({"error": str(e)}), 400
