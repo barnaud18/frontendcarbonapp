@@ -484,10 +484,10 @@ def cadastrar():
 
 @app.route('/creditos', methods=['GET', 'POST'])
 def creditos():
-    # In GET request, render the index.html page with information about carbon credits
     if request.method == 'GET':
-        app.logger.debug("GET request to /creditos - rendering index.html")
-        return render_template('index.html')
+        # Display the carbon credits calculator form
+        app.logger.debug("GET request to /creditos - rendering calculadora_creditos.html")
+        return render_template('calculadora_creditos.html')
         
     try:
         # For POST requests, process the form data
@@ -520,7 +520,7 @@ def creditos():
         
         # Render template with results
         return render_template(
-            'resultado.html',
+            'creditos.html',
             area_pastagem=area_pastagem,
             area_florestal=area_florestal,
             area_renovacao_cultura=area_renovacao_cultura,
@@ -536,7 +536,7 @@ def creditos():
         
         # Redirect back with error message
         flash(f"Erro ao calcular créditos: {str(e)}", 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('creditos'))
 
 @app.route('/propriedades')
 def listar_propriedades():
