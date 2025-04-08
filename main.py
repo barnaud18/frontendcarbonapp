@@ -484,11 +484,15 @@ def cadastrar():
 
 @app.route('/creditos', methods=['GET', 'POST'])
 def creditos():
+    # In GET request, render the index.html page with information about carbon credits
     if request.method == 'GET':
-        # Display the carbon credits calculator form
-        return render_template('calculadora_creditos.html')
+        app.logger.debug("GET request to /creditos - rendering index.html")
+        return render_template('index.html')
         
     try:
+        # For POST requests, process the form data
+        app.logger.debug("POST request to /creditos - processing form data")
+        
         # Get form data
         area_pastagem = float(request.form.get('area_pastagem', 0))
         area_florestal = float(request.form.get('area_florestal', 0))
@@ -497,6 +501,7 @@ def creditos():
         
         # Check if at least one area is provided
         if area_pastagem <= 0 and area_florestal <= 0 and area_renovacao_cultura <= 0 and area_integracao_lavoura <= 0:
+            app.logger.error("Validation error: at least one area must be greater than zero")
             raise ValueError("Pelo menos uma área deve ser maior que zero")
         
         # Calculate credits for all methodologies
@@ -511,9 +516,11 @@ def creditos():
         total_creditos = resultados_creditos['total']
         valor_estimado = total_creditos * 50  # Assuming R$50 per tCO2e
         
+        app.logger.debug(f"Credits calculation successful. Total credits: {total_creditos}")
+        
         # Render template with results
         return render_template(
-            'creditos.html',
+            'resultado.html',
             area_pastagem=area_pastagem,
             area_florestal=area_florestal,
             area_renovacao_cultura=area_renovacao_cultura,
@@ -529,7 +536,7 @@ def creditos():
         
         # Redirect back with error message
         flash(f"Erro ao calcular créditos: {str(e)}", 'error')
-        return redirect(url_for('creditos'))
+        return redirect(url_for('index'))
 
 @app.route('/propriedades')
 def listar_propriedades():

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Créditos de Carbono</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+</head>
+<body data-bs-theme="dark">
+    <div class="container">
+        <div class="py-4">
+            <h1 class="mb-4 text-primary">Calculadora de Créditos de Carbono</h1>
+            
+            <div class="d-flex justify-content-end mb-4">
+                <a href="/" class="btn btn-info">
+                    Voltar para Página Inicial
+                </a>
+            </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{% if category == 'error' %}danger{% else %}{{ category }}{% endif %} mb-4">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h2 class="card-title text-info mb-3">Calculadora Avançada de Créditos de Carbono</h2>
+                            <p class="card-text mb-4">Preencha as áreas para cada metodologia que deseja calcular:</p>
+                            
+                            <form action="/creditos" method="post">
+                                <div class="mb-3">
+                                    <label for="area_pastagem" class="form-label">Área de Pastagem para Recuperação (ha):</label>
+                                    <input type="number" class="form-control" id="area_pastagem" name="area_pastagem" min="0" step="0.1" value="0">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="area_florestal" class="form-label">Área Florestal para Reflorestamento (ha):</label>
+                                    <input type="number" class="form-control" id="area_florestal" name="area_florestal" min="0" step="0.1" value="0">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="area_renovacao_cultura" class="form-label">Área de Rotação de Culturas (ha):</label>
+                                    <input type="number" class="form-control" id="area_renovacao_cultura" name="area_renovacao_cultura" min="0" step="0.1" value="0">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="area_integracao_lavoura" class="form-label">Área de Integração Lavoura-Pecuária (ha):</label>
+                                    <input type="number" class="form-control" id="area_integracao_lavoura" name="area_integracao_lavoura" min="0" step="0.1" value="0">
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success">Calcular Créditos de Carbono</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="card-title text-info mb-3">Metodologias Disponíveis</h2>
+                            
+                            <div class="border-start border-primary border-3 ps-3 mb-4">
+                                <h3 class="h5 text-primary">VCS VM0032 - Recuperação de Pastagens Degradadas</h3>
+                                <p>Metodologia para quantificação de sequestro de carbono em solos através da recuperação de pastagens degradadas.</p>
+                                <p class="mb-0"><strong>Fator de sequestro:</strong> 0,5 tCO₂e/ha/ano</p>
+                            </div>
+                            
+                            <div class="border-start border-primary border-3 ps-3 mb-4">
+                                <h3 class="h5 text-primary">AR-ACM0003 - Florestamento e Reflorestamento</h3>
+                                <p>Metodologia para projetos de florestamento e reflorestamento de áreas degradadas.</p>
+                                <p class="mb-0"><strong>Fator de sequestro:</strong> 8,0 tCO₂e/ha/ano</p>
+                            </div>
+                            
+                            <div class="border-start border-primary border-3 ps-3 mb-4">
+                                <h3 class="h5 text-primary">CDM AMS-III.AU - Práticas Agrícolas de Baixo Carbono</h3>
+                                <p>Metodologia para práticas agrícolas sustentáveis, incluindo rotação de culturas e cultivo mínimo.</p>
+                                <p class="mb-0"><strong>Fator de sequestro:</strong> 1,2 tCO₂e/ha/ano</p>
+                            </div>
+                            
+                            <div class="border-start border-primary border-3 ps-3">
+                                <h3 class="h5 text-primary">VCS VM0017 - Sistemas de Integração Lavoura-Pecuária</h3>
+                                <p>Metodologia para sistemas integrados de produção que combinam agricultura, pecuária e/ou floresta.</p>
+                                <p class="mb-0"><strong>Fator de sequestro:</strong> 3,0 tCO₂e/ha/ano</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
