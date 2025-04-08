@@ -1,0 +1,109 @@
+/* Custom styles for Carbon Calculator Application */
+body {
+    background-color: #f8f9fa;
+    padding-top: 20px;
+    padding-bottom: 40px;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+h1 {
+    color: #0d6efd;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 10px;
+}
+
+h2 {
+    color: #0dcaf0;
+    margin-bottom: 20px;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 10px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    border-bottom: 1px solid #e7f5ff;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.list-group-item {
+    background-color: transparent;
+    border-color: #e7f5ff;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.btn {
+    border-radius: 5px;
+    padding: 8px 16px;
+    font-weight: 500;
+}
+
+canvas {
+    margin-top: 15px;
+}
+
+.alert {
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #212529;
+        color: #f8f9fa;
+    }
+    
+    .card {
+        background-color: #343a40;
+    }
+    
+    .list-group-item {
+        background-color: #343a40;
+        color: #f8f9fa;
+        border-color: #495057;
+    }
+    
+    .table {
+        color: #f8f9fa;
+    }
+    
+    .table-striped > tbody > tr:nth-of-type(odd) > * {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: #f8f9fa;
+    }
+}
+
+/* Mobile responsiveness enhancements */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    h2 {
+        font-size: 1.4rem;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+}

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado - Créditos de Carbono</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Resultado do Cálculo de Créditos de Carbono</h1>
+        
+        <div class="mb-4 text-end">
+            <a href="{{ url_for('creditos') }}" class="btn btn-primary">Voltar para Calculadora</a>
+            <a href="{{ url_for('index') }}" class="btn btn-info ms-2">Calculadora Principal</a>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Áreas Informadas</h2>
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th>Área de Pastagem:</th>
+                                    <td>{{ area_pastagem }} hectares</td>
+                                </tr>
+                                <tr>
+                                    <th>Área Florestal:</th>
+                                    <td>{{ area_florestal }} hectares</td>
+                                </tr>
+                                <tr>
+                                    <th>Área com Rotação de Culturas:</th>
+                                    <td>{{ area_renovacao_cultura }} hectares</td>
+                                </tr>
+                                <tr>
+                                    <th>Área com Integração Lavoura-Pecuária:</th>
+                                    <td>{{ area_integracao_lavoura }} hectares</td>
+                                </tr>
+                                <tr>
+                                    <th>Área Total:</th>
+                                    <td>{{ area_pastagem + area_florestal + area_renovacao_cultura + area_integracao_lavoura }} hectares</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Gráfico de Créditos por Metodologia</h2>
+                        <canvas id="creditsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Resultado dos Créditos de Carbono</h2>
+                        <div class="alert alert-success">
+                            <h4 class="alert-heading">Total de Créditos de Carbono Potencial:</h4>
+                            <p class="display-6">{{ "%.2f"|format(resultados.total) }} <span class="fs-5">toneladas CO₂e/ano</span></p>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h4 class="alert-heading">Valor Financeiro Estimado:</h4>
+                            <p class="display-6">R$ {{ "%.2f"|format(valor_estimado) }}</p>
+                            <small>Considerando o valor médio de R$ 50,00 por tonelada de CO₂e</small>
+                        </div>
+                        
+                        <h4 class="mt-4">Detalhamento por Metodologia:</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Metodologia</th>
+                                    <th>Área (ha)</th>
+                                    <th>Fator (tCO₂e/ha/ano)</th>
+                                    <th>Créditos (tCO₂e/ano)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>{{ resultados.pastagem.metodologia }}</td>
+                                    <td>{{ resultados.pastagem.area }}</td>
+                                    <td>{{ resultados.pastagem.fator }}</td>
+                                    <td>{{ "%.2f"|format(resultados.pastagem.creditos) }}</td>
+                                </tr>
+                                <tr>
+                                    <td>{{ resultados.florestal.metodologia }}</td>
+                                    <td>{{ resultados.florestal.area }}</td>
+                                    <td>{{ resultados.florestal.fator }}</td>
+                                    <td>{{ "%.2f"|format(resultados.florestal.creditos) }}</td>
+                                </tr>
+                                <tr>
+                                    <td>{{ resultados.renovacao.metodologia }}</td>
+                                    <td>{{ resultados.renovacao.area }}</td>
+                                    <td>{{ resultados.renovacao.fator }}</td>
+                                    <td>{{ "%.2f"|format(resultados.renovacao.creditos) }}</td>
+                                </tr>
+                                <tr>
+                                    <td>{{ resultados.integracao.metodologia }}</td>
+                                    <td>{{ resultados.integracao.area }}</td>
+                                    <td>{{ resultados.integracao.fator }}</td>
+                                    <td>{{ "%.2f"|format(resultados.integracao.creditos) }}</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-success">
+                                    <th colspan="3">Total</th>
+                                    <th>{{ "%.2f"|format(resultados.total) }}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Próximos Passos</h2>
+                        <ol class="list-group list-group-numbered">
+                            <li class="list-group-item">Validar a aplicabilidade das metodologias para sua propriedade</li>
+                            <li class="list-group-item">Consultar um especialista em créditos de carbono para avaliação detalhada</li>
+                            <li class="list-group-item">Implementar as práticas de manejo adequadas para cada área</li>
+                            <li class="list-group-item">Monitorar e documentar as atividades para verificação</li>
+                            <li class="list-group-item">Verificar e certificar os créditos através de padrões reconhecidos (VCS, Gold Standard, etc.)</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Setup chart
+        const ctx = document.getElementById('creditsChart').getContext('2d');
+        
+        // Data for the chart
+        const data = {
+            labels: [
+                'Pastagem (VCS VM0032)',
+                'Florestal (AR-ACM0003)',
+                'Rotação de Culturas (CDM AMS-III.AU)',
+                'Integração Lavoura-Pecuária (VCS VM0017)'
+            ],
+            datasets: [{
+                label: 'Créditos de Carbono (tCO₂e/ano)',
+                data: [
+                    {{ resultados.pastagem.creditos }},
+                    {{ resultados.florestal.creditos }},
+                    {{ resultados.renovacao.creditos }},
+                    {{ resultados.integracao.creditos }}
+                ],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 205, 86, 0.7)',
+                    'rgba(153, 102, 255, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 205, 86, 1)',
+                    'rgba(153, 102, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+        
+        // Chart configuration
+        const config = {
+            type: 'bar',
+            data: data,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Toneladas CO₂e/ano'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw || 0;
+                                return `${value.toFixed(2)} tCO₂e/ano`;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Create the chart
+        new Chart(ctx, config);
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

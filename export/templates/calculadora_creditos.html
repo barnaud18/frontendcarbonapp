@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Créditos de Carbono</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Calculadora de Créditos de Carbono</h1>
+        
+        <div class="mb-4 text-end">
+            <a href="{{ url_for('index') }}" class="btn btn-primary">Voltar para Calculadora Principal</a>
+            <a href="{{ url_for('propriedades') }}" class="btn btn-info ms-2">Ver Propriedades Cadastradas</a>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{% if category == 'error' %}danger{% else %}{{ category }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Calculadora Multi-Metodologias</h2>
+                        <p class="card-text">Calcule o potencial de créditos de carbono baseado em diferentes metodologias reconhecidas por standards internacionais.</p>
+                        
+                        <form action="{{ url_for('creditos') }}" method="post">
+                            <div class="mb-3">
+                                <label for="area_pastagem" class="form-label">Área de Pastagem para Recuperação (ha):</label>
+                                <input type="number" class="form-control" id="area_pastagem" name="area_pastagem" min="0" step="0.1" value="0">
+                                <div class="form-text">VCS VM0032 - Recuperação de pastagens degradadas</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="area_florestal" class="form-label">Área Florestal ou de Reflorestamento (ha):</label>
+                                <input type="number" class="form-control" id="area_florestal" name="area_florestal" min="0" step="0.1" value="0">
+                                <div class="form-text">AR-ACM0003 - Florestamento e reflorestamento</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="area_renovacao_cultura" class="form-label">Área com Rotação de Culturas (ha):</label>
+                                <input type="number" class="form-control" id="area_renovacao_cultura" name="area_renovacao_cultura" min="0" step="0.1" value="0">
+                                <div class="form-text">CDM AMS-III.AU - Práticas agrícolas de baixo carbono</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="area_integracao_lavoura" class="form-label">Área com Integração Lavoura-Pecuária (ha):</label>
+                                <input type="number" class="form-control" id="area_integracao_lavoura" name="area_integracao_lavoura" min="0" step="0.1" value="0">
+                                <div class="form-text">VCS VM0017 - Sistemas de integração lavoura-pecuária</div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success">Calcular Créditos de Carbono</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title">Sobre as Metodologias</h2>
+                        
+                        <div class="accordion mt-3" id="accordionMethodologies">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        VCS VM0032 - Recuperação de Pastagens
+                                    </button>
+                                </h2>
+                                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionMethodologies">
+                                    <div class="accordion-body">
+                                        <p>Metodologia do Verified Carbon Standard para recuperação de pastagens degradadas. Estima-se um sequestro de carbono médio de <strong>0,5 tCO₂e/ha/ano</strong> para pastagens recuperadas.</p>
+                                        <p>Aplicável para áreas onde serão implementadas técnicas de recuperação de pastagens degradadas, como adubação, plantio de leguminosas e manejo rotacionado.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        AR-ACM0003 - Florestamento
+                                    </button>
+                                </h2>
+                                <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionMethodologies">
+                                    <div class="accordion-body">
+                                        <p>Metodologia de florestamento e reflorestamento reconhecida pelo MDL (Mecanismo de Desenvolvimento Limpo). Estima-se um sequestro de <strong>8,0 tCO₂e/ha/ano</strong> para florestas em crescimento.</p>
+                                        <p>Aplicável a projetos de plantio de árvores em áreas previamente não florestadas ou em recuperação de áreas degradadas.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                        CDM AMS-III.AU - Práticas Agrícolas de Baixo Carbono
+                                    </button>
+                                </h2>
+                                <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionMethodologies">
+                                    <div class="accordion-body">
+                                        <p>Metodologia de pequena escala para práticas agrícolas de baixo carbono. Estima-se um sequestro de <strong>1,2 tCO₂e/ha/ano</strong> para áreas com rotação de culturas e plantio direto.</p>
+                                        <p>Aplicável a projetos que implementam rotação de culturas, plantio direto e práticas conservacionistas de manejo do solo.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                        VCS VM0017 - Sistemas de Integração
+                                    </button>
+                                </h2>
+                                <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionMethodologies">
+                                    <div class="accordion-body">
+                                        <p>Metodologia do Verified Carbon Standard para sistemas de integração lavoura-pecuária. Estima-se um sequestro de <strong>3,0 tCO₂e/ha/ano</strong> para áreas com sistemas integrados.</p>
+                                        <p>Aplicável a projetos que implementam sistemas de integração lavoura-pecuária ou lavoura-pecuária-floresta (ILPF).</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info mt-4">
+                            <h5 class="alert-heading">Observação Importante</h5>
+                            <p>Os fatores de sequestro de carbono utilizados são estimativas conservadoras baseadas em literatura científica. Para projetos reais de geração de créditos de carbono, é necessário seguir rigorosamente as metodologias específicas e realizar monitoramento contínuo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
