@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Pegada de Carbono</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1e1e1e;
+            color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #0d6efd;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #0dcaf0;
+        }
+        
+        .card {
+            background-color: #2c2c2c;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        form {
+            margin-bottom: 0;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background-color: #333;
+            color: #fff;
+            box-sizing: border-box;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background-color: #0d6efd;
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: #198754;
+            color: white;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .alert-success {
+            background-color: rgba(25, 135, 84, 0.2);
+            border: 1px solid #198754;
+            color: #75b798;
+        }
+        
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.2);
+            border: 1px solid #dc3545;
+            color: #ea868f;
+        }
+        
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        
+        .col-md-6 {
+            flex: 0 0 100%;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        
+        @media (min-width: 768px) {
+            .col-md-6 {
+                flex: 0 0 50%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Calculadora de Pegada de Carbono Agrícola</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{% if category == 'error' %}danger{% else %}{{ category }}{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <h2>Dados da Propriedade</h2>
+                    <form action="/calcular" method="post">
+                        <div class="form-group">
+                            <label for="nome">Nome da Propriedade:</label>
+                            <input type="text" id="nome" name="nome" placeholder="Ex: Fazenda São João" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tamanho_total">Tamanho Total (ha):</label>
+                            <input type="number" id="tamanho_total" name="tamanho_total" min="0" step="0.1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="area_agricola">Área Agrícola (ha):</label>
+                            <input type="number" id="area_agricola" name="area_agricola" min="0" step="0.1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="uso_fertilizante">Uso de Fertilizante (kg/ha/ano):</label>
+                            <input type="number" id="uso_fertilizante" name="uso_fertilizante" min="0" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="area_pastagem">Área de Pastagem (ha):</label>
+                            <input type="number" id="area_pastagem" name="area_pastagem" min="0" step="0.1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="num_bovinos">Número de Bovinos:</label>
+                            <input type="number" id="num_bovinos" name="num_bovinos" min="0" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="consumo_combustivel">Consumo de Diesel (litros/ano):</label>
+                            <input type="number" id="consumo_combustivel" name="consumo_combustivel" min="0" required>
+                        </div>
+                        
+                        <div style="margin-top: 20px;">
+                            <button type="submit" class="btn-primary">Calcular Pegada</button>
+                            <button type="submit" formaction="/cadastrar" class="btn-success">Cadastrar Propriedade</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h2>Créditos de Carbono</h2>
+                    <p>Calcule os potenciais créditos de carbono da sua propriedade:</p>
+                    <form action="/creditos" method="post">
+                        <div class="form-group">
+                            <label for="area_pastagem_credito">Área de Pastagem para Recuperação (ha):</label>
+                            <input type="number" id="area_pastagem_credito" name="area_pastagem" min="0.1" step="0.1" required>
+                        </div>
+                        <button type="submit" class="btn-success">Calcular Créditos de Carbono</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <h2>Instruções</h2>
+                    <p>Esta calculadora permite estimar a pegada de carbono de propriedades rurais com base nos seguintes parâmetros:</p>
+                    <ul>
+                        <li><strong>Área Agrícola:</strong> Área destinada à produção agrícola em hectares</li>
+                        <li><strong>Uso de Fertilizante:</strong> Quantidade de fertilizantes nitrogenados aplicados em kg/ha/ano</li>
+                        <li><strong>Número de Bovinos:</strong> Quantidade total de bovinos na propriedade</li>
+                        <li><strong>Consumo de Diesel:</strong> Consumo anual de diesel em equipamentos agrícolas em litros/ano</li>
+                        <li><strong>Área de Pastagem:</strong> Área de pastagens em hectares (para cálculo de créditos de carbono)</li>
+                    </ul>
+                    <p>Preencha o formulário com os dados da sua propriedade e clique em "Calcular Pegada" para ver os resultados.</p>
+                </div>
+                
+                <div class="card">
+                    <h2>Metodologia</h2>
+                    <p>Os cálculos são baseados na metodologia Tier 1 do IPCC:</p>
+                    <ul>
+                        <li>Fertilizantes: Emissões de N₂O calculadas com fator de emissão de 1%</li>
+                        <li>Bovinos: Emissões de CH₄ estimadas em 56 kg/cabeça/ano</li>
+                        <li>Combustível: Fator de emissão de 2,68 kg CO₂e/litro de diesel</li>
+                        <li>Créditos de Carbono: Potencial de sequestro de 0,5 tCO₂e/ha/ano para pastagens recuperadas (VCS VM0032)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

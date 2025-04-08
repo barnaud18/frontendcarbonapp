@@ -1,10 +1,8 @@
 import os
 import logging
-from flask import Flask, send_from_directory, jsonify, request, send_file
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from flask_cors import CORS
-from flask_swagger_ui import get_swaggerui_blueprint
 from datetime import datetime
 
 # Set up logging
@@ -27,27 +25,12 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_pre_ping": True,
 }
 
-# Enable CORS
-CORS(app)
-
 # Initialize the app with the extension
 db.init_app(app)
 
 # Create tables
 with app.app_context():
     db.create_all()
-
-# Configure Swagger
-SWAGGER_URL = '/api/docs'
-API_URL = '/static/swagger.json'
-swaggerui_blueprint = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL,
-    config={
-        'app_name': "Calculadora de Pegada de Carbono Agrícola API"
-    }
-)
-app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 # Define models
 class Propriedade(db.Model):
@@ -268,41 +251,205 @@ def gerar_recomendacoes(emissao_agricultura, emissao_pecuaria, emissao_combustiv
 # Routes
 @app.route('/')
 def index():
-    """Serve the frontend main page"""
-    app.logger.debug("Serving index.html")
-    return send_file('frontend/index.html')
+    return render_template('index.html')
 
-@app.route('/js/<path:path>')
-def serve_js(path):
-    """Serve JavaScript files"""
-    app.logger.debug(f"Serving JS file: {path}")
-    return send_file(f'frontend/js/{path}')
+@app.route('/calcular', methods=['POST'])
+def calcular():
+    try:
+        # Get form data
+        nome = request.form.get('nome', 'Propriedade Teste')
+        tamanho_total = float(request.form.get('tamanho_total', 0))
+        area_agricola = float(request.form.get('area_agricola', 0))
+        uso_fertilizante = float(request.form.get('uso_fertilizante', 0))
+        area_pastagem = float(request.form.get('area_pastagem', 0))
+        num_bovinos = int(request.form.get('num_bovinos', 0))
+        consumo_combustivel = float(request.form.get('consumo_combustivel', 0))
+        
+        # Calculate emissions
+        resultado_emissoes = calcular_emissoes(
+            area_agricola=area_agricola,
+            uso_fertilizante=uso_fertilizante,
+            num_bovinos=num_bovinos,
+            consumo_combustivel=consumo_combustivel
+        )
+        
+        # Calculate carbon credits if pasture area is provided
+        potencial_credito = calcular_creditos_carbono(area_pastagem=area_pastagem) if area_pastagem else 0
+        
+        # Generate recommendations
+        recomendacoes = gerar_recomendacoes(
+            emissao_agricultura=resultado_emissoes['agricultura'],
+            emissao_pecuaria=resultado_emissoes['pecuaria'],
+            emissao_combustivel=resultado_emissoes['combustivel'],
+            num_bovinos=num_bovinos,
+            uso_fertilizante=uso_fertilizante
+        )
+        
+        # Render template with results
+        return render_template(
+            'resultado.html',
+            nome=nome,
+            tamanho_total=tamanho_total,
+            area_agricola=area_agricola,
+            uso_fertilizante=uso_fertilizante,
+            area_pastagem=area_pastagem,
+            num_bovinos=num_bovinos,
+            consumo_combustivel=consumo_combustivel,
+            total_emissao=resultado_emissoes['total'],
+            emissao_agricultura=resultado_emissoes['agricultura'],
+            emissao_pecuaria=resultado_emissoes['pecuaria'],
+            emissao_combustivel=resultado_emissoes['combustivel'],
+            potencial_credito=potencial_credito,
+            recomendacoes=recomendacoes
+        )
+    except Exception as e:
+        # Log the error
+        app.logger.error(f"Error in calculation: {str(e)}")
+        
+        # Redirect back with error message
+        flash(f"Erro ao calcular: {str(e)}", 'error')
+        return redirect(url_for('index'))
 
-@app.route('/css/<path:path>')
-def serve_css(path):
-    """Serve CSS files"""
-    app.logger.debug(f"Serving CSS file: {path}")
-    return send_file(f'frontend/css/{path}')
+@app.route('/cadastrar', methods=['POST'])
+def cadastrar():
+    try:
+        # Get form data
+        nome = request.form.get('nome')
+        tamanho_total = float(request.form.get('tamanho_total'))
+        area_agricola = float(request.form.get('area_agricola'))
+        uso_fertilizante = float(request.form.get('uso_fertilizante'))
+        area_pastagem = float(request.form.get('area_pastagem', 0))
+        num_bovinos = int(request.form.get('num_bovinos'))
+        consumo_combustivel = float(request.form.get('consumo_combustivel'))
+        
+        # Create property
+        nova_propriedade = Propriedade(
+            nome=nome,
+            tamanho_total=tamanho_total
+        )
+        db.session.add(nova_propriedade)
+        db.session.flush()  # Get ID without committing
+        
+        # Create agriculture data
+        agricultura = Agricultura(
+            propriedade_id=nova_propriedade.id,
+            area_agricola=area_agricola,
+            uso_fertilizante=uso_fertilizante,
+            consumo_combustivel=consumo_combustivel,
+            area_pastagem=area_pastagem
+        )
+        db.session.add(agricultura)
+        
+        # Create livestock data
+        pecuaria = Pecuaria(
+            propriedade_id=nova_propriedade.id,
+            num_bovinos=num_bovinos
+        )
+        db.session.add(pecuaria)
+        
+        # Commit all changes
+        db.session.commit()
+        
+        # Redirect with success message
+        flash("Propriedade cadastrada com sucesso!", 'success')
+        return redirect(url_for('index'))
+        
+    except Exception as e:
+        # Log the error
+        app.logger.error(f"Error in registration: {str(e)}")
+        
+        # Rollback the transaction
+        db.session.rollback()
+        
+        # Redirect back with error message
+        flash(f"Erro ao cadastrar: {str(e)}", 'error')
+        return redirect(url_for('index'))
 
-@app.route('/api')
-def api_index():
-    """API root endpoint"""
-    return jsonify({"message": "API de Calculadora de Pegada de Carbono Agrícola"})
+@app.route('/creditos', methods=['POST'])
+def creditos():
+    try:
+        # Get form data
+        area_pastagem = float(request.form.get('area_pastagem', 0))
+        
+        if area_pastagem <= 0:
+            raise ValueError("A área de pastagem deve ser maior que zero")
+        
+        # Calculate credits
+        creditos = calcular_creditos_carbono(area_pastagem)
+        valor_estimado = creditos * 50  # Assuming R$50 per tCO2e
+        
+        # Render template with results
+        return render_template(
+            'creditos.html',
+            area_pastagem=area_pastagem,
+            potencial_credito=creditos,
+            valor_estimado=valor_estimado
+        )
+        
+    except Exception as e:
+        # Log the error
+        app.logger.error(f"Error in credit calculation: {str(e)}")
+        
+        # Redirect back with error message
+        flash(f"Erro ao calcular créditos: {str(e)}", 'error')
+        return redirect(url_for('index'))
 
+@app.route('/propriedades')
+def listar_propriedades():
+    # Get all properties
+    propriedades = Propriedade.query.all()
+    
+    # Render template with properties
+    return render_template('propriedades.html', propriedades=propriedades)
 
-@app.route('/static/swagger.json')
-def swagger_spec():
-    """Serve the swagger specification file"""
-    with open('swagger.yml', 'r') as f:
-        return f.read()
-
+# API routes - keeping for compatibility
+@app.route('/api/calcular', methods=['POST'])
+def api_calcular():
+    try:
+        data = request.get_json()
+        
+        area_agricola = data.get('area_agricola', 0)
+        uso_fertilizante = data.get('uso_fertilizante', 0)
+        num_bovinos = data.get('num_bovinos', 0)
+        consumo_combustivel = data.get('consumo_combustivel', 0)
+        area_pastagem = data.get('area_pastagem', 0)
+        
+        # Calculate emissions
+        resultado = calcular_emissoes(
+            area_agricola=area_agricola,
+            uso_fertilizante=uso_fertilizante,
+            num_bovinos=num_bovinos,
+            consumo_combustivel=consumo_combustivel
+        )
+        
+        # Calculate carbon credits if pasture area is provided
+        potencial_credito = calcular_creditos_carbono(area_pastagem=area_pastagem) if area_pastagem else 0
+        
+        # Generate recommendations
+        recomendacoes = gerar_recomendacoes(
+            emissao_agricultura=resultado['agricultura'],
+            emissao_pecuaria=resultado['pecuaria'],
+            emissao_combustivel=resultado['combustivel'],
+            num_bovinos=num_bovinos,
+            uso_fertilizante=uso_fertilizante
+        )
+        
+        return jsonify({
+            "pegada_total_kg_co2e": resultado['total'],
+            "detalhes": {
+                "agricultura": resultado['agricultura'],
+                "pecuaria": resultado['pecuaria'],
+                "combustivel": resultado['combustivel']
+            },
+            "potencial_credito_tco2e": potencial_credito,
+            "recomendacoes": recomendacoes
+        }), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @app.route('/api/cadastrar_propriedade', methods=['POST'])
-def cadastrar_propriedade():
-    """
-    Register a new property with agricultural and livestock data
-    ---
-    """
+def api_cadastrar_propriedade():
     try:
         data = request.get_json()
         
@@ -343,154 +490,8 @@ def cadastrar_propriedade():
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
 
-
-@app.route('/api/calcular', methods=['POST'])
-def calcular():
-    """
-    Calculate carbon footprint based on property data
-    ---
-    """
-    try:
-        data = request.get_json()
-        
-        # Check if property ID is provided for existing property
-        propriedade_id = data.get('propriedade_id')
-        
-        if propriedade_id:
-            # Find existing property
-            propriedade = Propriedade.query.get(propriedade_id)
-            if not propriedade:
-                return jsonify({"error": "Propriedade não encontrada"}), 404
-                
-            # Update agricultural data
-            if propriedade.agricultura:
-                propriedade.agricultura.area_agricola = data.get('area_agricola', propriedade.agricultura.area_agricola)
-                propriedade.agricultura.uso_fertilizante = data.get('uso_fertilizante', propriedade.agricultura.uso_fertilizante)
-                propriedade.agricultura.consumo_combustivel = data.get('consumo_combustivel', propriedade.agricultura.consumo_combustivel)
-                propriedade.agricultura.area_pastagem = data.get('area_pastagem', propriedade.agricultura.area_pastagem)
-            
-            # Update livestock data
-            if propriedade.pecuaria:
-                propriedade.pecuaria.num_bovinos = data.get('num_bovinos', propriedade.pecuaria.num_bovinos)
-        else:
-            # Create temporary objects for calculation without saving
-            propriedade = Propriedade(
-                nome="Cálculo Avulso",
-                tamanho_total=data.get('area_agricola', 0) + data.get('area_pastagem', 0)
-            )
-            
-            agricultura = Agricultura(
-                propriedade_id=None,
-                area_agricola=data.get('area_agricola', 0),
-                uso_fertilizante=data.get('uso_fertilizante', 0),
-                consumo_combustivel=data.get('consumo_combustivel', 0),
-                area_pastagem=data.get('area_pastagem', 0)
-            )
-            propriedade.agricultura = agricultura
-            
-            pecuaria = Pecuaria(
-                propriedade_id=None,
-                num_bovinos=data.get('num_bovinos', 0)
-            )
-            propriedade.pecuaria = pecuaria
-        
-        # Calculate emissions
-        resultado_emissoes = calcular_emissoes(
-            area_agricola=propriedade.agricultura.area_agricola,
-            uso_fertilizante=propriedade.agricultura.uso_fertilizante,
-            num_bovinos=propriedade.pecuaria.num_bovinos,
-            consumo_combustivel=propriedade.agricultura.consumo_combustivel
-        )
-        
-        # Calculate carbon credits if pasture area is provided
-        potencial_credito = calcular_creditos_carbono(
-            area_pastagem=propriedade.agricultura.area_pastagem
-        ) if propriedade.agricultura.area_pastagem else 0
-        
-        # Generate recommendations
-        recomendacoes = gerar_recomendacoes(
-            emissao_agricultura=resultado_emissoes['agricultura'],
-            emissao_pecuaria=resultado_emissoes['pecuaria'],
-            emissao_combustivel=resultado_emissoes['combustivel'],
-            num_bovinos=propriedade.pecuaria.num_bovinos,
-            uso_fertilizante=propriedade.agricultura.uso_fertilizante
-        )
-        
-        # Save emission results if it's an existing property
-        if propriedade_id:
-            # Delete old emission record if exists
-            if propriedade.emissao:
-                db.session.delete(propriedade.emissao)
-                
-            # Delete old recommendations if exist
-            for rec in propriedade.recomendacoes:
-                db.session.delete(rec)
-            
-            # Create new emission record
-            emissao = Emissao(
-                propriedade_id=propriedade_id,
-                total_emissao=resultado_emissoes['total'],
-                emissao_agricultura=resultado_emissoes['agricultura'],
-                emissao_pecuaria=resultado_emissoes['pecuaria'],
-                emissao_combustivel=resultado_emissoes['combustivel'],
-                potencial_credito=potencial_credito
-            )
-            db.session.add(emissao)
-            
-            # Create new recommendations
-            for rec in recomendacoes:
-                recomendacao = Recomendacao(
-                    propriedade_id=propriedade_id,
-                    acao=rec['acao'],
-                    descricao=rec['descricao'],
-                    potencial_reducao=rec['potencial_reducao']
-                )
-                db.session.add(recomendacao)
-            
-            db.session.commit()
-        
-        # Prepare response
-        response = {
-            "pegada_total_kg_co2e": round(resultado_emissoes['total'], 2),
-            "detalhes": {
-                "agricultura": round(resultado_emissoes['agricultura'], 2),
-                "pecuaria": round(resultado_emissoes['pecuaria'], 2),
-                "combustivel": round(resultado_emissoes['combustivel'], 2)
-            },
-            "potencial_credito_tco2e": round(potencial_credito, 2),
-            "recomendacoes": recomendacoes
-        }
-        
-        return jsonify(response), 200
-        
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 400
-
-
-@app.route('/api/buscar_usuario/<int:propriedade_id>', methods=['GET'])
-def buscar_usuario(propriedade_id):
-    """
-    Retrieve property data by ID
-    ---
-    """
-    try:
-        propriedade = Propriedade.query.get(propriedade_id)
-        if not propriedade:
-            return jsonify({"error": "Propriedade não encontrada"}), 404
-            
-        return jsonify(propriedade.to_dict()), 200
-        
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-
 @app.route('/api/calcular-creditos', methods=['POST'])
-def calcular_creditos():
-    """
-    Calculate carbon credits potential
-    ---
-    """
+def api_calcular_creditos():
     try:
         data = request.get_json()
         area_pastagem = data.get('area_pastagem', 0)
@@ -506,23 +507,6 @@ def calcular_creditos():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-
-@app.route('/api/propriedades', methods=['GET'])
-def listar_propriedades():
-    """
-    List all registered properties
-    ---
-    """
-    try:
-        propriedades = Propriedade.query.all()
-        return jsonify([p.to_dict() for p in propriedades]), 200
-        
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-# Create database tables
-with app.app_context():
-    db.create_all()
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+# Run the app
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
