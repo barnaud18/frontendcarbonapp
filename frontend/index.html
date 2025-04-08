@@ -4,79 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Pegada de Carbono</title>
-    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
     <style>
         body {
+            font-family: Arial, sans-serif;
+            margin: 0;
             padding: 20px;
-            color: #fff;
+            background-color: #1e1e1e;
+            color: #f8f9fa;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
         }
         
-        .card {
+        h1 {
+            color: #0d6efd;
             margin-bottom: 20px;
-            border-radius: 8px;
-            background-color: #333;
         }
         
-        .card-header {
-            padding: 12px 20px;
-            background-color: #0d6efd;
-            color: white;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
+        h2 {
+            color: #0dcaf0;
         }
         
-        .card-body {
+        .card {
+            background-color: #2c2c2c;
+            border-radius: 5px;
             padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         .form-group {
-            margin-bottom: 16px;
-        }
-        
-        .btn-primary {
-            background-color: #0d6efd;
-        }
-        
-        .btn-success {
-            background-color: #198754;
-        }
-        
-        h3 {
-            margin-top: 0;
+            margin-bottom: 15px;
         }
         
         label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
+            font-weight: bold;
         }
         
-        input {
+        input[type="text"],
+        input[type="number"] {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
+            border: 1px solid #444;
             border-radius: 4px;
-            border: 1px solid #555;
-            background-color: #222;
+            background-color: #333;
             color: #fff;
+            box-sizing: border-box;
         }
         
-        .buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .btn {
-            padding: 8px 16px;
+        button {
+            padding: 10px 15px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background-color: #0d6efd;
             color: white;
+        }
+        
+        .btn-success {
+            background-color: #198754;
+            color: white;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        table, th, td {
+            border: 1px solid #444;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #333;
         }
         
         .alert {
@@ -88,11 +103,13 @@
         .alert-success {
             background-color: rgba(25, 135, 84, 0.2);
             border: 1px solid #198754;
+            color: #75b798;
         }
         
         .alert-danger {
             background-color: rgba(220, 53, 69, 0.2);
             border: 1px solid #dc3545;
+            color: #ea868f;
         }
         
         .row {
@@ -104,6 +121,7 @@
         .col-md-6 {
             flex: 0 0 100%;
             padding: 0 10px;
+            box-sizing: border-box;
         }
         
         @media (min-width: 768px) {
@@ -111,25 +129,9 @@
                 flex: 0 0 50%;
             }
         }
-        
-        #resultado-container table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 16px;
-        }
-        
-        #resultado-container table th,
-        #resultado-container table td {
-            padding: 8px;
-            border: 1px solid #555;
-            text-align: left;
-        }
-        
-        #resultado-container table th {
-            background-color: #444;
-        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Calculadora de Pegada de Carbono Agrícola</h1>
@@ -139,100 +141,68 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header">
-                        <h3>Dados da Propriedade</h3>
+                    <h2>Dados da Propriedade</h2>
+                    <div class="form-group">
+                        <label for="nome">Nome da Propriedade:</label>
+                        <input type="text" id="nome" placeholder="Ex: Fazenda São João">
                     </div>
-                    <div class="card-body">
-                        <form id="calculadora-form">
-                            <div class="form-group">
-                                <label for="nome">Nome da Propriedade:</label>
-                                <input type="text" id="nome" placeholder="Ex: Fazenda São João">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="tamanho_total">Tamanho Total (ha):</label>
-                                <input type="number" id="tamanho_total" min="0" step="0.1">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="area_agricola">Área Agrícola (ha):</label>
-                                <input type="number" id="area_agricola" min="0" step="0.1">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="uso_fertilizante">Uso de Fertilizante (kg/ha/ano):</label>
-                                <input type="number" id="uso_fertilizante" min="0">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="area_pastagem">Área de Pastagem (ha):</label>
-                                <input type="number" id="area_pastagem" min="0" step="0.1">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="num_bovinos">Número de Bovinos:</label>
-                                <input type="number" id="num_bovinos" min="0">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="consumo_combustivel">Consumo de Diesel (litros/ano):</label>
-                                <input type="number" id="consumo_combustivel" min="0">
-                            </div>
-                            
-                            <div class="buttons">
-                                <button type="button" id="btn-cadastrar" class="btn btn-success">Cadastrar Propriedade</button>
-                                <button type="button" id="btn-calcular" class="btn btn-primary">Calcular Pegada</button>
-                            </div>
-                        </form>
+                    
+                    <div class="form-group">
+                        <label for="tamanho_total">Tamanho Total (ha):</label>
+                        <input type="number" id="tamanho_total" min="0" step="0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="area_agricola">Área Agrícola (ha):</label>
+                        <input type="number" id="area_agricola" min="0" step="0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="uso_fertilizante">Uso de Fertilizante (kg/ha/ano):</label>
+                        <input type="number" id="uso_fertilizante" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="area_pastagem">Área de Pastagem (ha):</label>
+                        <input type="number" id="area_pastagem" min="0" step="0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="num_bovinos">Número de Bovinos:</label>
+                        <input type="number" id="num_bovinos" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="consumo_combustivel">Consumo de Diesel (litros/ano):</label>
+                        <input type="number" id="consumo_combustivel" min="0">
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <button onclick="cadastrarPropriedade()" class="btn-success">Cadastrar Propriedade</button>
+                        <button onclick="calcularPegada()" class="btn-primary">Calcular Pegada</button>
                     </div>
                 </div>
             </div>
             
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header">
-                        <h3>Resultados</h3>
-                    </div>
-                    <div class="card-body">
-                        <div id="resultado-container">
-                            <p>Preencha o formulário e clique em "Calcular Pegada" para ver os resultados.</p>
-                        </div>
+                    <h2>Resultados</h2>
+                    <div id="resultado-container">
+                        <p>Preencha o formulário e clique em "Calcular Pegada" para ver os resultados.</p>
                     </div>
                 </div>
                 
                 <div class="card">
-                    <div class="card-header">
-                        <h3>Créditos de Carbono</h3>
-                    </div>
-                    <div class="card-body">
-                        <p>Calcule os potenciais créditos de carbono da sua propriedade:</p>
-                        <button type="button" id="btn-creditos" class="btn btn-success">Calcular Créditos de Carbono</button>
-                        <div id="resultado-creditos" class="mt-3"></div>
-                    </div>
+                    <h2>Créditos de Carbono</h2>
+                    <p>Calcule os potenciais créditos de carbono da sua propriedade:</p>
+                    <button onclick="calcularCreditos()" class="btn-success">Calcular Créditos de Carbono</button>
+                    <div id="resultado-creditos" style="margin-top: 15px;"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Wait for DOM to be fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, setting up event listeners');
-            
-            // Add event listeners to buttons
-            document.getElementById('btn-calcular').addEventListener('click', function() {
-                calcularPegada();
-            });
-            
-            document.getElementById('btn-cadastrar').addEventListener('click', function() {
-                cadastrarPropriedade();
-            });
-            
-            document.getElementById('btn-creditos').addEventListener('click', function() {
-                calcularCreditos();
-            });
-        });
-        
         // Get form data
         function getFormData() {
             return {
@@ -339,7 +309,7 @@
                 // Display credit results
                 const creditosContainer = document.getElementById('resultado-creditos');
                 creditosContainer.innerHTML = `
-                    <div class="alert alert-success" style="margin-top: 15px;">
+                    <div class="alert alert-success">
                         <strong>Potencial de Créditos:</strong> ${result.potencial_credito_tco2e} tCO₂e<br>
                         <strong>Valor Estimado:</strong> R$ ${result.valor_estimado_reais.toFixed(2)}
                     </div>
@@ -367,7 +337,7 @@
             
             // Create HTML
             container.innerHTML = `
-                <h4>Pegada de Carbono Total: ${total} kg CO₂e</h4>
+                <h3>Pegada de Carbono Total: ${total} kg CO₂e</h3>
                 
                 <table>
                     <thead>
