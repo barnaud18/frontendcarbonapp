@@ -2,109 +2,33 @@
  * Custom styles for the Carbon Footprint Calculator
  */
 
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1;
+}
+
+footer {
+    margin-top: auto;
+}
+
 /* Carbon Meter styles */
 #carbon-meter {
     width: 100%;
     max-width: 300px;
     height: 200px;
     margin: 0 auto;
+    background-color: #333;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
 }
 
-.carbon-meter-svg {
-    display: block;
-    margin: 0 auto;
-}
-
-#carbon-meter-value {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-/* Carbon breakdown styles */
-.carbon-category {
-    margin-bottom: 1rem;
-}
-
-.progress {
-    height: 1.5rem;
-    background-color: rgba(0, 0, 0, 0.2);
-}
-
-/* Dashboard cards */
-.dashboard-card {
-    margin-bottom: 1.5rem;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.dashboard-card .card-header {
-    font-weight: bold;
-    padding: 1rem;
-}
-
-.dashboard-card .card-body {
-    padding: 1.5rem;
-}
-
-/* Results display */
-.results-detail {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 0.5rem;
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-/* Recommendation cards */
-.recommendation-card {
-    margin-bottom: 1rem;
-    background-color: rgba(0, 123, 255, 0.1);
-    border-left: 4px solid var(--bs-info);
-    padding: 1rem;
-    border-radius: 0.25rem;
-}
-
-/* Custom focus styles for accessibility */
-input:focus, 
-button:focus, 
-a:focus {
-    outline: none;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    border-color: #86b7fe;
-}
-
-/* Page transitions */
-.page {
-    transition: opacity 0.3s ease-in-out;
-}
-
-/* Custom scrollbar for tables */
-.table-responsive {
-    scrollbar-width: thin;
-    scrollbar-color: var(--bs-gray-600) var(--bs-gray-800);
-}
-
-.table-responsive::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-.table-responsive::-webkit-scrollbar-track {
-    background: var(--bs-gray-800);
-}
-
-.table-responsive::-webkit-scrollbar-thumb {
-    background-color: var(--bs-gray-600);
-    border-radius: 4px;
-}
-
-/* Form section styles */
-form h5 {
-    color: var(--bs-primary);
-    margin-top: 1.5rem;
-}
-
-/* Alerts */
+/* Custom alert styles */
 .alert {
     animation: slideIn 0.3s ease-out;
 }
@@ -120,14 +44,7 @@ form h5 {
     }
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    #carbon-meter {
-        max-width: 250px;
-        height: 180px;
-    }
-    
-    .display-4 {
-        font-size: 2rem;
-    }
+/* Page styles */
+.page {
+    transition: opacity 0.3s ease-in-out;
 }

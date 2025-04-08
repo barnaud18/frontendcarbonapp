@@ -2,26 +2,22 @@
  * Main application logic for the Carbon Footprint Calculator
  */
 
-// Store current property ID if a property is loaded
-let currentPropertyId = null;
-
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("Initializing application...");
-    
-    // Set up navigation
-    setupNavigation();
+    console.log("DOM fully loaded - initializing application");
     
     // Set up event listeners
     setupEventListeners();
     
-    // Load properties for the property list page
-    loadProperties();
+    // Set up navigation
+    setupNavigation();
     
-    // Initialize carbon meter if available
+    // Try to initialize carbon meter if it exists
     if (window.carbonViz && typeof window.carbonViz.initCarbonMeter === 'function') {
-        console.log("Initializing carbon meter visualization...");
         window.carbonViz.initCarbonMeter();
+        console.log("Carbon meter initialized");
+    } else {
+        console.warn("Carbon visualization not available");
     }
 });
 
@@ -56,22 +52,36 @@ function setupNavigation() {
  * Sets up event listeners for forms and buttons
  */
 function setupEventListeners() {
+    console.log("Setting up event listeners");
+    
     // Calculate button
-    document.getElementById('form-calculadora').addEventListener('submit', function(e) {
-        e.preventDefault();
-        calculateCarbonFootprint();
-    });
+    const calcButton = document.getElementById('btn-calcular');
+    if (calcButton) {
+        calcButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Calculate button clicked");
+            calculateCarbonFootprint();
+        });
+    }
     
     // Register property button
-    document.getElementById('btn-cadastrar').addEventListener('click', function() {
-        const formData = getFormData();
-        registerProperty(formData);
-    });
+    const cadastrarButton = document.getElementById('btn-cadastrar');
+    if (cadastrarButton) {
+        cadastrarButton.addEventListener('click', function() {
+            console.log("Register property button clicked");
+            const formData = getFormData();
+            registerProperty(formData);
+        });
+    }
     
     // Calculate carbon credits button
-    document.getElementById('btn-creditos').addEventListener('click', function() {
-        calculateCarbonCredits();
-    });
+    const creditosButton = document.getElementById('btn-creditos');
+    if (creditosButton) {
+        creditosButton.addEventListener('click', function() {
+            console.log("Calculate credits button clicked");
+            calculateCarbonCredits();
+        });
+    }
 }
 
 /**
@@ -80,7 +90,7 @@ function setupEventListeners() {
  */
 function getFormData() {
     return {
-        nome: document.getElementById('nome').value.trim(),
+        nome: document.getElementById('nome').value.trim() || "Propriedade Teste",
         tamanho_total: parseFloat(document.getElementById('tamanho_total').value) || 0,
         area_agricola: parseFloat(document.getElementById('area_agricola').value) || 0,
         uso_fertilizante: parseFloat(document.getElementById('uso_fertilizante').value) || 0,
@@ -99,12 +109,6 @@ async function calculateCarbonFootprint() {
         
         // Get form data
         const formData = getFormData();
-        
-        // Add property ID if we're editing an existing property
-        if (currentPropertyId) {
-            formData.propriedade_id = currentPropertyId;
-        }
-        
         console.log("Form data:", formData);
         
         // Make API request
@@ -133,24 +137,14 @@ async function registerProperty(formData) {
             throw new Error('O nome da propriedade é obrigatório.');
         }
         
-        if (formData.tamanho_total <= 0) {
-            throw new Error('O tamanho total da propriedade deve ser maior que zero.');
-        }
-        
         console.log("Registering property:", formData);
         
         // Make API request
         const result = await apiRegisterProperty(formData);
         console.log("Registration result:", result);
         
-        // Update current property ID
-        currentPropertyId = result.propriedade_id;
-        
         // Show success message
         showSuccess('Propriedade Cadastrada', `A propriedade "${formData.nome}" foi cadastrada com sucesso.`);
-        
-        // Reload properties list
-        loadProperties();
     } catch (error) {
         console.error("Error registering property:", error);
         showError('Erro no Cadastro', error.message || 'Não foi possível cadastrar a propriedade.');
@@ -192,120 +186,6 @@ async function calculateCarbonCredits() {
 }
 
 /**
- * Loads the property list from the API
- */
-async function loadProperties() {
-    try {
-        console.log("Loading properties...");
-        const properties = await getProperties();
-        console.log("Properties loaded:", properties);
-        
-        const tableBody = document.getElementById('tabela-propriedades');
-        
-        if (properties.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center">
-                        <div class="alert alert-info mb-0">
-                            Nenhuma propriedade cadastrada. Use o formulário da calculadora para cadastrar uma nova propriedade.
-                        </div>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-        
-        tableBody.innerHTML = properties.map(prop => `
-            <tr>
-                <td>${prop.nome}</td>
-                <td>${prop.tamanho_total} ha</td>
-                <td>${new Date(prop.data_registro).toLocaleDateString('pt-BR')}</td>
-                <td>${prop.emissao ? prop.emissao.total_emissao.toFixed(2) + ' kg CO₂e' : 'Não calculada'}</td>
-                <td>
-                    <button class="btn btn-sm btn-info property-button" data-id="${prop.id}">
-                        Carregar
-                    </button>
-                </td>
-            </tr>
-        `).join('');
-        
-        // Add event listeners to property buttons
-        setupPropertyButtons();
-    } catch (error) {
-        console.error("Error loading properties:", error);
-        showError('Erro ao Carregar Propriedades', error.message || 'Não foi possível carregar a lista de propriedades.');
-    }
-}
-
-/**
- * Sets up event listeners for property buttons
- */
-function setupPropertyButtons() {
-    const buttons = document.querySelectorAll('.property-button');
-    
-    buttons.forEach(button => {
-        button.addEventListener('click', async function() {
-            const propertyId = this.getAttribute('data-id');
-            
-            try {
-                console.log("Loading property details for ID:", propertyId);
-                const property = await getPropertyById(propertyId);
-                console.log("Property details:", property);
-                
-                // Fill the form with property data
-                fillPropertyForm(property);
-                
-                // Update current property ID
-                currentPropertyId = property.id;
-                
-                // Switch to calculator page
-                document.querySelector('.nav-link[href="#calculadora"]').click();
-                
-                // Show success message
-                showSuccess('Propriedade Carregada', `A propriedade "${property.nome}" foi carregada com sucesso.`);
-                
-                // If property has emissions calculated, display results
-                if (property.emissao) {
-                    displayResults({
-                        pegada_total_kg_co2e: property.emissao.total_emissao,
-                        detalhes: {
-                            agricultura: property.emissao.emissao_agricultura,
-                            pecuaria: property.emissao.emissao_pecuaria,
-                            combustivel: property.emissao.emissao_combustivel
-                        },
-                        potencial_credito_tco2e: property.emissao.potencial_credito,
-                        recomendacoes: property.recomendacoes
-                    });
-                }
-            } catch (error) {
-                console.error("Error loading property:", error);
-                showError('Erro ao Carregar Propriedade', error.message || 'Não foi possível carregar os dados da propriedade.');
-            }
-        });
-    });
-}
-
-/**
- * Fills the form with property data
- * @param {object} property - Property data object
- */
-function fillPropertyForm(property) {
-    document.getElementById('nome').value = property.nome;
-    document.getElementById('tamanho_total').value = property.tamanho_total;
-    
-    if (property.agricultura) {
-        document.getElementById('area_agricola').value = property.agricultura.area_agricola;
-        document.getElementById('uso_fertilizante').value = property.agricultura.uso_fertilizante;
-        document.getElementById('area_pastagem').value = property.agricultura.area_pastagem;
-        document.getElementById('consumo_combustivel').value = property.agricultura.consumo_combustivel;
-    }
-    
-    if (property.pecuaria) {
-        document.getElementById('num_bovinos').value = property.pecuaria.num_bovinos;
-    }
-}
-
-/**
  * Displays calculation results
  * @param {object} data - Result data from API
  */
@@ -314,37 +194,14 @@ function displayResults(data) {
     
     const resultadoContainer = document.getElementById('resultado-container');
     
-    // Format numbers for display
-    const pegadaTotal = data.pegada_total_kg_co2e.toFixed(2);
-    const emissaoAgricultura = data.detalhes.agricultura.toFixed(2);
-    const emissaoPecuaria = data.detalhes.pecuaria.toFixed(2);
-    const emissaoCombustivel = data.detalhes.combustivel.toFixed(2);
-    const potencialCredito = data.potencial_credito_tco2e.toFixed(2);
-    
-    // Create recommendations HTML
-    const recomendacoesHTML = data.recomendacoes.map(rec => `
-        <div class="alert alert-info">
-            <h6>${rec.acao}</h6>
-            <p>${rec.descricao || ''}</p>
-            <p class="mb-0"><strong>Redução estimada:</strong> ${rec.potencial_reducao.toFixed(2)} kg CO₂e</p>
-        </div>
-    `).join('');
-    
-    // Update the results container
+    // Update the results container with simplified HTML
     resultadoContainer.innerHTML = `
-        <div id="carbon-meter-container" class="my-4">
-            <h4 class="text-center mb-3">Medidor de Pegada de Carbono</h4>
-            <div id="carbon-meter" class="text-center"></div>
-            <div id="carbon-breakdown" class="mt-4"></div>
-        </div>
-        
         <div class="card mb-3">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">Pegada de Carbono Total</h5>
             </div>
             <div class="card-body text-center">
-                <h2 class="display-4">${pegadaTotal} kg CO₂e</h2>
-                <p>Potencial de Créditos de Carbono: ${potencialCredito} tCO₂e</p>
+                <h2 class="display-4">${data.pegada_total_kg_co2e.toFixed(2)} kg CO₂e</h2>
             </div>
         </div>
         
@@ -360,44 +217,22 @@ function displayResults(data) {
             <tbody>
                 <tr>
                     <td>Agricultura</td>
-                    <td>${emissaoAgricultura}</td>
+                    <td>${data.detalhes.agricultura.toFixed(2)}</td>
                     <td>${((data.detalhes.agricultura / data.pegada_total_kg_co2e) * 100).toFixed(1)}%</td>
                 </tr>
                 <tr>
                     <td>Pecuária</td>
-                    <td>${emissaoPecuaria}</td>
+                    <td>${data.detalhes.pecuaria.toFixed(2)}</td>
                     <td>${((data.detalhes.pecuaria / data.pegada_total_kg_co2e) * 100).toFixed(1)}%</td>
                 </tr>
                 <tr>
                     <td>Combustível</td>
-                    <td>${emissaoCombustivel}</td>
+                    <td>${data.detalhes.combustivel.toFixed(2)}</td>
                     <td>${((data.detalhes.combustivel / data.pegada_total_kg_co2e) * 100).toFixed(1)}%</td>
                 </tr>
             </tbody>
         </table>
-        
-        <h5 class="mt-4">Recomendações para Mitigação</h5>
-        ${recomendacoesHTML}
     `;
-    
-    // Update charts
-    updateEmissionsChart(data.detalhes);
-    updateReductionChart(data.recomendacoes);
-    
-    // Initialize carbon meter and update
-    if (window.carbonViz) {
-        console.log("Updating carbon meter visualization...");
-        setTimeout(() => {
-            // Initialize carbon meter
-            window.carbonViz.initCarbonMeter();
-            
-            // Update meter with calculation result
-            window.carbonViz.updateCarbonMeter(data.pegada_total_kg_co2e);
-            
-            // Update category breakdown
-            window.carbonViz.updateCategoryBreakdown(data.detalhes);
-        }, 100);
-    }
 }
 
 /**
