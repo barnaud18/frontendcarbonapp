@@ -1,0 +1,142 @@
+1. Componentes Principais do Sistema
+A. Coleta de Dados
+Fontes de Emissão Agrícola:
+
+Uso de fertilizantes nitrogenados (emissões de N₂O)
+
+Manejo de solos (decomposição de matéria orgânica)
+
+Queima de resíduos agrícolas
+
+Consumo de combustível (máquinas e irrigação)
+
+Fontes de Emissão Pecuária:
+
+Fermentação entérica (metano - CH₄ de bovinos)
+
+Manejo de dejetos (CH₄ e N₂O)
+
+Pastagens (sequestro ou emissão de CO₂)
+
+Dados Gerais da Propriedade:
+
+Tamanho da área cultivada/pastagem
+
+Tipos de culturas e rebanhos
+
+Práticas de manejo (plantio direto, rotação de culturas, etc.)
+
+B. Cálculo da Pegada de Carbono
+Métodos Reconhecidos:
+
+IPCC Tier 1 ou Tier 2 (para estimativas padrão)
+
+GHG Protocol (para relatórios corporativos)
+
+Modelos específicos como COMET-Farm ou Cool Farm Tool
+
+Fórmulas Básicas:
+
+Emissões de N₂O = Quantidade de N aplicado × Fator de emissão (IPCC)
+
+Emissões de CH₄ (fermentação entérica) = Nº de cabeças × Fator por animal
+
+Emissões por combustível = Litros consumidos × Fator de CO₂ por litro
+
+C. Cálculo de Créditos de Carbono
+Métodologias de Mercado:
+
+Verra (VCS), Gold Standard, CAR (Climate Action Reserve)
+
+Protocolos como "Agricultura de Baixo Carbono" (ABC) no Brasil
+
+Exemplos de Projetos Elegíveis:
+
+Recuperação de pastagens degradadas
+
+Integração Lavoura-Pecuária-Floresta (ILPF)
+
+Plantio de árvores ou sistemas agroflorestais
+
+Cálculo:
+
+Estimativa de carbono sequestrado (ex: ton CO₂e/ha/ano)
+
+Desconto por vazamento e permanência
+
+D. Sugestões de Mitigação
+Ações Comuns:
+
+Adoção de plantio direto
+
+Uso de bioinsumos (reduzir fertilizantes sintéticos)
+
+Biodigestores para dejetos animais
+
+Sistemas silvipastoris (árvores em pastagens)
+
+Recomendações Personalizadas:
+
+Baseadas no perfil da propriedade (ex: se tem gado, sugere melhoramento de dieta para reduzir CH₄)
+
+E. Geração de Relatórios
+Conteúdo Mínimo:
+
+Emissões totais (CO₂e) por fonte
+
+Comparativo com benchmarks regionais
+
+Potencial de créditos de carbono (se aplicável)
+
+Ações recomendadas e economia estimada
+
+Formatos:
+
+PDF, Excel, ou dashboard online
+
+Gráficos de barras (emissões por atividade)
+
+2. Tecnologias Recomendadas
+Backend:
+
+Python (com Pandas para cálculos e Flask/Django para API)
+
+Ou Java/Kotlin (para sistemas mais robustos)
+
+Frontend (se for web):
+
+React.js ou Vue.js (para dashboards interativos)
+
+Banco de Dados:
+
+PostgreSQL (para dados estruturados)
+
+Ferramentas Científicas:
+
+Bibliotecas como statsmodels (análise estatística) e pyCPA (para cálculos de carbono)
+
+3. Fluxo do Sistema
+Entrada de Dados:
+
+Formulário web ou planilha de input.
+
+Processamento:
+
+Cálculos baseados em metodologias IPCC/GHG Protocol.
+
+Análise:
+
+Comparação com referenciais e identificação de oportunidades.
+
+Saída:
+
+Relatório + sugestões (ex: "Reduzir fertilizante nitrogenado em X kg pode cortar Y tCO₂e/ano").
+
+4. Validação e Certificação
+Dados Confiáveis:
+
+Usar fatores de emissão do IPCC ou do Ministério da Agricultura local.
+
+Auditoria:
+
+Permitir que relatórios sejam auditáveis (com transparência de cálculos).

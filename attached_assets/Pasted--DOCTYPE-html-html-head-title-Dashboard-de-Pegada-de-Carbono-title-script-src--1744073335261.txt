@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard de Pegada de Carbono</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard { display: flex; flex-wrap: wrap; }
+        .chart-container { width: 45%; margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard de Emissões</h1>
+    <div class="dashboard">
+        <div class="chart-container">
+            <canvas id="emissaoPorFonte"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="potencialReducao"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Dados mockados (substituir por resposta da API)
+        const data = {
+            emissaoTotal: 15000,
+            detalhes: {
+                agricultura: 6000,
+                pecuaria: 8000,
+                combustivel: 1000
+            },
+            recomendacoes: [
+                { acao: "Biodigestor", potencial_reducao: 2400 },
+                { acao: "Plantio Direto", potencial_reducao: 1200 }
+            ]
+        };
+
+        // Gráfico 1: Emissões por Fonte
+        new Chart(
+            document.getElementById('emissaoPorFonte'),
+            {
+                type: 'pie',
+                data: {
+                    labels: ['Agricultura', 'Pecuária', 'Combustível'],
+                    datasets: [{
+                        data: [data.detalhes.agricultura, data.detalhes.pecuaria, data.detalhes.combustivel],
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56']
+                    }]
+                },
+                options: { responsive: true }
+            }
+        );
+
+        // Gráfico 2: Potencial de Redução por Ação
+        new Chart(
+            document.getElementById('potencialReducao'),
+            {
+                type: 'bar',
+                data: {
+                    labels: data.recomendacoes.map(r => r.acao),
+                    datasets: [{
+                        label: 'Redução Estimada (kg CO₂e)',
+                        data: data.recomendacoes.map(r => r.potencial_reducao),
+                        backgroundColor: '#4BC0C0'
+                    }]
+                },
+                options: { responsive: true }
+            }
+        );
+    </script>
+</body>
+</html>

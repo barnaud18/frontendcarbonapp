@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculadora de Pegada de Carbono</title>
+</head>
+<body>
+    <h1>Calcule sua Pegada de Carbono Rural</h1>
+    <form id="form-calculadora">
+        <h2>Agricultura</h2>
+        <label>Área Agrícola (ha): <input type="number" id="area_agricola" step="0.1"></label><br>
+        <label>Uso de Fertilizante Nitrogenado (kg/ha/ano): <input type="number" id="uso_fertilizante"></label>
+
+        <h2>Pecuária</h2>
+        <label>Número de Bovinos: <input type="number" id="num_bovinos"></label>
+
+        <h2>Combustível</h2>
+        <label>Litros de Diesel/ano: <input type="number" id="litros_diesel"></label>
+
+        <button type="submit">Calcular</button>
+    </form>
+
+    <div id="resultado" style="margin-top: 20px;"></div>
+
+    <script>
+        document.getElementById('form-calculadora').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const response = await fetch('http://localhost:5000/calcular', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    area_agricola_ha: parseFloat(document.getElementById('area_agricola').value) || 0,
+                    uso_fertilizante_kg_ha: parseFloat(document.getElementById('uso_fertilizante').value) || 0,
+                    num_bovinos: parseInt(document.getElementById('num_bovinos').value) || 0,
+                    litros_diesel: parseFloat(document.getElementById('litros_diesel').value) || 0
+                })
+            });
+
+            const data = await response.json();
+            document.getElementById('resultado').innerHTML = `
+                <h3>Resultados:</h3>
+                <p><strong>Pegada Total:</strong> ${data.pegada_total_kg_co2e} kg CO₂e</p>
+                <p>Detalhes:</p>
+                <ul>
+                    <li>Agricultura: ${data.detalhes.agricultura} kg CO₂e</li>
+                    <li>Pecuária: ${data.detalhes.pecuaria} kg CO₂e</li>
+                    <li>Combustível: ${data.detalhes.combustivel} kg CO₂e</li>
+                </ul>
+                ${data.recomendacoes.length > 0 ? 
+                    `<h4>Recomendações:</h4><ul>${
+                        data.recomendacoes.map(r => 
+                            `<li>${r.acao} (Redução estimada: ${r.potencial_reducao.toFixed(2)} kg CO₂e)</li>`
+                        ).join('')
+                    }</ul>` : ''
+                }
+            `;
+        });
+    </script>
+</body>
+</html>
