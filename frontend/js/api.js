@@ -1,9 +1,10 @@
 /**
- * API client for the Carbon Footprint Calculator
+ * API communication module
+ * Handles all interactions with the backend API
  */
 
-// API base URL - using relative URL to work in both development and production
-const API_BASE_URL = '/api';
+// API base URL
+const API_BASE = '/api';
 
 /**
  * Makes a request to the API
@@ -13,59 +14,84 @@ const API_BASE_URL = '/api';
  * @returns {Promise} - Response data
  */
 async function apiRequest(endpoint, method = 'GET', data = null) {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = `${API_BASE}${endpoint}`;
     
     const options = {
-        method: method,
+        method,
         headers: {
-            'Content-Type': 'application/json'
-        }
+            'Content-Type': 'application/json',
+        },
     };
     
-    if (data && (method === 'POST' || method === 'PUT')) {
+    if (data) {
         options.body = JSON.stringify(data);
     }
     
     try {
+        console.log(`Making API request to ${method} ${url}`);
         const response = await fetch(url, options);
         
+        // Parse JSON response
+        const contentType = response.headers.get('content-type');
+        const responseData = contentType && contentType.includes('application/json') 
+            ? await response.json() 
+            : await response.text();
+        
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `HTTP Error: ${response.status}`);
+            // Handle error response
+            const error = new Error(responseData.message || responseData || 'API request failed');
+            error.status = response.status;
+            error.response = responseData;
+            throw error;
         }
         
-        return await response.json();
+        return responseData;
     } catch (error) {
-        console.error('API Request Error:', error);
+        console.error(`API request failed: ${error.message}`);
         throw error;
     }
 }
 
 /**
- * API Functions
+ * Calculates carbon footprint using the API
+ * @param {object} formData - Form data with property details
+ * @returns {Promise} - Calculation results
  */
-
-// Calculate carbon footprint
 async function apiCalculateFootprint(formData) {
-    return apiRequest('/calcular', 'POST', formData);
+    return await apiRequest('/calcular', 'POST', formData);
 }
 
-// Register a new property
+/**
+ * Registers a new property with the API
+ * @param {object} propertyData - Property data
+ * @returns {Promise} - Registration results
+ */
 async function apiRegisterProperty(propertyData) {
-    return apiRequest('/cadastrar_propriedade', 'POST', propertyData);
+    return await apiRequest('/cadastrar_propriedade', 'POST', propertyData);
 }
 
-// Calculate carbon credits potential
+/**
+ * Calculates carbon credits potential
+ * @param {object} data - Data for credit calculation
+ * @returns {Promise} - Carbon credit results
+ */
 async function apiCalculateCredits(data) {
-    return apiRequest('/calcular-creditos', 'POST', data);
+    return await apiRequest('/calcular-creditos', 'POST', data);
 }
 
-// Get property list
+/**
+ * Gets all registered properties
+ * @returns {Promise} - List of properties
+ */
 async function getProperties() {
-    return apiRequest('/propriedades');
+    return await apiRequest('/propriedades');
 }
 
-// Get property details by ID
+/**
+ * Gets a property by ID
+ * @param {number} id - Property ID
+ * @returns {Promise} - Property data
+ */
 async function getPropertyById(id) {
-    return apiRequest(`/buscar_usuario/${id}`);
+    return await apiRequest(`/buscar_usuario/${id}`);
 }

@@ -1,8 +1,9 @@
 /**
- * Chart functions for the Carbon Footprint Calculator
+ * Chart visualization module
+ * Creates and updates Chart.js visualizations
  */
 
-// Store chart instances to update them later
+// Store chart instances for updates
 let emissionsChart = null;
 let reductionChart = null;
 
@@ -13,61 +14,25 @@ let reductionChart = null;
 function updateEmissionsChart(detalhes) {
     const ctx = document.getElementById('emissaoPorFonte');
     
+    if (!ctx) {
+        console.error("Emissions chart canvas not found");
+        return;
+    }
+    
     // Prepare data
     const labels = ['Agricultura', 'Pecuária', 'Combustível'];
     const data = [
-        detalhes.agricultura || 0,
-        detalhes.pecuaria || 0,
-        detalhes.combustivel || 0
+        detalhes.agricultura,
+        detalhes.pecuaria,
+        detalhes.combustivel
     ];
     
-    // Calculate percentages for labels
-    const total = data.reduce((sum, value) => sum + value, 0);
-    const percentages = data.map(value => ((value / total) * 100).toFixed(1));
-    
-    const labelWithPercentages = labels.map((label, index) => {
-        return `${label} (${percentages[index]}%)`;
-    });
-    
-    // Set colors
-    const backgroundColor = [
-        'rgba(75, 192, 192, 0.8)',  // Teal for Agriculture
-        'rgba(255, 159, 64, 0.8)',  // Orange for Livestock
-        'rgba(153, 102, 255, 0.8)'  // Purple for Fuel
+    // Define colors with transparency
+    const colors = [
+        'rgba(92, 184, 92, 0.8)',  // Green for agriculture
+        'rgba(217, 83, 79, 0.8)',  // Red for livestock
+        'rgba(240, 173, 78, 0.8)'  // Yellow for fuel
     ];
-    
-    const chartConfig = {
-        type: 'pie',
-        data: {
-            labels: labelWithPercentages,
-            datasets: [{
-                data: data,
-                backgroundColor: backgroundColor,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'right',
-                },
-                title: {
-                    display: true,
-                    text: 'Distribuição de Emissões por Fonte'
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const value = context.raw;
-                            const percentage = ((value / total) * 100).toFixed(1);
-                            return `${context.label.split(' (')[0]}: ${value.toFixed(2)} kg CO₂e (${percentage}%)`;
-                        }
-                    }
-                }
-            }
-        }
-    };
     
     // Destroy existing chart if it exists
     if (emissionsChart) {
@@ -75,7 +40,40 @@ function updateEmissionsChart(detalhes) {
     }
     
     // Create new chart
-    emissionsChart = new Chart(ctx, chartConfig);
+    emissionsChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderColor: colors.map(color => color.replace('0.8', '1')),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#ccc' // Light text for dark theme
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            const total = context.chart.getDatasetMeta(0).total;
+                            const percentage = Math.round((value / total) * 100);
+                            return `${context.label}: ${value.toLocaleString()} kg CO₂e (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
 }
 
 /**
@@ -85,52 +83,26 @@ function updateEmissionsChart(detalhes) {
 function updateReductionChart(recomendacoes) {
     const ctx = document.getElementById('potencialReducao');
     
+    if (!ctx) {
+        console.error("Reduction chart canvas not found");
+        return;
+    }
+    
     // Prepare data
     const labels = recomendacoes.map(rec => rec.acao);
     const data = recomendacoes.map(rec => rec.potencial_reducao);
     
-    // Set colors
-    const backgroundColor = [
-        'rgba(54, 162, 235, 0.7)',
-        'rgba(75, 192, 192, 0.7)',
-        'rgba(255, 206, 86, 0.7)',
-        'rgba(255, 99, 132, 0.7)',
-        'rgba(153, 102, 255, 0.7)'
+    // Define gradient colors
+    const colors = [
+        'rgba(92, 184, 92, 0.8)',
+        'rgba(2, 117, 216, 0.8)',
+        'rgba(91, 192, 222, 0.8)',
+        'rgba(240, 173, 78, 0.8)',
+        'rgba(51, 122, 183, 0.8)'
     ];
     
-    const chartConfig = {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Potencial de Redução (kg CO₂e)',
-                data: data,
-                backgroundColor: backgroundColor,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                title: {
-                    display: true,
-                    text: 'Potencial de Redução por Ação'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'kg CO₂e'
-                    }
-                }
-            }
-        }
-    };
+    // Use a subset of colors if we have more recommendations than colors
+    const backgroundColors = labels.map((_, i) => colors[i % colors.length]);
     
     // Destroy existing chart if it exists
     if (reductionChart) {
@@ -138,5 +110,52 @@ function updateReductionChart(recomendacoes) {
     }
     
     // Create new chart
-    reductionChart = new Chart(ctx, chartConfig);
+    reductionChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Potencial de Redução (kg CO₂e)',
+                data: data,
+                backgroundColor: backgroundColors,
+                borderColor: backgroundColors.map(color => color.replace('0.8', '1')),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y', // Horizontal bar chart
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.raw.toLocaleString()} kg CO₂e`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: '#ccc' // Light text for dark theme
+                    },
+                    grid: {
+                        color: 'rgba(255, 255, 255, 0.1)' // Light grid lines
+                    }
+                },
+                y: {
+                    ticks: {
+                        color: '#ccc' // Light text for dark theme
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
 }

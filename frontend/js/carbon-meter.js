@@ -3,172 +3,118 @@
  * Provides an animated visualization of carbon footprint results
  */
 
-// Store reference to the carbon meter element and its components
-let carbonMeter = null;
-let carbonMeterValue = null;
-let carbonMeterNeedle = null;
-let carbonMeterScale = null;
+// Constants
+const MAX_VALUE = 10000; // Maximum value for the meter (kg CO2e)
+const ANIMATION_DURATION = 1000; // Animation duration in milliseconds
 
-// Store animation properties
-let targetValue = 0;
-let currentValue = 0;
-let animationFrameId = null;
-
-// Carbon footprint categories and their colors
-const categories = {
+// Emission categories with their colors
+const CATEGORIES = {
     'agricultura': { color: '#5cb85c', label: 'Agricultura' },
     'pecuaria': { color: '#d9534f', label: 'Pecuária' },
     'combustivel': { color: '#f0ad4e', label: 'Combustível' }
 };
 
-/**
- * Initialize the carbon meter visualization
- */
-function initCarbonMeter() {
-    // Find carbon meter elements
-    carbonMeter = document.getElementById('carbon-meter');
-    
-    if (!carbonMeter) {
-        console.error('Carbon meter element not found');
-        return;
-    }
-    
-    // Create the carbon meter SVG container if it doesn't exist
-    if (carbonMeter.querySelector('svg') === null) {
-        createCarbonMeterSVG();
-    }
-    
-    // Get references to meter components
-    carbonMeterValue = document.getElementById('carbon-meter-value');
-    carbonMeterNeedle = document.getElementById('carbon-meter-needle');
-    carbonMeterScale = document.getElementById('carbon-meter-scale');
-    
-    // Set initial states
-    updateCarbonMeterValue(0);
-}
+// Create the global carbonViz object with the public API
+window.carbonViz = {
+    initCarbonMeter,
+    updateCarbonMeter,
+    updateCategoryBreakdown
+};
 
 /**
- * Create the SVG elements for the carbon meter
+ * Initialize the carbon meter visualization
+ * Creates the SVG structure if it doesn't exist
  */
-function createCarbonMeterSVG() {
-    // Constants for meter dimensions
-    const width = 300;
-    const height = 200;
-    const radius = 120;
-    const centerX = width / 2;
-    const centerY = height - 20; // Position at bottom of container
+function initCarbonMeter() {
+    console.log("Initializing carbon meter...");
+    
+    const meterContainer = document.getElementById('carbon-meter');
+    if (!meterContainer) {
+        console.error("Carbon meter container not found");
+        return false;
+    }
+    
+    // Clear any existing content
+    meterContainer.innerHTML = '';
     
     // Create SVG element
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('width', width);
-    svg.setAttribute('height', height);
-    svg.setAttribute('class', 'carbon-meter-svg');
+    svg.setAttribute('width', '300');
+    svg.setAttribute('height', '200');
+    svg.setAttribute('viewBox', '0 0 300 200');
+    svg.classList.add('carbon-meter-svg');
     
-    // Create gauge background (semi-circle)
-    const background = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    const startAngle = Math.PI;
-    const endAngle = 0;
+    // Add meter elements to SVG
+    const centerX = 150;
+    const centerY = 150;
+    const radius = 100;
     
-    const x1 = centerX + radius * Math.cos(startAngle);
-    const y1 = centerY + radius * Math.sin(startAngle);
-    const x2 = centerX + radius * Math.cos(endAngle);
-    const y2 = centerY + radius * Math.sin(endAngle);
+    // Draw background arc (semicircle)
+    const bgArc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    bgArc.setAttribute('d', describeArc(centerX, centerY, radius, 180, 0));
+    bgArc.setAttribute('fill', 'none');
+    bgArc.setAttribute('stroke', '#333');
+    bgArc.setAttribute('stroke-width', '10');
+    svg.appendChild(bgArc);
     
-    const largeArcFlag = Math.abs(endAngle - startAngle) > Math.PI ? 1 : 0;
-    
-    const d = [
-        'M', x1, y1,
-        'A', radius, radius, 0, largeArcFlag, 1, x2, y2
-    ].join(' ');
-    
-    background.setAttribute('d', d);
-    background.setAttribute('fill', 'none');
-    background.setAttribute('stroke', '#444');
-    background.setAttribute('stroke-width', '2');
-    
-    // Create gauge scale
-    const scale = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    scale.setAttribute('id', 'carbon-meter-scale');
-    
-    // Create colored sections for different impact levels
-    const sections = [
-        { color: '#28a745', endAngle: Math.PI * 5/6 },    // Low impact (green)
-        { color: '#ffc107', endAngle: Math.PI * 2/3 },    // Medium impact (yellow)
-        { color: '#fd7e14', endAngle: Math.PI * 1/3 },    // High impact (orange)
-        { color: '#dc3545', endAngle: 0 }                 // Very high impact (red)
+    // Add colored sections
+    const colorSections = [
+        { color: '#28a745', startAngle: 180, endAngle: 135 }, // Low (green)
+        { color: '#ffc107', startAngle: 135, endAngle: 90 },  // Medium (yellow)
+        { color: '#fd7e14', startAngle: 90, endAngle: 45 },   // High (orange)
+        { color: '#dc3545', startAngle: 45, endAngle: 0 }     // Very high (red)
     ];
     
-    sections.forEach((section, index) => {
-        const startAng = index === 0 ? Math.PI : sections[index-1].endAngle;
-        const endAng = section.endAngle;
-        
-        const x1 = centerX + radius * Math.cos(startAng);
-        const y1 = centerY + radius * Math.sin(startAng);
-        const x2 = centerX + radius * Math.cos(endAng);
-        const y2 = centerY + radius * Math.sin(endAng);
-        
-        const largeArcFlag = Math.abs(endAng - startAng) > Math.PI ? 1 : 0;
-        
-        const d = [
-            'M', x1, y1,
-            'A', radius, radius, 0, largeArcFlag, 1, x2, y2
-        ].join(' ');
-        
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', d);
-        path.setAttribute('fill', 'none');
-        path.setAttribute('stroke', section.color);
-        path.setAttribute('stroke-width', '8');
-        
-        scale.appendChild(path);
+    colorSections.forEach(section => {
+        const arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        arc.setAttribute('d', describeArc(centerX, centerY, radius, section.startAngle, section.endAngle));
+        arc.setAttribute('fill', 'none');
+        arc.setAttribute('stroke', section.color);
+        arc.setAttribute('stroke-width', '10');
+        svg.appendChild(arc);
     });
     
-    // Add tick marks
-    const tickCount = 5;
-    const tickLength = 10;
+    // Add tick marks & labels
+    const ticks = [0, 45, 90, 135, 180];
+    const labels = ["Extremo", "Alto", "Médio", "Baixo", "Mínimo"];
     
-    for (let i = 0; i <= tickCount; i++) {
-        const angle = Math.PI - (Math.PI * i / tickCount);
+    ticks.forEach((angle, i) => {
+        // Tick mark
+        const innerRadius = radius - 15;
+        const outerRadius = radius + 5;
         
-        const innerX = centerX + (radius - tickLength) * Math.cos(angle);
-        const innerY = centerY + (radius - tickLength) * Math.sin(angle);
-        const outerX = centerX + radius * Math.cos(angle);
-        const outerY = centerY + radius * Math.sin(angle);
+        const x1 = centerX + innerRadius * Math.cos(angle * Math.PI / 180);
+        const y1 = centerY + innerRadius * Math.sin(angle * Math.PI / 180);
+        const x2 = centerX + outerRadius * Math.cos(angle * Math.PI / 180);
+        const y2 = centerY + outerRadius * Math.sin(angle * Math.PI / 180);
         
         const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        tick.setAttribute('x1', innerX);
-        tick.setAttribute('y1', innerY);
-        tick.setAttribute('x2', outerX);
-        tick.setAttribute('y2', outerY);
+        tick.setAttribute('x1', x1);
+        tick.setAttribute('y1', y1);
+        tick.setAttribute('x2', x2);
+        tick.setAttribute('y2', y2);
         tick.setAttribute('stroke', '#ccc');
         tick.setAttribute('stroke-width', '2');
+        svg.appendChild(tick);
         
-        scale.appendChild(tick);
-        
-        // Add labels for first, middle, and last tick
-        if (i === 0 || i === Math.floor(tickCount / 2) || i === tickCount) {
-            const labelX = centerX + (radius + 15) * Math.cos(angle);
-            const labelY = centerY + (radius + 15) * Math.sin(angle);
+        // Label
+        if (i % 2 === 0) { // Only show labels at 0, 90, 180 degrees
+            const labelRadius = radius + 20;
+            const labelX = centerX + labelRadius * Math.cos(angle * Math.PI / 180);
+            const labelY = centerY + labelRadius * Math.sin(angle * Math.PI / 180);
             
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
             text.setAttribute('x', labelX);
             text.setAttribute('y', labelY);
             text.setAttribute('text-anchor', 'middle');
             text.setAttribute('fill', '#ccc');
-            text.setAttribute('font-size', '12px');
-            
-            let label = '';
-            if (i === 0) label = 'Alto';
-            else if (i === Math.floor(tickCount / 2)) label = 'Médio';
-            else if (i === tickCount) label = 'Baixo';
-            
-            text.textContent = label;
-            
-            scale.appendChild(text);
+            text.setAttribute('font-size', '10px');
+            text.textContent = labels[i];
+            svg.appendChild(text);
         }
-    }
+    });
     
-    // Create needle
+    // Add needle
     const needle = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     needle.setAttribute('id', 'carbon-meter-needle');
     needle.setAttribute('x1', centerX);
@@ -177,137 +123,97 @@ function createCarbonMeterSVG() {
     needle.setAttribute('y2', centerY - radius);
     needle.setAttribute('stroke', '#fff');
     needle.setAttribute('stroke-width', '2');
-    needle.setAttribute('transform', `rotate(180, ${centerX}, ${centerY})`); // Start at bottom (low)
+    needle.setAttribute('transform', `rotate(180, ${centerX}, ${centerY})`);
+    svg.appendChild(needle);
     
-    // Create needle circle
-    const needleCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    needleCircle.setAttribute('cx', centerX);
-    needleCircle.setAttribute('cy', centerY);
-    needleCircle.setAttribute('r', '6');
-    needleCircle.setAttribute('fill', '#fff');
+    // Add needle pivot circle
+    const pivotCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    pivotCircle.setAttribute('cx', centerX);
+    pivotCircle.setAttribute('cy', centerY);
+    pivotCircle.setAttribute('r', '5');
+    pivotCircle.setAttribute('fill', '#fff');
+    svg.appendChild(pivotCircle);
     
-    // Create value text
+    // Add value display
     const valueText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     valueText.setAttribute('id', 'carbon-meter-value');
     valueText.setAttribute('x', centerX);
-    valueText.setAttribute('y', centerY + 30);
+    valueText.setAttribute('y', centerY + 40);
     valueText.setAttribute('text-anchor', 'middle');
-    valueText.setAttribute('font-size', '16px');
-    valueText.setAttribute('font-weight', 'bold');
     valueText.setAttribute('fill', '#fff');
+    valueText.setAttribute('font-weight', 'bold');
     valueText.textContent = '0 kg CO₂e';
-    
-    // Add all elements to SVG
-    svg.appendChild(background);
-    svg.appendChild(scale);
-    svg.appendChild(needle);
-    svg.appendChild(needleCircle);
     svg.appendChild(valueText);
     
-    // Add SVG to carbon meter container
-    carbonMeter.appendChild(svg);
+    // Add SVG to container
+    meterContainer.appendChild(svg);
+    
+    console.log("Carbon meter initialized successfully.");
+    return true;
 }
 
 /**
- * Update the carbon meter to display a new value
+ * Update the carbon meter to display a specific value
  * @param {number} value - Carbon footprint value in kg CO2e
- * @param {boolean} animate - Whether to animate the update
  */
-function updateCarbonMeter(value, animate = true) {
-    // Cancel any existing animation
-    if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
+function updateCarbonMeter(value) {
+    console.log("Updating carbon meter to:", value);
+    
+    const needle = document.getElementById('carbon-meter-needle');
+    const valueText = document.getElementById('carbon-meter-value');
+    
+    if (!needle || !valueText) {
+        console.error("Carbon meter elements not found");
+        return false;
     }
     
-    // Set target value
-    targetValue = value;
+    // Update value text immediately
+    valueText.textContent = `${Math.round(value).toLocaleString()} kg CO₂e`;
     
-    // Update immediately if no animation
-    if (!animate) {
-        currentValue = targetValue;
-        updateCarbonMeterValue(currentValue);
-        return;
-    }
+    // Calculate angle based on value (180° at 0, 0° at MAX_VALUE)
+    const clampedValue = Math.min(value, MAX_VALUE);
+    const angle = 180 - (clampedValue / MAX_VALUE * 180);
     
-    // Start animation
-    animateCarbonMeter();
-}
-
-/**
- * Animate the carbon meter to the target value
- */
-function animateCarbonMeter() {
-    // Calculate step based on difference
-    const diff = targetValue - currentValue;
-    const step = diff * 0.1; // Move 10% of the distance each frame
-    
-    // Update current value
-    if (Math.abs(diff) < 1) {
-        currentValue = targetValue;
-    } else {
-        currentValue += step;
-    }
-    
-    // Update meter display
-    updateCarbonMeterValue(currentValue);
-    
-    // Continue animation if not reached target
-    if (currentValue !== targetValue) {
-        animationFrameId = requestAnimationFrame(animateCarbonMeter);
-    } else {
-        animationFrameId = null;
-    }
-}
-
-/**
- * Update the visual elements of the carbon meter
- * @param {number} value - Current carbon footprint value
- */
-function updateCarbonMeterValue(value) {
-    if (!carbonMeterValue || !carbonMeterNeedle) return;
-    
-    // Update value text
-    carbonMeterValue.textContent = `${Math.round(value).toLocaleString()} kg CO₂e`;
-    
-    // Map value to angle (0 to 10000 kg CO2e maps to 180° to 0°)
-    // Clamp max value to 10000 for display purposes
-    const clampedValue = Math.min(value, 10000);
-    const angle = 180 - (clampedValue / 10000 * 180);
-    
-    // Update needle rotation
-    carbonMeterNeedle.setAttribute('transform', `rotate(${angle}, 150, 180)`);
-    
-    // Update color based on angle
-    let needleColor = '#28a745'; // Default green
+    // Determine needle color based on value range
+    let needleColor = '#28a745'; // Default: green
     
     if (angle < 45) {
-        needleColor = '#dc3545'; // Red - very high
+        needleColor = '#dc3545'; // Red
     } else if (angle < 90) {
-        needleColor = '#fd7e14'; // Orange - high
+        needleColor = '#fd7e14'; // Orange
     } else if (angle < 135) {
-        needleColor = '#ffc107'; // Yellow - medium
+        needleColor = '#ffc107'; // Yellow
     }
     
-    carbonMeterNeedle.setAttribute('stroke', needleColor);
+    // Set needle color
+    needle.setAttribute('stroke', needleColor);
+    
+    // Animate needle rotation
+    animateNeedle(needle, angle);
+    
+    return true;
 }
 
 /**
- * Create or update the category breakdown chart
+ * Update the category breakdown visualization
  * @param {object} details - Emission details by category
  */
 function updateCategoryBreakdown(details) {
     const container = document.getElementById('carbon-breakdown');
-    if (!container) return;
+    if (!container) {
+        console.error("Carbon breakdown container not found");
+        return false;
+    }
     
-    // Clear container
+    // Clear existing content
     container.innerHTML = '';
     
-    // Calculate total
+    // Calculate total emissions
     const total = Object.values(details).reduce((sum, val) => sum + val, 0);
     
     // Create category bars
-    Object.entries(details).forEach(([category, value]) => {
-        if (!categories[category]) return;
+    for (const [category, value] of Object.entries(details)) {
+        if (!CATEGORIES[category]) continue;
         
         const percent = total > 0 ? (value / total * 100) : 0;
         
@@ -315,46 +221,130 @@ function updateCategoryBreakdown(details) {
         const categoryDiv = document.createElement('div');
         categoryDiv.className = 'carbon-category mb-2';
         
-        // Create label
-        const label = document.createElement('div');
-        label.className = 'd-flex justify-content-between mb-1';
+        // Add category header
+        const header = document.createElement('div');
+        header.className = 'd-flex justify-content-between';
         
         const nameSpan = document.createElement('span');
-        nameSpan.textContent = categories[category].label;
+        nameSpan.textContent = CATEGORIES[category].label;
         
         const valueSpan = document.createElement('span');
         valueSpan.textContent = `${Math.round(value).toLocaleString()} kg CO₂e (${percent.toFixed(1)}%)`;
         
-        label.appendChild(nameSpan);
-        label.appendChild(valueSpan);
+        header.appendChild(nameSpan);
+        header.appendChild(valueSpan);
+        categoryDiv.appendChild(header);
         
-        // Create progress bar
-        const progressContainer = document.createElement('div');
-        progressContainer.className = 'progress';
+        // Add progress bar
+        const progressDiv = document.createElement('div');
+        progressDiv.className = 'progress mt-1';
         
         const progressBar = document.createElement('div');
-        progressBar.className = 'progress-bar progress-bar-striped progress-bar-animated';
-        progressBar.style.width = `${percent}%`;
-        progressBar.style.backgroundColor = categories[category].color;
+        progressBar.className = 'progress-bar progress-bar-striped';
+        progressBar.style.width = '0%'; // Start at 0 for animation
+        progressBar.style.backgroundColor = CATEGORIES[category].color;
         progressBar.setAttribute('role', 'progressbar');
-        progressBar.setAttribute('aria-valuenow', percent);
-        progressBar.setAttribute('aria-valuemin', '0');
-        progressBar.setAttribute('aria-valuemax', '100');
         
-        progressContainer.appendChild(progressBar);
+        progressDiv.appendChild(progressBar);
+        categoryDiv.appendChild(progressDiv);
         
-        // Add elements to category container
-        categoryDiv.appendChild(label);
-        categoryDiv.appendChild(progressContainer);
-        
-        // Add category to main container
+        // Add to container
         container.appendChild(categoryDiv);
-    });
+        
+        // Animate progress bar
+        setTimeout(() => {
+            progressBar.style.transition = 'width 1s ease-in-out';
+            progressBar.style.width = `${percent}%`;
+        }, 100);
+    }
+    
+    return true;
 }
 
-// Export functions
-window.carbonViz = {
-    initCarbonMeter,
-    updateCarbonMeter,
-    updateCategoryBreakdown
-};
+/**
+ * Helper function to animate needle rotation
+ * @param {Element} needle - The SVG needle element
+ * @param {number} targetAngle - Target angle in degrees
+ */
+function animateNeedle(needle, targetAngle) {
+    const centerX = 150;
+    const centerY = 150;
+    
+    // Get current angle from transform attribute
+    let currentAngle = 180; // Default starting position
+    const transform = needle.getAttribute('transform');
+    
+    if (transform && transform.includes('rotate')) {
+        const match = transform.match(/rotate\(([^,]+)/);
+        if (match && match[1]) {
+            currentAngle = parseFloat(match[1]);
+        }
+    }
+    
+    // Animation variables
+    const startTime = performance.now();
+    const startAngle = currentAngle;
+    const angleChange = targetAngle - startAngle;
+    
+    // Animation function
+    function updateNeedle(timestamp) {
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
+        
+        // Easing function for smooth animation
+        const easeProgress = easeOutQuad(progress);
+        
+        // Calculate current position
+        const currentPosition = startAngle + angleChange * easeProgress;
+        
+        // Update needle position
+        needle.setAttribute('transform', `rotate(${currentPosition}, ${centerX}, ${centerY})`);
+        
+        // Continue animation if not complete
+        if (progress < 1) {
+            requestAnimationFrame(updateNeedle);
+        }
+    }
+    
+    // Start animation
+    requestAnimationFrame(updateNeedle);
+}
+
+/**
+ * Easing function for smooth animation
+ * @param {number} t - Progress value between 0 and 1
+ * @returns {number} - Eased value
+ */
+function easeOutQuad(t) {
+    return t * (2 - t);
+}
+
+/**
+ * Helper function to create SVG arc path
+ * @param {number} x - Center x coordinate
+ * @param {number} y - Center y coordinate
+ * @param {number} radius - Arc radius
+ * @param {number} startAngle - Start angle in degrees
+ * @param {number} endAngle - End angle in degrees
+ * @returns {string} - SVG path description
+ */
+function describeArc(x, y, radius, startAngle, endAngle) {
+    // Convert angles to radians
+    const start = (startAngle - 90) * Math.PI / 180;
+    const end = (endAngle - 90) * Math.PI / 180;
+    
+    // Calculate start and end points
+    const startX = x + radius * Math.cos(start);
+    const startY = y + radius * Math.sin(start);
+    const endX = x + radius * Math.cos(end);
+    const endY = y + radius * Math.sin(end);
+    
+    // Determine if the arc should be drawn the long way around
+    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+    
+    // Create path
+    return [
+        "M", startX, startY,
+        "A", radius, radius, 0, largeArcFlag, 0, endX, endY
+    ].join(" ");
+}

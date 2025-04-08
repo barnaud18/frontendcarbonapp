@@ -7,6 +7,8 @@ let currentPropertyId = null;
 
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("Initializing application...");
+    
     // Set up navigation
     setupNavigation();
     
@@ -16,8 +18,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load properties for the property list page
     loadProperties();
     
-    // Initialize the carbon meter visualization
+    // Initialize carbon meter if available
     if (window.carbonViz && typeof window.carbonViz.initCarbonMeter === 'function') {
+        console.log("Initializing carbon meter visualization...");
         window.carbonViz.initCarbonMeter();
     }
 });
@@ -62,7 +65,7 @@ function setupEventListeners() {
     // Register property button
     document.getElementById('btn-cadastrar').addEventListener('click', function() {
         const formData = getFormData();
-        apiRegisterProperty(formData);
+        registerProperty(formData);
     });
     
     // Calculate carbon credits button
@@ -92,6 +95,8 @@ function getFormData() {
  */
 async function calculateCarbonFootprint() {
     try {
+        console.log("Calculating carbon footprint...");
+        
         // Get form data
         const formData = getFormData();
         
@@ -100,8 +105,11 @@ async function calculateCarbonFootprint() {
             formData.propriedade_id = currentPropertyId;
         }
         
+        console.log("Form data:", formData);
+        
         // Make API request
         const result = await apiCalculateFootprint(formData);
+        console.log("Calculation result:", result);
         
         // Display results
         displayResults(result);
@@ -109,6 +117,7 @@ async function calculateCarbonFootprint() {
         // Show success message
         showSuccess('Cálculo Realizado', 'A pegada de carbono foi calculada com sucesso.');
     } catch (error) {
+        console.error("Error calculating footprint:", error);
         showError('Erro no Cálculo', error.message || 'Não foi possível calcular a pegada de carbono.');
     }
 }
@@ -117,7 +126,7 @@ async function calculateCarbonFootprint() {
  * Registers a new property
  * @param {object} formData - Form data object
  */
-async function apiRegisterProperty(formData) {
+async function registerProperty(formData) {
     try {
         // Validate required fields
         if (!formData.nome) {
@@ -128,8 +137,11 @@ async function apiRegisterProperty(formData) {
             throw new Error('O tamanho total da propriedade deve ser maior que zero.');
         }
         
+        console.log("Registering property:", formData);
+        
         // Make API request
         const result = await apiRegisterProperty(formData);
+        console.log("Registration result:", result);
         
         // Update current property ID
         currentPropertyId = result.propriedade_id;
@@ -140,6 +152,7 @@ async function apiRegisterProperty(formData) {
         // Reload properties list
         loadProperties();
     } catch (error) {
+        console.error("Error registering property:", error);
         showError('Erro no Cadastro', error.message || 'Não foi possível cadastrar a propriedade.');
     }
 }
@@ -155,8 +168,11 @@ async function calculateCarbonCredits() {
             throw new Error('A área de pastagem deve ser maior que zero para calcular o potencial de créditos de carbono.');
         }
         
+        console.log("Calculating carbon credits for area:", areaPastagem);
+        
         // Make API request
         const result = await apiCalculateCredits({ area_pastagem: areaPastagem });
+        console.log("Credits calculation result:", result);
         
         // Display results
         const resultadoCreditos = document.getElementById('resultado-creditos');
@@ -170,6 +186,7 @@ async function calculateCarbonCredits() {
             </div>
         `;
     } catch (error) {
+        console.error("Error calculating credits:", error);
         showError('Erro no Cálculo', error.message || 'Não foi possível calcular os créditos de carbono.');
     }
 }
@@ -179,7 +196,9 @@ async function calculateCarbonCredits() {
  */
 async function loadProperties() {
     try {
+        console.log("Loading properties...");
         const properties = await getProperties();
+        console.log("Properties loaded:", properties);
         
         const tableBody = document.getElementById('tabela-propriedades');
         
@@ -213,6 +232,7 @@ async function loadProperties() {
         // Add event listeners to property buttons
         setupPropertyButtons();
     } catch (error) {
+        console.error("Error loading properties:", error);
         showError('Erro ao Carregar Propriedades', error.message || 'Não foi possível carregar a lista de propriedades.');
     }
 }
@@ -228,7 +248,9 @@ function setupPropertyButtons() {
             const propertyId = this.getAttribute('data-id');
             
             try {
+                console.log("Loading property details for ID:", propertyId);
                 const property = await getPropertyById(propertyId);
+                console.log("Property details:", property);
                 
                 // Fill the form with property data
                 fillPropertyForm(property);
@@ -256,6 +278,7 @@ function setupPropertyButtons() {
                     });
                 }
             } catch (error) {
+                console.error("Error loading property:", error);
                 showError('Erro ao Carregar Propriedade', error.message || 'Não foi possível carregar os dados da propriedade.');
             }
         });
@@ -287,6 +310,8 @@ function fillPropertyForm(property) {
  * @param {object} data - Result data from API
  */
 function displayResults(data) {
+    console.log("Displaying results:", data);
+    
     const resultadoContainer = document.getElementById('resultado-container');
     
     // Format numbers for display
@@ -308,7 +333,7 @@ function displayResults(data) {
     // Update the results container
     resultadoContainer.innerHTML = `
         <div id="carbon-meter-container" class="my-4">
-            <h4 class="text-center mb-3">Pegada de Carbono</h4>
+            <h4 class="text-center mb-3">Medidor de Pegada de Carbono</h4>
             <div id="carbon-meter" class="text-center"></div>
             <div id="carbon-breakdown" class="mt-4"></div>
         </div>
@@ -359,12 +384,17 @@ function displayResults(data) {
     updateEmissionsChart(data.detalhes);
     updateReductionChart(data.recomendacoes);
     
-    // Initialize and update the carbon meter
+    // Initialize carbon meter and update
     if (window.carbonViz) {
-        // Wait for SVG to be available in the DOM
+        console.log("Updating carbon meter visualization...");
         setTimeout(() => {
+            // Initialize carbon meter
             window.carbonViz.initCarbonMeter();
+            
+            // Update meter with calculation result
             window.carbonViz.updateCarbonMeter(data.pegada_total_kg_co2e);
+            
+            // Update category breakdown
             window.carbonViz.updateCategoryBreakdown(data.detalhes);
         }, 100);
     }

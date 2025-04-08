@@ -1,50 +1,115 @@
-/* Custom styles for the Carbon Footprint Calculator */
+/**
+ * Custom styles for the Carbon Footprint Calculator
+ */
+
+/* Carbon Meter styles */
+#carbon-meter {
+    width: 100%;
+    max-width: 300px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.carbon-meter-svg {
+    display: block;
+    margin: 0 auto;
+}
+
+#carbon-meter-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Carbon breakdown styles */
+.carbon-category {
+    margin-bottom: 1rem;
+}
+
+.progress {
+    height: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Dashboard cards */
+.dashboard-card {
+    margin-bottom: 1.5rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card .card-header {
+    font-weight: bold;
+    padding: 1rem;
+}
+
+.dashboard-card .card-body {
+    padding: 1.5rem;
+}
+
+/* Results display */
+.results-detail {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Recommendation cards */
+.recommendation-card {
+    margin-bottom: 1rem;
+    background-color: rgba(0, 123, 255, 0.1);
+    border-left: 4px solid var(--bs-info);
+    padding: 1rem;
+    border-radius: 0.25rem;
+}
+
+/* Custom focus styles for accessibility */
+input:focus, 
+button:focus, 
+a:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    border-color: #86b7fe;
+}
 
 /* Page transitions */
 .page {
     transition: opacity 0.3s ease-in-out;
 }
 
-/* Cards with equal height */
-.card-deck .card {
-    display: flex;
-    flex-direction: column;
+/* Custom scrollbar for tables */
+.table-responsive {
+    scrollbar-width: thin;
+    scrollbar-color: var(--bs-gray-600) var(--bs-gray-800);
 }
 
-.card-deck .card .card-body {
-    flex: 1 1 auto;
+.table-responsive::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
 
-/* Chart containers */
-.chart-container {
-    position: relative;
-    margin: auto;
-    height: 300px;
-    width: 100%;
+.table-responsive::-webkit-scrollbar-track {
+    background: var(--bs-gray-800);
 }
 
-/* Results styling */
-#resultado-container table.table td, 
-#resultado-container table.table th {
-    vertical-align: middle;
+.table-responsive::-webkit-scrollbar-thumb {
+    background-color: var(--bs-gray-600);
+    border-radius: 4px;
 }
 
-/* Form styling */
-label {
-    font-weight: 500;
+/* Form section styles */
+form h5 {
+    color: var(--bs-primary);
+    margin-top: 1.5rem;
 }
 
-.form-control:focus {
-    border-color: var(--bs-primary);
-    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
-}
-
-/* Custom alert animations */
+/* Alerts */
 .alert {
-    animation: slidein 0.5s;
+    animation: slideIn 0.3s ease-out;
 }
 
-@keyframes slidein {
+@keyframes slideIn {
     from {
         transform: translateY(-20px);
         opacity: 0;
@@ -55,82 +120,14 @@ label {
     }
 }
 
-/* Carbon Meter Styling */
-#carbon-meter-container {
-    background-color: rgba(33, 37, 41, 0.5);
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-#carbon-meter {
-    max-width: 300px;
-    margin: 0 auto;
-}
-
-.carbon-meter-svg {
-    filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.3));
-}
-
-#carbon-meter-value {
-    font-size: 18px !important;
-    font-weight: bold;
-}
-
-.carbon-category {
-    margin-bottom: 15px;
-}
-
-.carbon-category .progress {
-    height: 15px;
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-.carbon-category .progress-bar {
-    transition: width 1s ease-in-out;
-}
-
-/* Animation for carbon meter needle */
-@keyframes pulse {
-    0% {
-        opacity: 0.8;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.05);
-    }
-    100% {
-        opacity: 0.8;
-        transform: scale(1);
-    }
-}
-
-#carbon-meter-needle {
-    animation: pulse 2s infinite;
-    transform-origin: 150px 180px;
-    transition: transform 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-/* Custom footer spacing */
-footer {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-}
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .card-header h3 {
-        font-size: 1.5rem;
-    }
-    
-    .chart-container {
-        height: 250px;
-    }
-    
     #carbon-meter {
         max-width: 250px;
+        height: 180px;
+    }
+    
+    .display-4 {
+        font-size: 2rem;
     }
 }
