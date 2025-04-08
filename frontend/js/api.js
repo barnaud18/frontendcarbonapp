@@ -3,7 +3,7 @@
  */
 
 // API base URL - using relative URL to work in both development and production
-const API_BASE_URL = '';
+const API_BASE_URL = '/api';
 
 /**
  * Makes a request to the API
@@ -46,17 +46,17 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
  */
 
 // Calculate carbon footprint
-async function calculateCarbonFootprint(formData) {
+async function apiCalculateFootprint(formData) {
     return apiRequest('/calcular', 'POST', formData);
 }
 
 // Register a new property
-async function registerProperty(propertyData) {
+async function apiRegisterProperty(propertyData) {
     return apiRequest('/cadastrar_propriedade', 'POST', propertyData);
 }
 
 // Calculate carbon credits potential
-async function calculateCarbonCredits(data) {
+async function apiCalculateCredits(data) {
     return apiRequest('/calcular-creditos', 'POST', data);
 }
 

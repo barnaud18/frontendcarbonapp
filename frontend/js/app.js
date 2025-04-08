@@ -57,7 +57,7 @@ function setupEventListeners() {
     // Register property button
     document.getElementById('btn-cadastrar').addEventListener('click', function() {
         const formData = getFormData();
-        registerProperty(formData);
+        apiRegisterProperty(formData);
     });
     
     // Calculate carbon credits button
@@ -96,7 +96,7 @@ async function calculateCarbonFootprint() {
         }
         
         // Make API request
-        const result = await calculateCarbonFootprint(formData);
+        const result = await apiCalculateFootprint(formData);
         
         // Display results
         displayResults(result);
@@ -112,7 +112,7 @@ async function calculateCarbonFootprint() {
  * Registers a new property
  * @param {object} formData - Form data object
  */
-async function registerProperty(formData) {
+async function apiRegisterProperty(formData) {
     try {
         // Validate required fields
         if (!formData.nome) {
@@ -124,7 +124,7 @@ async function registerProperty(formData) {
         }
         
         // Make API request
-        const result = await registerProperty(formData);
+        const result = await apiRegisterProperty(formData);
         
         // Update current property ID
         currentPropertyId = result.propriedade_id;
@@ -151,7 +151,7 @@ async function calculateCarbonCredits() {
         }
         
         // Make API request
-        const result = await calculateCarbonCredits({ area_pastagem: areaPastagem });
+        const result = await apiCalculateCredits({ area_pastagem: areaPastagem });
         
         // Display results
         const resultadoCreditos = document.getElementById('resultado-creditos');
