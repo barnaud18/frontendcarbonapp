@@ -9,16 +9,19 @@ from backend.utils import calcular_emissoes, gerar_recomendacoes, calcular_credi
 @app.route('/')
 def index():
     """Serve the frontend main page"""
+    app.logger.debug("Serving index.html")
     return send_file('../frontend/index.html')
 
 @app.route('/js/<path:path>')
 def serve_js(path):
     """Serve JavaScript files"""
+    app.logger.debug(f"Serving JS file: {path}")
     return send_file(f'../frontend/js/{path}')
 
 @app.route('/css/<path:path>')
 def serve_css(path):
     """Serve CSS files"""
+    app.logger.debug(f"Serving CSS file: {path}")
     return send_file(f'../frontend/css/{path}')
 
 @app.route('/api')

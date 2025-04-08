@@ -1,9 +1,13 @@
 import os
+import logging
 from flask import Flask, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 class Base(DeclarativeBase):
