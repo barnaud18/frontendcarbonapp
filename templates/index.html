@@ -79,6 +79,13 @@
             color: white;
         }
         
+        .btn-info {
+            background-color: #0dcaf0;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
         .alert {
             padding: 15px;
             margin-bottom: 20px;
@@ -120,6 +127,12 @@
 <body>
     <div class="container">
         <h1>Calculadora de Pegada de Carbono Agrícola</h1>
+        
+        <div style="margin-bottom: 20px; text-align: right;">
+            <a href="/propriedades" class="btn-info" style="padding: 10px 15px; border-radius: 4px; font-weight: bold;">
+                Ver Propriedades Cadastradas
+            </a>
+        </div>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
