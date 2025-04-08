@@ -1,0 +1,74 @@
+/* Custom styles for the Carbon Footprint Calculator */
+
+/* Page transitions */
+.page {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Cards with equal height */
+.card-deck .card {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-deck .card .card-body {
+    flex: 1 1 auto;
+}
+
+/* Chart containers */
+.chart-container {
+    position: relative;
+    margin: auto;
+    height: 300px;
+    width: 100%;
+}
+
+/* Results styling */
+#resultado-container table.table td, 
+#resultado-container table.table th {
+    vertical-align: middle;
+}
+
+/* Form styling */
+label {
+    font-weight: 500;
+}
+
+.form-control:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Custom alert animations */
+.alert {
+    animation: slidein 0.5s;
+}
+
+@keyframes slidein {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Custom footer spacing */
+footer {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-header h3 {
+        font-size: 1.5rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+}

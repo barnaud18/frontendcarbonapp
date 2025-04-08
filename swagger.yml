@@ -1,0 +1,191 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Calculadora de Pegada de Carbono Agrícola API",
+    "description": "API para cálculo de pegada de carbono e créditos de carbono para propriedades rurais",
+    "version": "1.0.0"
+  },
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/cadastrar_propriedade": {
+      "post": {
+        "summary": "Cadastrar uma nova propriedade rural",
+        "description": "Registra uma nova propriedade com dados de agricultura e pecuária",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nome": {
+                  "type": "string",
+                  "description": "Nome da propriedade"
+                },
+                "tamanho_total": {
+                  "type": "number",
+                  "description": "Tamanho total em hectares"
+                },
+                "area_agricola": {
+                  "type": "number",
+                  "description": "Área agrícola em hectares"
+                },
+                "uso_fertilizante": {
+                  "type": "number",
+                  "description": "Uso de fertilizantes em kg/ha/ano"
+                },
+                "consumo_combustivel": {
+                  "type": "number",
+                  "description": "Consumo de combustível em litros/ano"
+                },
+                "area_pastagem": {
+                  "type": "number",
+                  "description": "Área de pastagem em hectares"
+                },
+                "num_bovinos": {
+                  "type": "integer",
+                  "description": "Número de bovinos"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Propriedade cadastrada com sucesso"
+          },
+          "400": {
+            "description": "Erro ao cadastrar propriedade"
+          }
+        }
+      }
+    },
+    "/calcular": {
+      "post": {
+        "summary": "Calcular pegada de carbono",
+        "description": "Calcula a pegada de carbono com base nos dados de propriedade",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "propriedade_id": {
+                  "type": "integer",
+                  "description": "ID da propriedade (opcional)"
+                },
+                "area_agricola": {
+                  "type": "number",
+                  "description": "Área agrícola em hectares"
+                },
+                "uso_fertilizante": {
+                  "type": "number",
+                  "description": "Uso de fertilizantes em kg/ha/ano"
+                },
+                "consumo_combustivel": {
+                  "type": "number",
+                  "description": "Consumo de combustível em litros/ano"
+                },
+                "area_pastagem": {
+                  "type": "number",
+                  "description": "Área de pastagem em hectares"
+                },
+                "num_bovinos": {
+                  "type": "integer",
+                  "description": "Número de bovinos"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cálculo realizado com sucesso"
+          },
+          "400": {
+            "description": "Erro ao calcular pegada de carbono"
+          }
+        }
+      }
+    },
+    "/buscar_usuario/{propriedade_id}": {
+      "get": {
+        "summary": "Buscar dados de propriedade",
+        "description": "Recupera os dados de uma propriedade pelo ID",
+        "parameters": [
+          {
+            "name": "propriedade_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "description": "ID da propriedade"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados recuperados com sucesso"
+          },
+          "404": {
+            "description": "Propriedade não encontrada"
+          }
+        }
+      }
+    },
+    "/calcular-creditos": {
+      "post": {
+        "summary": "Calcular potencial de créditos de carbono",
+        "description": "Calcula o potencial de créditos de carbono com base na área de pastagem",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "area_pastagem": {
+                  "type": "number",
+                  "description": "Área de pastagem em hectares"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cálculo realizado com sucesso"
+          },
+          "400": {
+            "description": "Erro ao calcular créditos de carbono"
+          }
+        }
+      }
+    },
+    "/propriedades": {
+      "get": {
+        "summary": "Listar todas propriedades",
+        "description": "Lista todas as propriedades cadastradas",
+        "responses": {
+          "200": {
+            "description": "Lista recuperada com sucesso"
+          },
+          "400": {
+            "description": "Erro ao listar propriedades"
+          }
+        }
+      }
+    }
+  }
+}

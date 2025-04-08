@@ -1,0 +1,441 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Calculadora de Pegada de Carbono Agrícola API",
+    "description": "API para calcular a pegada de carbono e créditos de carbono para propriedades rurais",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/cadastrar_propriedade": {
+      "post": {
+        "summary": "Cadastrar uma nova propriedade rural",
+        "description": "Registra uma nova propriedade com dados agrícolas e pecuários",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PropriedadeInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Propriedade cadastrada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "propriedade_id": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro no cadastro da propriedade",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calcular": {
+      "post": {
+        "summary": "Calcular pegada de carbono",
+        "description": "Calcula a pegada de carbono com base nos dados da propriedade",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalculoInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cálculo realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculoOutput"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro no cálculo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/buscar_usuario/{propriedade_id}": {
+      "get": {
+        "summary": "Buscar dados de propriedade",
+        "description": "Recupera os dados de uma propriedade pelo ID",
+        "parameters": [
+          {
+            "name": "propriedade_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados da propriedade",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropriedadeOutput"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Propriedade não encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/calcular-creditos": {
+      "post": {
+        "summary": "Calcular potencial de créditos de carbono",
+        "description": "Calcula o potencial de créditos de carbono com base na área de pastagem",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "area_pastagem": {
+                    "type": "number",
+                    "description": "Área de pastagem em hectares"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cálculo de créditos realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "area_pastagem_ha": {
+                      "type": "number"
+                    },
+                    "potencial_credito_tco2e": {
+                      "type": "number"
+                    },
+                    "valor_estimado_reais": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro no cálculo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/propriedades": {
+      "get": {
+        "summary": "Listar todas as propriedades",
+        "description": "Recupera a lista de todas as propriedades cadastradas",
+        "responses": {
+          "200": {
+            "description": "Lista de propriedades",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PropriedadeOutput"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro na listagem",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PropriedadeInput": {
+        "type": "object",
+        "required": [
+          "nome",
+          "tamanho_total",
+          "area_agricola",
+          "uso_fertilizante",
+          "consumo_combustivel",
+          "num_bovinos"
+        ],
+        "properties": {
+          "nome": {
+            "type": "string",
+            "description": "Nome da propriedade"
+          },
+          "tamanho_total": {
+            "type": "number",
+            "description": "Tamanho total da propriedade em hectares"
+          },
+          "area_agricola": {
+            "type": "number",
+            "description": "Área agrícola em hectares"
+          },
+          "uso_fertilizante": {
+            "type": "number",
+            "description": "Uso de fertilizante nitrogenado em kg/ha/ano"
+          },
+          "consumo_combustivel": {
+            "type": "number",
+            "description": "Consumo de combustível em litros/ano"
+          },
+          "num_bovinos": {
+            "type": "integer",
+            "description": "Número de bovinos"
+          },
+          "area_pastagem": {
+            "type": "number",
+            "description": "Área de pastagem em hectares"
+          }
+        }
+      },
+      "CalculoInput": {
+        "type": "object",
+        "properties": {
+          "propriedade_id": {
+            "type": "integer",
+            "description": "ID da propriedade (opcional)"
+          },
+          "area_agricola": {
+            "type": "number",
+            "description": "Área agrícola em hectares"
+          },
+          "uso_fertilizante": {
+            "type": "number",
+            "description": "Uso de fertilizante nitrogenado em kg/ha/ano"
+          },
+          "num_bovinos": {
+            "type": "integer",
+            "description": "Número de bovinos"
+          },
+          "consumo_combustivel": {
+            "type": "number",
+            "description": "Consumo de combustível em litros/ano"
+          },
+          "area_pastagem": {
+            "type": "number",
+            "description": "Área de pastagem em hectares"
+          }
+        }
+      },
+      "CalculoOutput": {
+        "type": "object",
+        "properties": {
+          "pegada_total_kg_co2e": {
+            "type": "number",
+            "description": "Pegada total em kg CO2e"
+          },
+          "detalhes": {
+            "type": "object",
+            "properties": {
+              "agricultura": {
+                "type": "number",
+                "description": "Emissões da agricultura em kg CO2e"
+              },
+              "pecuaria": {
+                "type": "number",
+                "description": "Emissões da pecuária em kg CO2e"
+              },
+              "combustivel": {
+                "type": "number",
+                "description": "Emissões de combustível em kg CO2e"
+              }
+            }
+          },
+          "potencial_credito_tco2e": {
+            "type": "number",
+            "description": "Potencial de créditos de carbono em tCO2e"
+          },
+          "recomendacoes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "acao": {
+                  "type": "string",
+                  "description": "Ação recomendada"
+                },
+                "descricao": {
+                  "type": "string",
+                  "description": "Descrição detalhada da recomendação"
+                },
+                "potencial_reducao": {
+                  "type": "number",
+                  "description": "Potencial de redução em kg CO2e"
+                }
+              }
+            }
+          }
+        }
+      },
+      "PropriedadeOutput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "tamanho_total": {
+            "type": "number"
+          },
+          "data_registro": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "agricultura": {
+            "type": "object",
+            "properties": {
+              "area_agricola": {
+                "type": "number"
+              },
+              "uso_fertilizante": {
+                "type": "number"
+              },
+              "consumo_combustivel": {
+                "type": "number"
+              },
+              "area_pastagem": {
+                "type": "number"
+              }
+            }
+          },
+          "pecuaria": {
+            "type": "object",
+            "properties": {
+              "num_bovinos": {
+                "type": "integer"
+              }
+            }
+          },
+          "emissao": {
+            "type": "object",
+            "properties": {
+              "total_emissao": {
+                "type": "number"
+              },
+              "emissao_agricultura": {
+                "type": "number"
+              },
+              "emissao_pecuaria": {
+                "type": "number"
+              },
+              "emissao_combustivel": {
+                "type": "number"
+              },
+              "potencial_credito": {
+                "type": "number"
+              },
+              "data_calculo": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "recomendacoes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "acao": {
+                  "type": "string"
+                },
+                "descricao": {
+                  "type": "string"
+                },
+                "potencial_reducao": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Mensagem de erro"
+          }
+        }
+      }
+    }
+  }
+}

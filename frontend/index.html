@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Pegada de Carbono Agrícola</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">🌱 Carbono Rural</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#calculadora">Calculadora</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#propriedades">Propriedades</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#dashboard">Dashboard</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div id="alerts"></div>
+        
+        <div id="calculadora" class="page">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h3>Calculadora de Pegada de Carbono Rural</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="form-calculadora">
+                                <div class="mb-3">
+                                    <h5 class="border-bottom pb-2">Dados da Propriedade</h5>
+                                    <div class="mb-3">
+                                        <label for="nome" class="form-label">Nome da Propriedade:</label>
+                                        <input type="text" class="form-control" id="nome" placeholder="Ex: Fazenda São João">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="tamanho_total" class="form-label">Tamanho Total (ha):</label>
+                                        <input type="number" class="form-control" id="tamanho_total" step="0.1" min="0">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h5 class="border-bottom pb-2">Agricultura</h5>
+                                    <div class="mb-3">
+                                        <label for="area_agricola" class="form-label">Área Agrícola (ha):</label>
+                                        <input type="number" class="form-control" id="area_agricola" step="0.1" min="0">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="uso_fertilizante" class="form-label">Uso de Fertilizante Nitrogenado (kg/ha/ano):</label>
+                                        <input type="number" class="form-control" id="uso_fertilizante" min="0">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="area_pastagem" class="form-label">Área de Pastagem (ha):</label>
+                                        <input type="number" class="form-control" id="area_pastagem" step="0.1" min="0">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h5 class="border-bottom pb-2">Pecuária</h5>
+                                    <div class="mb-3">
+                                        <label for="num_bovinos" class="form-label">Número de Bovinos:</label>
+                                        <input type="number" class="form-control" id="num_bovinos" min="0">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <h5 class="border-bottom pb-2">Combustível</h5>
+                                    <div class="mb-3">
+                                        <label for="consumo_combustivel" class="form-label">Consumo de Diesel (litros/ano):</label>
+                                        <input type="number" class="form-control" id="consumo_combustivel" min="0">
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="button" id="btn-cadastrar" class="btn btn-success me-md-2">Cadastrar Propriedade</button>
+                                    <button type="submit" class="btn btn-primary">Calcular Pegada</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h3>Resultados</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="resultado-container">
+                                <div class="text-center text-muted">
+                                    <p>Preencha o formulário e clique em "Calcular Pegada" para ver os resultados.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h3>Créditos de Carbono</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="creditos-container">
+                                <p>O potencial de créditos de carbono será calculado com base na área de pastagem e práticas de manejo.</p>
+                                <button id="btn-creditos" class="btn btn-success">Calcular Créditos de Carbono</button>
+                                <div id="resultado-creditos" class="mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="propriedades" class="page" style="display: none;">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3>Propriedades Cadastradas</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Tamanho (ha)</th>
+                                    <th>Data de Registro</th>
+                                    <th>Emissão Total (kgCO₂e)</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-propriedades">
+                                <tr>
+                                    <td colspan="5" class="text-center">Carregando propriedades...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dashboard" class="page" style="display: none;">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3>Dashboard de Emissões</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">Emissões por Fonte</div>
+                                <div class="card-body">
+                                    <canvas id="emissaoPorFonte"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header">Potencial de Redução</div>
+                                <div class="card-body">
+                                    <canvas id="potencialReducao"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Calculadora de Pegada de Carbono Agrícola</h5>
+                    <p>Ferramenta para cálculo de emissões de gases de efeito estufa e potencial de créditos de carbono em propriedades rurais.</p>
+                </div>
+                <div class="col-md-6">
+                    <h5>Metodologias</h5>
+                    <ul>
+                        <li>IPCC Tier 1 para cálculo de emissões</li>
+                        <li>VCS VM0032 para recuperação de pastagens</li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <p class="text-center mb-0">&copy; 2025 Pegada de Carbono Agrícola</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/charts.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
