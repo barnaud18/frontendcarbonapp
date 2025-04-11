@@ -303,6 +303,7 @@ dependencies = [
     { name = "flask-swagger-ui" },
     { name = "gunicorn" },
     { name = "psycopg2-binary" },
+    { name = "sqlalchemy" },
 ]
 
 [package.metadata]
@@ -314,6 +315,7 @@ requires-dist = [
     { name = "flask-swagger-ui", specifier = ">=4.11.1" },
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "psycopg2-binary", specifier = ">=2.9.10" },
+    { name = "sqlalchemy", specifier = ">=2.0.40" },
 ]
 
 [[package]]

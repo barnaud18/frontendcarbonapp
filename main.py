@@ -338,7 +338,7 @@ def calcular():
         )
         
         # Calculate carbon credits if pasture area is provided
-        potencial_credito = calcular_creditos_carbono(area_pastagem=area_pastagem) if area_pastagem else 0
+        potencial_credito = calcular_creditos_carbono(area_pastagem=area_pastagem) if area_pastagem > 0 else {"total": 0}
         
         # Generate recommendations
         recomendacoes = gerar_recomendacoes(
@@ -567,7 +567,7 @@ def api_calcular():
         )
         
         # Calculate carbon credits if pasture area is provided
-        potencial_credito = calcular_creditos_carbono(area_pastagem=area_pastagem) if area_pastagem else 0
+        potencial_credito = calcular_creditos_carbono(area_pastagem=area_pastagem) if area_pastagem > 0 else {"total": 0}
         
         # Generate recommendations
         recomendacoes = gerar_recomendacoes(
