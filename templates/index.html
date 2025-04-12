@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Pegada de Carbono</title>
+    <title>Calculadora de Créditos de Carbono Agrícola</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -126,13 +126,7 @@
 
 <body>
     <div class="container">
-        <h1>Calculadora de Pegada de Carbono Agrícola</h1>
-        
-        <div style="margin-bottom: 20px; text-align: right;">
-            <a href="/propriedades" class="btn-info" style="padding: 10px 15px; border-radius: 4px; font-weight: bold;">
-                Ver Propriedades Cadastradas
-            </a>
-        </div>
+        <h1>Calculadora de Créditos de Carbono Agrícola</h1>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -147,95 +141,46 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="card">
-                    <h2>Dados da Propriedade</h2>
-                    <form action="/calcular" method="post">
-                        <div class="form-group">
-                            <label for="nome">Nome da Propriedade:</label>
-                            <input type="text" id="nome" name="nome" placeholder="Ex: Fazenda São João" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="tamanho_total">Tamanho Total (ha):</label>
-                            <input type="number" id="tamanho_total" name="tamanho_total" min="0" step="0.1" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="area_agricola">Área Agrícola (ha):</label>
-                            <input type="number" id="area_agricola" name="area_agricola" min="0" step="0.1" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="uso_fertilizante">Uso de Fertilizante (kg/ha/ano):</label>
-                            <input type="number" id="uso_fertilizante" name="uso_fertilizante" min="0" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="area_pastagem">Área de Pastagem (ha):</label>
-                            <input type="number" id="area_pastagem" name="area_pastagem" min="0" step="0.1" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="num_bovinos">Número de Bovinos:</label>
-                            <input type="number" id="num_bovinos" name="num_bovinos" min="0" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="consumo_combustivel">Consumo de Diesel (litros/ano):</label>
-                            <input type="number" id="consumo_combustivel" name="consumo_combustivel" min="0" required>
-                        </div>
-                        
-                        <div style="margin-top: 20px;">
-                            <button type="submit" class="btn-primary">Calcular Pegada</button>
-                            <button type="submit" formaction="/cadastrar" class="btn-success">Cadastrar Propriedade</button>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="card">
-                    <h2>Créditos de Carbono</h2>
-                    <p>Calcule os potenciais créditos de carbono da sua propriedade:</p>
+                    <h2>Calculadora de Créditos de Carbono</h2>
+                    <p>Calcule os potenciais créditos de carbono baseados em diferentes metodologias:</p>
                     
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <a href="/creditos" class="btn-success" style="text-align: center; text-decoration: none;">
-                            Calculadora Multi-Metodologias
-                        </a>
-                        
-                        <p style="margin: 5px 0; text-align: center;">OU</p>
-                        
-                        <form action="/creditos" method="post">
-                            <div class="form-group">
-                                <label for="area_pastagem_credito">Cálculo Rápido - Área de Pastagem (ha):</label>
-                                <input type="number" id="area_pastagem_credito" name="area_pastagem" min="0.1" step="0.1" required>
-                            </div>
-                            <button type="submit" class="btn-success">Calcular Créditos de Carbono</button>
-                        </form>
-                    </div>
+                    <a href="/creditos" class="btn-success" style="text-align: center; text-decoration: none; display: block; padding: 10px; margin-bottom: 15px;">
+                        Calculadora Multi-Metodologias
+                    </a>
+                    
+                    <form action="/creditos" method="post">
+                        <div class="form-group">
+                            <label for="area_pastagem">Cálculo Rápido - Área de Pastagem (ha):</label>
+                            <input type="number" id="area_pastagem" name="area_pastagem" min="0.1" step="0.1" required>
+                        </div>
+                        <button type="submit" class="btn-success">Calcular Créditos de Carbono</button>
+                    </form>
                 </div>
             </div>
             
             <div class="col-md-6">
                 <div class="card">
-                    <h2>Instruções</h2>
-                    <p>Esta calculadora permite estimar a pegada de carbono de propriedades rurais com base nos seguintes parâmetros:</p>
+                    <h2>Metodologia</h2>
+                    <p>Os cálculos de créditos de carbono são baseados nas seguintes metodologias reconhecidas:</p>
                     <ul>
-                        <li><strong>Área Agrícola:</strong> Área destinada à produção agrícola em hectares</li>
-                        <li><strong>Uso de Fertilizante:</strong> Quantidade de fertilizantes nitrogenados aplicados em kg/ha/ano</li>
-                        <li><strong>Número de Bovinos:</strong> Quantidade total de bovinos na propriedade</li>
-                        <li><strong>Consumo de Diesel:</strong> Consumo anual de diesel em equipamentos agrícolas em litros/ano</li>
-                        <li><strong>Área de Pastagem:</strong> Área de pastagens em hectares (para cálculo de créditos de carbono)</li>
+                        <li><strong>VCS VM0032:</strong> Recuperação de pastagens degradadas (0,5 tCO2e/ha/ano)</li>
+                        <li><strong>AR-ACM0003:</strong> Florestamento e reflorestamento (8,0 tCO2e/ha/ano)</li>
+                        <li><strong>CDM AMS-III.AU:</strong> Práticas agrícolas de baixo carbono (1,2 tCO2e/ha/ano)</li>
+                        <li><strong>VCS VM0017:</strong> Sistemas de integração lavoura-pecuária (3,0 tCO2e/ha/ano)</li>
                     </ul>
-                    <p>Preencha o formulário com os dados da sua propriedade e clique em "Calcular Pegada" para ver os resultados.</p>
+                    <p>Estes valores representam estimativas conservadoras do potencial de sequestro de carbono para cada atividade.</p>
                 </div>
                 
                 <div class="card">
-                    <h2>Metodologia</h2>
-                    <p>Os cálculos são baseados na metodologia Tier 1 do IPCC:</p>
-                    <ul>
-                        <li>Fertilizantes: Emissões de N₂O calculadas com fator de emissão de 1%</li>
-                        <li>Bovinos: Emissões de CH₄ estimadas em 56 kg/cabeça/ano</li>
-                        <li>Combustível: Fator de emissão de 2,68 kg CO₂e/litro de diesel</li>
-                        <li>Créditos de Carbono: Potencial de sequestro de 0,5 tCO₂e/ha/ano para pastagens recuperadas (VCS VM0032)</li>
-                    </ul>
+                    <h2>Instruções</h2>
+                    <p>Para utilizar a calculadora:</p>
+                    <ol>
+                        <li>Acesse a <strong>Calculadora Multi-Metodologias</strong> para inserir dados de diferentes práticas sustentáveis.</li>
+                        <li>Ou utilize o <strong>Cálculo Rápido</strong> para estimar créditos baseados apenas na área de pastagem.</li>
+                        <li>Informe as áreas em hectares para cada tipo de atividade que implementa em sua propriedade.</li>
+                        <li>Obtenha estimativas do potencial de créditos de carbono e valor financeiro aproximado.</li>
+                    </ol>
+                    <p>Lembre-se que para monetizar créditos de carbono, é necessário seguir protocolos específicos e obter certificação por entidades credenciadas.</p>
                 </div>
             </div>
         </div>
