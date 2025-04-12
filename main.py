@@ -323,12 +323,37 @@ def calcular():
     try:
         # Get form data
         nome = request.form.get('nome', 'Propriedade Teste')
-        tamanho_total = float(request.form.get('tamanho_total', 0))
-        area_agricola = float(request.form.get('area_agricola', 0))
-        uso_fertilizante = float(request.form.get('uso_fertilizante', 0))
-        area_pastagem = float(request.form.get('area_pastagem', 0))
-        num_bovinos = int(request.form.get('num_bovinos', 0))
-        consumo_combustivel = float(request.form.get('consumo_combustivel', 0))
+        
+        # Convert all values with explicit error handling
+        try:
+            tamanho_total = float(request.form.get('tamanho_total', 0))
+        except ValueError:
+            tamanho_total = 0.0
+            
+        try:
+            area_agricola = float(request.form.get('area_agricola', 0))
+        except ValueError:
+            area_agricola = 0.0
+            
+        try:
+            uso_fertilizante = float(request.form.get('uso_fertilizante', 0))
+        except ValueError:
+            uso_fertilizante = 0.0
+            
+        try:
+            area_pastagem = float(request.form.get('area_pastagem', 0))
+        except ValueError:
+            area_pastagem = 0.0
+            
+        try:
+            num_bovinos = int(request.form.get('num_bovinos', 0))
+        except ValueError:
+            num_bovinos = 0
+            
+        try:
+            consumo_combustivel = float(request.form.get('consumo_combustivel', 0))
+        except ValueError:
+            consumo_combustivel = 0.0
         
         # Debug logging
         app.logger.debug(f"Form data: nome={nome}, tamanho_total={tamanho_total}, area_agricola={area_agricola}, " +
@@ -343,32 +368,14 @@ def calcular():
             consumo_combustivel=consumo_combustivel
         )
         
-        # Debug logging
-        app.logger.debug(f"Resultado emissões: {resultado_emissoes}")
-        app.logger.debug(f"Calculando potencial de crédito. area_pastagem={area_pastagem}, tipo={type(area_pastagem)}")
+        # Calculate carbon credits
+        # Abordagem segura e simplificada para cálculo de créditos de carbono
+        potencial_credito = 0.0
         
-        # Calculate carbon credits if pasture area is provided
-        # Garantindo que area_pastagem é um float
-        area_pastagem_float = float(area_pastagem)
-        potencial_credito = 0
-        
-        try:
-            if area_pastagem_float > 0:
-                app.logger.debug(f"Área de pastagem > 0, chamando calcular_creditos_carbono com area_pastagem={area_pastagem_float}")
-                potencial_credito_resultado = calcular_creditos_carbono(area_pastagem=area_pastagem_float)
-                app.logger.debug(f"Resultado do cálculo de créditos: {potencial_credito_resultado}")
-                
-                if isinstance(potencial_credito_resultado, dict) and "total" in potencial_credito_resultado:
-                    potencial_credito = potencial_credito_resultado["total"]
-                    app.logger.debug(f"Potencial de crédito extraído: {potencial_credito}")
-                else:
-                    app.logger.error(f"Resultado inesperado do cálculo de créditos: {potencial_credito_resultado}")
-                    potencial_credito = 0
-            else:
-                app.logger.debug("Área de pastagem <= 0, crédito=0")
-        except Exception as erro_credito:
-            app.logger.error(f"Erro ao calcular créditos de carbono: {str(erro_credito)}")
-            potencial_credito = 0
+        if area_pastagem > 0:
+            # Cálculo direto sem usar função complexa
+            # Usando o fator de recuperação de pastagens (0.5 tCO2e/ha/ano)
+            potencial_credito = area_pastagem * 0.5
         
         # Generate recommendations
         recomendacoes = gerar_recomendacoes(
@@ -596,28 +603,18 @@ def api_calcular():
             consumo_combustivel=consumo_combustivel
         )
         
-        # Calculate carbon credits if pasture area is provided
+        # Simplified carbon credit calculation
+        potencial_credito = 0.0
+        
         try:
-            # Garantindo que area_pastagem é um float
             area_pastagem_float = float(area_pastagem)
-            potencial_credito = 0
-            
             if area_pastagem_float > 0:
-                app.logger.debug(f"API: Área de pastagem > 0, chamando calcular_creditos_carbono com area_pastagem={area_pastagem_float}")
-                potencial_credito_resultado = calcular_creditos_carbono(area_pastagem=area_pastagem_float)
-                app.logger.debug(f"API: Resultado do cálculo de créditos: {potencial_credito_resultado}")
-                
-                if isinstance(potencial_credito_resultado, dict) and "total" in potencial_credito_resultado:
-                    potencial_credito = potencial_credito_resultado["total"]
-                    app.logger.debug(f"API: Potencial de crédito extraído: {potencial_credito}")
-                else:
-                    app.logger.error(f"API: Resultado inesperado do cálculo de créditos: {potencial_credito_resultado}")
-                    potencial_credito = 0
-            else:
-                app.logger.debug("API: Área de pastagem <= 0, crédito=0")
+                # Direct calculation with pasture recovery factor (0.5 tCO2e/ha/year)
+                potencial_credito = area_pastagem_float * 0.5
+                app.logger.debug(f"API: Calculated carbon credit: {potencial_credito}")
         except Exception as erro_credito:
-            app.logger.error(f"API: Erro ao calcular créditos de carbono: {str(erro_credito)}")
-            potencial_credito = 0
+            app.logger.error(f"API: Error calculating carbon credits: {str(erro_credito)}")
+            potencial_credito = 0.0
         
         # Generate recommendations
         recomendacoes = gerar_recomendacoes(
