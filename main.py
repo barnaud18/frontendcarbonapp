@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import DeclarativeBase
 import os
 import logging
 from datetime import datetime
@@ -6,14 +8,68 @@ from datetime import datetime
 # Configurar logging
 logging.basicConfig(level=logging.DEBUG)
 
+# Configurar banco de dados
+class Base(DeclarativeBase):
+    pass
+
 # Inicializar app
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "chave_secreta_temporaria")
 
+# Configurar a conexão com o banco de dados
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+}
+
+# Inicializar o banco de dados
+db = SQLAlchemy(model_class=Base)
+db.init_app(app)
+
 # Calculadora de créditos simplificada
-def calcular_creditos(area_pastagem=0, area_florestal=0, area_renovacao_cultura=0, area_integracao_lavoura=0):
+class CalculoCarbono(db.Model):
+    """Modelo para armazenar cálculos de créditos de carbono"""
+    id = db.Column(db.Integer, primary_key=True)
+    nome_cenario = db.Column(db.String(100), nullable=True)
+    area_pastagem = db.Column(db.Float, nullable=True, default=0)
+    area_florestal = db.Column(db.Float, nullable=True, default=0)
+    area_renovacao_cultura = db.Column(db.Float, nullable=True, default=0)
+    area_integracao_lavoura = db.Column(db.Float, nullable=True, default=0)
+    credito_pastagem = db.Column(db.Float, nullable=True, default=0)
+    credito_florestal = db.Column(db.Float, nullable=True, default=0)
+    credito_renovacao = db.Column(db.Float, nullable=True, default=0)
+    credito_integracao = db.Column(db.Float, nullable=True, default=0)
+    total_creditos = db.Column(db.Float, nullable=True, default=0)
+    valor_estimado = db.Column(db.Float, nullable=True, default=0)
+    data_calculo = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'nome_cenario': self.nome_cenario,
+            'area_pastagem': self.area_pastagem,
+            'area_florestal': self.area_florestal,
+            'area_renovacao_cultura': self.area_renovacao_cultura,
+            'area_integracao_lavoura': self.area_integracao_lavoura,
+            'credito_pastagem': self.credito_pastagem,
+            'credito_florestal': self.credito_florestal,
+            'credito_renovacao': self.credito_renovacao, 
+            'credito_integracao': self.credito_integracao,
+            'total_creditos': self.total_creditos,
+            'valor_estimado': self.valor_estimado,
+            'data_calculo': self.data_calculo.strftime('%Y-%m-%d %H:%M') if self.data_calculo else None
+        }
+
+def calcular_creditos(area_pastagem=0.0, area_florestal=0.0, area_renovacao_cultura=0.0, area_integracao_lavoura=0.0):
     """
     Calcula o potencial de créditos de carbono com base em diferentes metodologias
+    
+    Referências científicas:
+    - Recuperação de pastagens: Método VCS VM0032 (Verified Carbon Standard)
+    - Florestamento: AR-ACM0003 (CDM - Clean Development Mechanism)
+    - Práticas agrícolas: CDM AMS-III.AU (Small-scale Methodology)
+    - Integração lavoura-pecuária: VCS VM0017
     """
     credito_pastagem = area_pastagem * 0.5  # VCS VM0032
     credito_florestal = area_florestal * 8.0  # AR-ACM0003
@@ -446,6 +502,31 @@ def creditos():
         )
         
         valor_estimado = total_creditos * 50  # R$50 por tCO2e
+        
+        # Nome do cenário (opcional)
+        nome_cenario = request.form.get('nome_cenario', 'Cenário sem nome')
+        
+        # Salvar no banco de dados
+        try:
+            novo_calculo = CalculoCarbono(
+                nome_cenario=nome_cenario,
+                area_pastagem=area_pastagem,
+                area_florestal=area_florestal,
+                area_renovacao_cultura=area_renovacao_cultura,
+                area_integracao_lavoura=area_integracao_lavoura,
+                credito_pastagem=resultados.get("pastagem", {}).get("creditos", 0),
+                credito_florestal=resultados.get("florestal", {}).get("creditos", 0),
+                credito_renovacao=resultados.get("renovacao", {}).get("creditos", 0),
+                credito_integracao=resultados.get("integracao", {}).get("creditos", 0),
+                total_creditos=total_creditos,
+                valor_estimado=valor_estimado
+            )
+            db.session.add(novo_calculo)
+            db.session.commit()
+            app.logger.debug(f"Cálculo salvo no banco de dados com ID: {novo_calculo.id}")
+        except Exception as e:
+            app.logger.error(f"Erro ao salvar cálculo no banco de dados: {str(e)}")
+            db.session.rollback()
             
         # Renderizar template
         return render_template(
@@ -456,7 +537,8 @@ def creditos():
             area_integracao_lavoura=area_integracao_lavoura,
             resultados=resultados,
             potencial_credito=total_creditos,
-            valor_estimado=valor_estimado
+            valor_estimado=valor_estimado,
+            nome_cenario=nome_cenario
         )
         
     except Exception as e:
@@ -468,6 +550,10 @@ def creditos():
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     return send_from_directory('static', filename)
+
+# Criar tabelas quando o app iniciar
+with app.app_context():
+    db.create_all()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
