@@ -61,8 +61,170 @@ def calcular_creditos(area_pastagem=0, area_florestal=0, area_renovacao_cultura=
 # Rotas
 @app.route('/')
 def index():
-    app.logger.debug("Redirecionando para página de créditos")
-    return redirect('/somente-creditos')
+    app.logger.debug("Servindo diretamente HTML da página inicial de créditos")
+    # Retornando diretamente o HTML, sem redirecionamento
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Calculadora de Créditos de Carbono Agrícola</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #1e1e1e;
+                color: #f8f9fa;
+            }
+            
+            .container {
+                max-width: 1000px;
+                margin: 0 auto;
+            }
+            
+            h1 {
+                color: #0d6efd;
+                margin-bottom: 20px;
+            }
+            
+            h2 {
+                color: #0dcaf0;
+            }
+            
+            .card {
+                background-color: #2c2c2c;
+                border-radius: 5px;
+                padding: 20px;
+                margin-bottom: 20px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            
+            form {
+                margin-bottom: 0;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+            
+            input[type="text"],
+            input[type="number"] {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #444;
+                border-radius: 4px;
+                background-color: #333;
+                color: #fff;
+                box-sizing: border-box;
+            }
+            
+            button {
+                padding: 10px 15px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-right: 10px;
+                font-weight: bold;
+            }
+            
+            .btn-primary {
+                background-color: #0d6efd;
+                color: white;
+            }
+            
+            .btn-success {
+                background-color: #198754;
+                color: white;
+            }
+            
+            .btn-info {
+                background-color: #0dcaf0;
+                color: white;
+                text-decoration: none;
+                display: inline-block;
+            }
+            
+            .row {
+                display: flex;
+                flex-wrap: wrap;
+                margin: 0 -10px;
+            }
+            
+            .col-md-6 {
+                flex: 0 0 100%;
+                padding: 0 10px;
+                box-sizing: border-box;
+            }
+            
+            @media (min-width: 768px) {
+                .col-md-6 {
+                    flex: 0 0 50%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Calculadora de Créditos de Carbono Agrícola</h1>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <h2>Calculadora de Créditos de Carbono</h2>
+                        <p>Calcule os potenciais créditos de carbono baseados em diferentes metodologias:</p>
+                        
+                        <a href="/creditos" class="btn-success" style="text-align: center; text-decoration: none; display: block; padding: 10px; margin-bottom: 15px;">
+                            Calculadora Multi-Metodologias
+                        </a>
+                        
+                        <form action="/creditos" method="post">
+                            <div class="form-group">
+                                <label for="area_pastagem">Cálculo Rápido - Área de Pastagem (ha):</label>
+                                <input type="number" id="area_pastagem" name="area_pastagem" min="0.1" step="0.1" required>
+                            </div>
+                            <button type="submit" class="btn-success">Calcular Créditos de Carbono</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <h2>Metodologia</h2>
+                        <p>Os cálculos de créditos de carbono são baseados nas seguintes metodologias reconhecidas:</p>
+                        <ul>
+                            <li><strong>VCS VM0032:</strong> Recuperação de pastagens degradadas (0,5 tCO2e/ha/ano)</li>
+                            <li><strong>AR-ACM0003:</strong> Florestamento e reflorestamento (8,0 tCO2e/ha/ano)</li>
+                            <li><strong>CDM AMS-III.AU:</strong> Práticas agrícolas de baixo carbono (1,2 tCO2e/ha/ano)</li>
+                            <li><strong>VCS VM0017:</strong> Sistemas de integração lavoura-pecuária (3,0 tCO2e/ha/ano)</li>
+                        </ul>
+                        <p>Estes valores representam estimativas conservadoras do potencial de sequestro de carbono para cada atividade.</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h2>Instruções</h2>
+                        <p>Para utilizar a calculadora:</p>
+                        <ol>
+                            <li>Acesse a <strong>Calculadora Multi-Metodologias</strong> para inserir dados de diferentes práticas sustentáveis.</li>
+                            <li>Ou utilize o <strong>Cálculo Rápido</strong> para estimar créditos baseados apenas na área de pastagem.</li>
+                            <li>Informe as áreas em hectares para cada tipo de atividade que implementa em sua propriedade.</li>
+                            <li>Obtenha estimativas do potencial de créditos de carbono e valor financeiro aproximado.</li>
+                        </ol>
+                        <p>Lembre-se que para monetizar créditos de carbono, é necessário seguir protocolos específicos e obter certificação por entidades credenciadas.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
 
 @app.route('/somente-creditos')
 def novo_index():
