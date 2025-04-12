@@ -242,9 +242,10 @@ def calcular_creditos_carbono(area_pastagem=0.0, area_florestal=0.0, area_renova
             "metodologia": "VCS VM0017 - Sistemas de integração lavoura-pecuária"
         }
     
-    # If only one methodology requested, return its value directly
+    # If only one methodology requested, return a dictionary with the credit value
     if metodologia is not None:
-        return resultados.get(metodologia, {}).get("creditos", 0)
+        credit_value = resultados.get(metodologia, {}).get("creditos", 0)
+        return {"total": credit_value}
     
     # Calculate total credits (sum from all methodologies)
     total_creditos = sum(metodo["creditos"] for metodo in resultados.values())
