@@ -7,6 +7,11 @@ import os
 import logging
 from datetime import datetime
 
+# Auxiliar para templates
+def now():
+    """Retorna a data/hora atual para uso nos templates"""
+    return datetime.now()
+
 # Configurar logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -17,6 +22,9 @@ class Base(DeclarativeBase):
 # Inicializar app
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "chave_secreta_temporaria")
+
+# Adicionar função auxiliar aos templates
+app.jinja_env.globals['now'] = now
 
 # Configurar a conexão com o banco de dados
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
@@ -119,170 +127,8 @@ def calcular_creditos(area_pastagem=0.0, area_florestal=0.0, area_renovacao_cult
 # Rotas
 @app.route('/')
 def index():
-    app.logger.debug("Servindo diretamente HTML da página inicial de créditos")
-    # Retornando diretamente o HTML, sem redirecionamento
-    return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Calculadora de Créditos de Carbono Agrícola</title>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                margin: 0;
-                padding: 20px;
-                background-color: #1e1e1e;
-                color: #f8f9fa;
-            }
-            
-            .container {
-                max-width: 1000px;
-                margin: 0 auto;
-            }
-            
-            h1 {
-                color: #0d6efd;
-                margin-bottom: 20px;
-            }
-            
-            h2 {
-                color: #0dcaf0;
-            }
-            
-            .card {
-                background-color: #2c2c2c;
-                border-radius: 5px;
-                padding: 20px;
-                margin-bottom: 20px;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            }
-            
-            form {
-                margin-bottom: 0;
-            }
-            
-            .form-group {
-                margin-bottom: 15px;
-            }
-            
-            label {
-                display: block;
-                margin-bottom: 5px;
-                font-weight: bold;
-            }
-            
-            input[type="text"],
-            input[type="number"] {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid #444;
-                border-radius: 4px;
-                background-color: #333;
-                color: #fff;
-                box-sizing: border-box;
-            }
-            
-            button {
-                padding: 10px 15px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                margin-right: 10px;
-                font-weight: bold;
-            }
-            
-            .btn-primary {
-                background-color: #0d6efd;
-                color: white;
-            }
-            
-            .btn-success {
-                background-color: #198754;
-                color: white;
-            }
-            
-            .btn-info {
-                background-color: #0dcaf0;
-                color: white;
-                text-decoration: none;
-                display: inline-block;
-            }
-            
-            .row {
-                display: flex;
-                flex-wrap: wrap;
-                margin: 0 -10px;
-            }
-            
-            .col-md-6 {
-                flex: 0 0 100%;
-                padding: 0 10px;
-                box-sizing: border-box;
-            }
-            
-            @media (min-width: 768px) {
-                .col-md-6 {
-                    flex: 0 0 50%;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>Calculadora de Créditos de Carbono Agrícola</h1>
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <h2>Calculadora de Créditos de Carbono</h2>
-                        <p>Calcule os potenciais créditos de carbono baseados em diferentes metodologias:</p>
-                        
-                        <a href="/creditos" class="btn-success" style="text-align: center; text-decoration: none; display: block; padding: 10px; margin-bottom: 15px;">
-                            Calculadora Multi-Metodologias
-                        </a>
-                        
-                        <form action="/creditos" method="post">
-                            <div class="form-group">
-                                <label for="area_pastagem">Cálculo Rápido - Área de Pastagem (ha):</label>
-                                <input type="number" id="area_pastagem" name="area_pastagem" min="0.1" step="0.1" required>
-                            </div>
-                            <button type="submit" class="btn-success">Calcular Créditos de Carbono</button>
-                        </form>
-                    </div>
-                </div>
-                
-                <div class="col-md-6">
-                    <div class="card">
-                        <h2>Metodologia</h2>
-                        <p>Os cálculos de créditos de carbono são baseados nas seguintes metodologias reconhecidas:</p>
-                        <ul>
-                            <li><strong>VCS VM0032:</strong> Recuperação de pastagens degradadas (0,5 tCO2e/ha/ano)</li>
-                            <li><strong>AR-ACM0003:</strong> Florestamento e reflorestamento (8,0 tCO2e/ha/ano)</li>
-                            <li><strong>CDM AMS-III.AU:</strong> Práticas agrícolas de baixo carbono (1,2 tCO2e/ha/ano)</li>
-                            <li><strong>VCS VM0017:</strong> Sistemas de integração lavoura-pecuária (3,0 tCO2e/ha/ano)</li>
-                        </ul>
-                        <p>Estes valores representam estimativas conservadoras do potencial de sequestro de carbono para cada atividade.</p>
-                    </div>
-                    
-                    <div class="card">
-                        <h2>Instruções</h2>
-                        <p>Para utilizar a calculadora:</p>
-                        <ol>
-                            <li>Acesse a <strong>Calculadora Multi-Metodologias</strong> para inserir dados de diferentes práticas sustentáveis.</li>
-                            <li>Ou utilize o <strong>Cálculo Rápido</strong> para estimar créditos baseados apenas na área de pastagem.</li>
-                            <li>Informe as áreas em hectares para cada tipo de atividade que implementa em sua propriedade.</li>
-                            <li>Obtenha estimativas do potencial de créditos de carbono e valor financeiro aproximado.</li>
-                        </ol>
-                        <p>Lembre-se que para monetizar créditos de carbono, é necessário seguir protocolos específicos e obter certificação por entidades credenciadas.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </body>
-    </html>
-    """
+    app.logger.debug("Renderizando o template da página inicial")
+    return render_template('index.html')
 
 @app.route('/somente-creditos')
 def novo_index():
@@ -449,6 +295,73 @@ def novo_index():
     </body>
     </html>
     """
+
+@app.route('/dashboard')
+def dashboard():
+    try:
+        app.logger.debug("Acessando dashboard de análise")
+        
+        # Buscar todos os cenários do banco de dados
+        cenarios = CalculoCarbono.query.order_by(CalculoCarbono.data_calculo.desc()).all()
+        
+        # Cálculos para estatísticas
+        total_cenarios = len(cenarios)
+        total_creditos = sum(c.total_creditos for c in cenarios) if cenarios else 0
+        valor_estimado = sum(c.valor_estimado for c in cenarios) if cenarios else 0
+        area_total = sum((c.area_pastagem + c.area_florestal + c.area_renovacao_cultura + c.area_integracao_lavoura) for c in cenarios) if cenarios else 0
+        
+        # Calcular totais por metodologia
+        totais = {
+            'credito_pastagem': sum(c.credito_pastagem for c in cenarios) if cenarios else 0,
+            'credito_florestal': sum(c.credito_florestal for c in cenarios) if cenarios else 0,
+            'credito_renovacao': sum(c.credito_renovacao for c in cenarios) if cenarios else 0,
+            'credito_integracao': sum(c.credito_integracao for c in cenarios) if cenarios else 0
+        }
+        
+        # Dados para o gráfico de séries temporais
+        datas = []
+        creditos_acumulados = []
+        acumulado = 0
+        
+        # Ordenar cenários por data para o gráfico de séries temporais
+        cenarios_ordenados = sorted(cenarios, key=lambda x: x.data_calculo)
+        for c in cenarios_ordenados:
+            acumulado += c.total_creditos
+            datas.append(f"'{c.data_calculo.strftime('%d/%m/%Y')}'" if c.data_calculo else "'Data desconhecida'")
+            creditos_acumulados.append(acumulado)
+        
+        return render_template(
+            'dashboard.html',
+            cenarios=cenarios,
+            total_cenarios=total_cenarios,
+            total_creditos=total_creditos,
+            valor_estimado=valor_estimado,
+            area_total=area_total,
+            totais=totais,
+            datas=datas,
+            creditos_acumulados=creditos_acumulados
+        )
+    except Exception as e:
+        app.logger.error(f"Erro ao renderizar dashboard: {str(e)}")
+        flash(f"Erro ao carregar dashboard: {str(e)}", 'error')
+        return redirect(url_for('index'))
+
+@app.route('/detalhes/<int:id>')
+def detalhes_cenario(id):
+    try:
+        app.logger.debug(f"Acessando detalhes do cenário {id}")
+        
+        # Buscar cenário do banco de dados
+        cenario = CalculoCarbono.query.get_or_404(id)
+        
+        return render_template(
+            'detalhes.html',
+            cenario=cenario
+        )
+    except Exception as e:
+        app.logger.error(f"Erro ao acessar detalhes do cenário {id}: {str(e)}")
+        flash(f"Erro ao carregar detalhes: {str(e)}", 'error')
+        return redirect(url_for('dashboard'))
 
 @app.route('/propriedades')
 def listar_propriedades():
