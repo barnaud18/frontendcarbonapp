@@ -61,8 +61,8 @@ def calcular_creditos(area_pastagem=0, area_florestal=0, area_renovacao_cultura=
 # Rotas
 @app.route('/')
 def index():
-    app.logger.debug("Renderizando página inicial")
-    return render_template('creditos_inicio.html')
+    app.logger.debug("Redirecionando para página de créditos")
+    return redirect('/somente-creditos')
 
 @app.route('/somente-creditos')
 def novo_index():
