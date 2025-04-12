@@ -59,7 +59,7 @@ def gerar_recomendacoes():
 # Rota principal
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index_novo.html')
 
 # Rota para cálculo
 @app.route('/calcular', methods=['POST'])
