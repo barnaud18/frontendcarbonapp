@@ -1,191 +1,232 @@
-{
-  "swagger": "2.0",
-  "info": {
-    "title": "Calculadora de Pegada de Carbono Agrícola API",
-    "description": "API para cálculo de pegada de carbono e créditos de carbono para propriedades rurais",
-    "version": "1.0.0"
-  },
-  "basePath": "/",
-  "schemes": [
-    "http"
-  ],
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
-  "paths": {
-    "/cadastrar_propriedade": {
-      "post": {
-        "summary": "Cadastrar uma nova propriedade rural",
-        "description": "Registra uma nova propriedade com dados de agricultura e pecuária",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "nome": {
-                  "type": "string",
-                  "description": "Nome da propriedade"
-                },
-                "tamanho_total": {
-                  "type": "number",
-                  "description": "Tamanho total em hectares"
-                },
-                "area_agricola": {
-                  "type": "number",
-                  "description": "Área agrícola em hectares"
-                },
-                "uso_fertilizante": {
-                  "type": "number",
-                  "description": "Uso de fertilizantes em kg/ha/ano"
-                },
-                "consumo_combustivel": {
-                  "type": "number",
-                  "description": "Consumo de combustível em litros/ano"
-                },
-                "area_pastagem": {
-                  "type": "number",
-                  "description": "Área de pastagem em hectares"
-                },
-                "num_bovinos": {
-                  "type": "integer",
-                  "description": "Número de bovinos"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Propriedade cadastrada com sucesso"
-          },
-          "400": {
-            "description": "Erro ao cadastrar propriedade"
-          }
-        }
-      }
-    },
-    "/calcular": {
-      "post": {
-        "summary": "Calcular pegada de carbono",
-        "description": "Calcula a pegada de carbono com base nos dados de propriedade",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "propriedade_id": {
-                  "type": "integer",
-                  "description": "ID da propriedade (opcional)"
-                },
-                "area_agricola": {
-                  "type": "number",
-                  "description": "Área agrícola em hectares"
-                },
-                "uso_fertilizante": {
-                  "type": "number",
-                  "description": "Uso de fertilizantes em kg/ha/ano"
-                },
-                "consumo_combustivel": {
-                  "type": "number",
-                  "description": "Consumo de combustível em litros/ano"
-                },
-                "area_pastagem": {
-                  "type": "number",
-                  "description": "Área de pastagem em hectares"
-                },
-                "num_bovinos": {
-                  "type": "integer",
-                  "description": "Número de bovinos"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Cálculo realizado com sucesso"
-          },
-          "400": {
-            "description": "Erro ao calcular pegada de carbono"
-          }
-        }
-      }
-    },
-    "/buscar_usuario/{propriedade_id}": {
-      "get": {
-        "summary": "Buscar dados de propriedade",
-        "description": "Recupera os dados de uma propriedade pelo ID",
-        "parameters": [
-          {
-            "name": "propriedade_id",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "description": "ID da propriedade"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Dados recuperados com sucesso"
-          },
-          "404": {
-            "description": "Propriedade não encontrada"
-          }
-        }
-      }
-    },
-    "/calcular-creditos": {
-      "post": {
-        "summary": "Calcular potencial de créditos de carbono",
-        "description": "Calcula o potencial de créditos de carbono com base na área de pastagem",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "area_pastagem": {
-                  "type": "number",
-                  "description": "Área de pastagem em hectares"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Cálculo realizado com sucesso"
-          },
-          "400": {
-            "description": "Erro ao calcular créditos de carbono"
-          }
-        }
-      }
-    },
-    "/propriedades": {
-      "get": {
-        "summary": "Listar todas propriedades",
-        "description": "Lista todas as propriedades cadastradas",
-        "responses": {
-          "200": {
-            "description": "Lista recuperada com sucesso"
-          },
-          "400": {
-            "description": "Erro ao listar propriedades"
-          }
-        }
-      }
-    }
-  }
-}
+swagger: '2.0'
+info:
+  title: 'API de Calculadora de Créditos de Carbono Agrícola'
+  description: 'API para calcular emissões e créditos de carbono em atividades agrícolas'
+  version: '1.0'
+host: 'localhost:5000'
+basePath: '/api'
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /calcular-creditos:
+    post:
+      summary: 'Calcula créditos de carbono com base em diferentes metodologias'
+      description: 'Calcula potenciais créditos de carbono com base nas áreas informadas para diferentes atividades de mitigação'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              nome_cenario:
+                type: string
+                description: 'Nome descritivo do cenário de cálculo'
+              area_pastagem:
+                type: number
+                format: float
+                description: 'Área de pastagem recuperada em hectares'
+              area_florestal:
+                type: number
+                format: float
+                description: 'Área de florestamento/reflorestamento em hectares'
+              area_renovacao_cultura:
+                type: number
+                format: float
+                description: 'Área com renovação/rotação de culturas em hectares'
+              area_integracao_lavoura:
+                type: number
+                format: float
+                description: 'Área com integração lavoura-pecuária em hectares'
+      responses:
+        200:
+          description: 'Cálculo realizado com sucesso'
+          schema:
+            type: object
+            properties:
+              total_creditos:
+                type: number
+                format: float
+                description: 'Total de créditos de carbono em tCO2e'
+              resultados:
+                type: object
+                description: 'Detalhamento dos créditos por metodologia'
+              valor_estimado:
+                type: number
+                format: float
+                description: 'Valor estimado em R$ baseado nos créditos calculados'
+              id:
+                type: integer
+                description: 'ID do cálculo no banco de dados'
+              
+  /cenarios:
+    get:
+      summary: 'Lista todos os cenários de cálculo'
+      description: 'Retorna todos os cenários de cálculo de créditos de carbono previamente calculados'
+      responses:
+        200:
+          description: 'Lista de cenários'
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: 'ID do cálculo'
+                nome_cenario:
+                  type: string
+                  description: 'Nome do cenário'
+                total_creditos:
+                  type: number
+                  format: float
+                  description: 'Total de créditos de carbono em tCO2e'
+                valor_estimado:
+                  type: number
+                  format: float
+                  description: 'Valor estimado em R$'
+                data_calculo:
+                  type: string
+                  format: date-time
+                  description: 'Data e hora do cálculo'
+                  
+  /cenarios/{id}:
+    get:
+      summary: 'Obtém detalhes de um cenário específico'
+      description: 'Retorna os detalhes completos de um cenário de cálculo específico'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          description: 'ID do cenário'
+      responses:
+        200:
+          description: 'Detalhes do cenário'
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: 'ID do cálculo'
+              nome_cenario:
+                type: string
+                description: 'Nome do cenário'
+              area_pastagem:
+                type: number
+                format: float
+                description: 'Área de pastagem recuperada em hectares'
+              area_florestal:
+                type: number
+                format: float
+                description: 'Área de florestamento/reflorestamento em hectares'
+              area_renovacao_cultura:
+                type: number
+                format: float
+                description: 'Área com renovação/rotação de culturas em hectares'
+              area_integracao_lavoura:
+                type: number
+                format: float
+                description: 'Área com integração lavoura-pecuária em hectares'
+              credito_pastagem:
+                type: number
+                format: float
+                description: 'Créditos da pastagem recuperada'
+              credito_florestal:
+                type: number
+                format: float
+                description: 'Créditos do florestamento/reflorestamento'
+              credito_renovacao:
+                type: number
+                format: float
+                description: 'Créditos da renovação/rotação de culturas'
+              credito_integracao:
+                type: number
+                format: float
+                description: 'Créditos da integração lavoura-pecuária'
+              total_creditos:
+                type: number
+                format: float
+                description: 'Total de créditos de carbono em tCO2e'
+              valor_estimado:
+                type: number
+                format: float
+                description: 'Valor estimado em R$'
+              data_calculo:
+                type: string
+                format: date-time
+                description: 'Data e hora do cálculo'
+        404:
+          description: 'Cenário não encontrado'
+  
+  /referencias:
+    get:
+      summary: 'Obtém informações sobre as metodologias e referências científicas'
+      description: 'Retorna informações detalhadas sobre as metodologias utilizadas e suas referências científicas'
+      responses:
+        200:
+          description: 'Informações sobre metodologias'
+          schema:
+            type: object
+            properties:
+              metodologias:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    codigo:
+                      type: string
+                      description: 'Código da metodologia'
+                    nome:
+                      type: string
+                      description: 'Nome da metodologia'
+                    descricao:
+                      type: string
+                      description: 'Descrição detalhada'
+                    fator:
+                      type: number
+                      format: float
+                      description: 'Fator de conversão em tCO2e/ha/ano'
+                    referencia:
+                      type: string
+                      description: 'Referência bibliográfica'
+                    url:
+                      type: string
+                      description: 'URL para documentação oficial'
+                      
+  /estudos-caso:
+    get:
+      summary: 'Obtém estudos de caso de implementação'
+      description: 'Retorna informações sobre estudos de caso reais de implementação das metodologias'
+      responses:
+        200:
+          description: 'Lista de estudos de caso'
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: 'ID do estudo de caso'
+                titulo:
+                  type: string
+                  description: 'Título do estudo'
+                localizacao:
+                  type: string
+                  description: 'Localização geográfica'
+                metodologias:
+                  type: array
+                  items:
+                    type: string
+                  description: 'Metodologias implementadas'
+                resultados:
+                  type: string
+                  description: 'Resultados obtidos'
+                ano:
+                  type: integer
+                  description: 'Ano de implementação'

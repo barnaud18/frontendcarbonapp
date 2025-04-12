@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
+from flask_restful import Api, Resource
+from flask_swagger_ui import get_swaggerui_blueprint
 import os
 import logging
 from datetime import datetime
@@ -550,6 +552,184 @@ def creditos():
 @app.route('/static/<path:filename>')
 def serve_static(filename):
     return send_from_directory('static', filename)
+
+# Configuração da API RESTful
+api = Api(app, prefix='/api')
+
+# Endpoints da API
+class CalcularCreditosResource(Resource):
+    def post(self):
+        try:
+            data = request.get_json()
+            
+            nome_cenario = data.get('nome_cenario', 'Cenário sem nome')
+            area_pastagem = float(data.get('area_pastagem', 0) or 0)
+            area_florestal = float(data.get('area_florestal', 0) or 0)
+            area_renovacao_cultura = float(data.get('area_renovacao_cultura', 0) or 0)
+            area_integracao_lavoura = float(data.get('area_integracao_lavoura', 0) or 0)
+            
+            # Calcular créditos de carbono
+            total_creditos, resultados = calcular_creditos(
+                area_pastagem=area_pastagem,
+                area_florestal=area_florestal,
+                area_renovacao_cultura=area_renovacao_cultura,
+                area_integracao_lavoura=area_integracao_lavoura
+            )
+            
+            # Valor estimado em reais (R$ 50/tCO2e)
+            valor_estimado = total_creditos * 50
+            
+            # Salvar no banco de dados
+            novo_calculo = CalculoCarbono(
+                nome_cenario=nome_cenario,
+                area_pastagem=area_pastagem,
+                area_florestal=area_florestal,
+                area_renovacao_cultura=area_renovacao_cultura,
+                area_integracao_lavoura=area_integracao_lavoura,
+                credito_pastagem=resultados.get("pastagem", {}).get("creditos", 0),
+                credito_florestal=resultados.get("florestal", {}).get("creditos", 0),
+                credito_renovacao=resultados.get("renovacao", {}).get("creditos", 0),
+                credito_integracao=resultados.get("integracao", {}).get("creditos", 0),
+                total_creditos=total_creditos,
+                valor_estimado=valor_estimado
+            )
+            db.session.add(novo_calculo)
+            db.session.commit()
+            
+            # Retornar resultado
+            return {
+                'id': novo_calculo.id,
+                'total_creditos': total_creditos,
+                'resultados': resultados,
+                'valor_estimado': valor_estimado
+            }, 200
+            
+        except Exception as e:
+            app.logger.error(f"Erro na API /calcular-creditos: {str(e)}")
+            return {'error': str(e)}, 400
+
+class CenariosListResource(Resource):
+    def get(self):
+        try:
+            calculos = CalculoCarbono.query.order_by(CalculoCarbono.data_calculo.desc()).all()
+            return [
+                {
+                    'id': calculo.id,
+                    'nome_cenario': calculo.nome_cenario,
+                    'total_creditos': calculo.total_creditos,
+                    'valor_estimado': calculo.valor_estimado,
+                    'data_calculo': calculo.data_calculo.strftime('%Y-%m-%d %H:%M') if calculo.data_calculo else None
+                } for calculo in calculos
+            ], 200
+        except Exception as e:
+            app.logger.error(f"Erro na API /cenarios: {str(e)}")
+            return {'error': str(e)}, 500
+
+class CenarioDetailResource(Resource):
+    def get(self, id):
+        try:
+            calculo = CalculoCarbono.query.get(id)
+            if not calculo:
+                return {'error': 'Cenário não encontrado'}, 404
+            
+            return calculo.to_dict(), 200
+        except Exception as e:
+            app.logger.error(f"Erro na API /cenarios/{id}: {str(e)}")
+            return {'error': str(e)}, 500
+
+class ReferenciasResource(Resource):
+    def get(self):
+        return {
+            'metodologias': [
+                {
+                    'codigo': 'VCS-VM0032',
+                    'nome': 'Recuperação de pastagens degradadas',
+                    'descricao': 'Metodologia para quantificação de emissões reduzidas por recuperação de pastagens degradadas',
+                    'fator': 0.5,
+                    'referencia': 'Verified Carbon Standard (VCS) VM0032',
+                    'url': 'https://verra.org/methodology/vm0032-methodology-for-the-adoption-of-sustainable-grasslands-through-adjustment-of-fire-and-grazing-v1-0/'
+                },
+                {
+                    'codigo': 'AR-ACM0003',
+                    'nome': 'Florestamento e reflorestamento',
+                    'descricao': 'Metodologia para quantificação de remoções de carbono por atividades de florestamento e reflorestamento',
+                    'fator': 8.0,
+                    'referencia': 'Clean Development Mechanism (CDM) AR-ACM0003',
+                    'url': 'https://cdm.unfccc.int/methodologies/DB/C7TYXBQJ7JJXON44AV71HBQXVSJ46V'
+                },
+                {
+                    'codigo': 'CDM-AMS-III.AU',
+                    'nome': 'Práticas agrícolas de baixo carbono',
+                    'descricao': 'Metodologia para redução de emissões de práticas agrícolas sustentáveis',
+                    'fator': 1.2,
+                    'referencia': 'Clean Development Mechanism (CDM) AMS-III.AU',
+                    'url': 'https://cdm.unfccc.int/methodologies/DB/13LQNV5A5EKORXUG3607N7ROBX6J6K'
+                },
+                {
+                    'codigo': 'VCS-VM0017',
+                    'nome': 'Sistemas de integração lavoura-pecuária',
+                    'descricao': 'Metodologia para adoção de agricultura sustentável com sistemas de manejo de terras e pastagens',
+                    'fator': 3.0,
+                    'referencia': 'Verified Carbon Standard (VCS) VM0017',
+                    'url': 'https://verra.org/methodology/vm0017-adoption-of-sustainable-agricultural-land-management-v1-0/'
+                }
+            ]
+        }
+
+class EstudosCasoResource(Resource):
+    def get(self):
+        return [
+            {
+                'id': 1,
+                'titulo': 'Recuperação de Pastagens na Fazenda Modelo, MG',
+                'localizacao': 'Minas Gerais, Brasil',
+                'metodologias': ['VCS-VM0032'],
+                'resultados': 'Recuperação de 500 hectares de pastagens degradadas, com sequestro médio de 0,7 tCO2e/ha/ano',
+                'ano': 2022
+            },
+            {
+                'id': 2,
+                'titulo': 'Projeto de Reflorestamento em Áreas Degradadas',
+                'localizacao': 'Paraná, Brasil',
+                'metodologias': ['AR-ACM0003'],
+                'resultados': 'Reflorestamento de 200 hectares com espécies nativas, sequestro médio de 10 tCO2e/ha/ano nos primeiros 5 anos',
+                'ano': 2021
+            },
+            {
+                'id': 3,
+                'titulo': 'Integração Lavoura-Pecuária em Larga Escala',
+                'localizacao': 'Mato Grosso, Brasil',
+                'metodologias': ['VCS-VM0017', 'CDM-AMS-III.AU'],
+                'resultados': 'Implementação em 1.200 hectares, redução de uso de fertilizantes e aumento da produtividade em 25%',
+                'ano': 2023
+            }
+        ]
+
+# Registrar endpoints na API
+api.add_resource(CalcularCreditosResource, '/calcular-creditos')
+api.add_resource(CenariosListResource, '/cenarios')
+api.add_resource(CenarioDetailResource, '/cenarios/<int:id>')
+api.add_resource(ReferenciasResource, '/referencias')
+api.add_resource(EstudosCasoResource, '/estudos-caso')
+
+# Configuração do Swagger UI
+SWAGGER_URL = '/api/docs'
+API_URL = '/static/swagger.yml'
+
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': "API de Calculadora de Créditos de Carbono Agrícola"
+    }
+)
+
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+
+# Endpoint para servir a especificação Swagger
+@app.route('/static/swagger.yml')
+def serve_swagger_spec():
+    return send_from_directory('.', 'swagger.yml')
 
 # Criar tabelas quando o app iniciar
 with app.app_context():

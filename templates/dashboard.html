@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Créditos de Carbono</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .card {
+            background-color: #2c2c2c;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+        
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .dashboard-stat {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+        
+        .dashboard-stat:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-title {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .stat-unit {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body data-bs-theme="dark">
+    <div class="container py-4">
+        <button class="btn btn-outline-light theme-toggle" id="themeToggle">
+            <i class="bi bi-sun"></i> Modo Claro
+        </button>
+        
+        <h1 class="mb-4">Dashboard de Créditos de Carbono</h1>
+        
+        <div class="row">
+            <div class="col-12 mb-4">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Início</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary dashboard-stat">
+                    <div class="stat-title">Total de Cenários</div>
+                    <div class="stat-value">{{ total_cenarios }}</div>
+                    <div class="stat-unit">cenários calculados</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success dashboard-stat">
+                    <div class="stat-title">Total de Créditos</div>
+                    <div class="stat-value">{{ total_creditos|round(1) }}</div>
+                    <div class="stat-unit">tCO₂e potenciais</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info dashboard-stat">
+                    <div class="stat-title">Valor Estimado</div>
+                    <div class="stat-value">R$ {{ valor_estimado|round(2)|int }}</div>
+                    <div class="stat-unit">em créditos de carbono</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning dashboard-stat">
+                    <div class="stat-title">Área Total</div>
+                    <div class="stat-value">{{ area_total|round(1) }}</div>
+                    <div class="stat-unit">hectares monitorados</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <h2 class="text-info">Distribuição de Créditos por Metodologia</h2>
+                    <div class="chart-container">
+                        <canvas id="metodologiasChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <h2 class="text-info">Evolução de Cenários ao Longo do Tempo</h2>
+                    <div class="chart-container">
+                        <canvas id="timeSeriesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <h2 class="text-info">Cenários Calculados</h2>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Data</th>
+                                    <th>Área Total (ha)</th>
+                                    <th>Créditos (tCO₂e)</th>
+                                    <th>Valor (R$)</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cenario in cenarios %}
+                                <tr>
+                                    <td>{{ cenario.nome_cenario }}</td>
+                                    <td>{{ cenario.data_calculo }}</td>
+                                    <td>{{ (cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura)|round(1) }}</td>
+                                    <td>{{ cenario.total_creditos|round(2) }}</td>
+                                    <td>R$ {{ cenario.valor_estimado|round(2) }}</td>
+                                    <td>
+                                        <a href="/detalhes/{{ cenario.id }}" class="btn btn-sm btn-info">
+                                            <i class="bi bi-eye"></i> Detalhes
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <h2 class="text-info">Comparação de Cenários</h2>
+                    <p>Selecione dois cenários para comparar:</p>
+                    <form id="compararForm" class="row g-3">
+                        <div class="col-md-5">
+                            <select class="form-select" id="cenario1">
+                                <option value="">Selecione o primeiro cenário</option>
+                                {% for cenario in cenarios %}
+                                <option value="{{ cenario.id }}">{{ cenario.nome_cenario }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <select class="form-select" id="cenario2">
+                                <option value="">Selecione o segundo cenário</option>
+                                {% for cenario in cenarios %}
+                                <option value="{{ cenario.id }}">{{ cenario.nome_cenario }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-primary" id="compararBtn">Comparar</button>
+                        </div>
+                    </form>
+                    
+                    <div id="comparacaoResultado" class="mt-4" style="display: none;">
+                        <div class="chart-container">
+                            <canvas id="comparacaoChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Dados para os gráficos
+        const metodologiasData = {
+            labels: ['Pastagem', 'Floresta', 'Renovação', 'Integração'],
+            datasets: [{
+                label: 'Créditos por Metodologia (tCO₂e)',
+                data: [{{ totais.credito_pastagem|default(0) }}, 
+                      {{ totais.credito_florestal|default(0) }}, 
+                      {{ totais.credito_renovacao|default(0) }}, 
+                      {{ totais.credito_integracao|default(0) }}],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+        
+        // Configuração para o gráfico de metodologias
+        const metodologiasConfig = {
+            type: 'pie',
+            data: metodologiasData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        };
+        
+        // Renderizar o gráfico de metodologias
+        const metodologiasChart = new Chart(
+            document.getElementById('metodologiasChart'),
+            metodologiasConfig
+        );
+        
+        // Configuração para o gráfico de séries temporais
+        const timeSeriesData = {
+            labels: {{ datas|safe }},
+            datasets: [{
+                label: 'Créditos Acumulados (tCO₂e)',
+                data: {{ creditos_acumulados|safe }},
+                fill: true,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.4
+            }]
+        };
+        
+        const timeSeriesConfig = {
+            type: 'line',
+            data: timeSeriesData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        };
+        
+        // Renderizar o gráfico de séries temporais
+        const timeSeriesChart = new Chart(
+            document.getElementById('timeSeriesChart'),
+            timeSeriesConfig
+        );
+        
+        // Função para alternar entre modos claro e escuro
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            const body = document.body;
+            const theme = body.getAttribute('data-bs-theme');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (theme === 'dark') {
+                body.setAttribute('data-bs-theme', 'light');
+                themeToggle.innerHTML = '<i class="bi bi-moon"></i> Modo Escuro';
+                themeToggle.classList.remove('btn-outline-light');
+                themeToggle.classList.add('btn-outline-dark');
+                
+                // Atualizar charts para modo claro
+                document.querySelectorAll('canvas').forEach(canvas => {
+                    const chart = Chart.getChart(canvas);
+                    if (chart) {
+                        chart.options.plugins.legend.labels.color = '#000';
+                        chart.options.scales.x.ticks.color = '#000';
+                        chart.options.scales.y.ticks.color = '#000';
+                        chart.update();
+                    }
+                });
+            } else {
+                body.setAttribute('data-bs-theme', 'dark');
+                themeToggle.innerHTML = '<i class="bi bi-sun"></i> Modo Claro';
+                themeToggle.classList.remove('btn-outline-dark');
+                themeToggle.classList.add('btn-outline-light');
+                
+                // Atualizar charts para modo escuro
+                document.querySelectorAll('canvas').forEach(canvas => {
+                    const chart = Chart.getChart(canvas);
+                    if (chart) {
+                        chart.options.plugins.legend.labels.color = '#fff';
+                        chart.options.scales.x.ticks.color = '#fff';
+                        chart.options.scales.y.ticks.color = '#fff';
+                        chart.update();
+                    }
+                });
+            }
+        });
+        
+        // Manipulador para o botão de comparação
+        document.getElementById('compararBtn').addEventListener('click', function() {
+            const cenario1Id = document.getElementById('cenario1').value;
+            const cenario2Id = document.getElementById('cenario2').value;
+            
+            if (cenario1Id && cenario2Id && cenario1Id !== cenario2Id) {
+                // Em um cenário real, faríamos uma chamada AJAX para obter dados
+                // Para demonstração, usamos dados simulados
+                fetch(`/api/cenarios/${cenario1Id}`)
+                    .then(response => response.json())
+                    .then(cenario1 => {
+                        fetch(`/api/cenarios/${cenario2Id}`)
+                            .then(response => response.json())
+                            .then(cenario2 => {
+                                // Configurar e mostrar o gráfico de comparação
+                                const comparacaoData = {
+                                    labels: ['Pastagem', 'Floresta', 'Renovação', 'Integração', 'Total'],
+                                    datasets: [
+                                        {
+                                            label: cenario1.nome_cenario,
+                                            data: [
+                                                cenario1.credito_pastagem,
+                                                cenario1.credito_florestal,
+                                                cenario1.credito_renovacao,
+                                                cenario1.credito_integracao,
+                                                cenario1.total_creditos
+                                            ],
+                                            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                                            borderColor: 'rgba(75, 192, 192, 1)',
+                                            borderWidth: 1
+                                        },
+                                        {
+                                            label: cenario2.nome_cenario,
+                                            data: [
+                                                cenario2.credito_pastagem,
+                                                cenario2.credito_florestal,
+                                                cenario2.credito_renovacao,
+                                                cenario2.credito_integracao,
+                                                cenario2.total_creditos
+                                            ],
+                                            backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                                            borderColor: 'rgba(153, 102, 255, 1)',
+                                            borderWidth: 1
+                                        }
+                                    ]
+                                };
+                                
+                                if (window.comparacaoChart) {
+                                    window.comparacaoChart.destroy();
+                                }
+                                
+                                window.comparacaoChart = new Chart(
+                                    document.getElementById('comparacaoChart'),
+                                    {
+                                        type: 'bar',
+                                        data: comparacaoData,
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true,
+                                                    title: {
+                                                        display: true,
+                                                        text: 'Créditos de Carbono (tCO₂e)'
+                                                    }
+                                                }
+                                            },
+                                            plugins: {
+                                                legend: {
+                                                    position: 'bottom'
+                                                }
+                                            }
+                                        }
+                                    }
+                                );
+                                
+                                document.getElementById('comparacaoResultado').style.display = 'block';
+                            });
+                    });
+            } else {
+                alert('Por favor, selecione dois cenários diferentes para comparar.');
+            }
+        });
+    </script>
+</body>
+</html>
