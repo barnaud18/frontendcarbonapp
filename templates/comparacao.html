@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ titulo }}</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #f8f9fa;
+        }
+        
+        .comparison-container {
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .scenario-card {
+            background-color: #333;
+            border-radius: 8px;
+            padding: 15px;
+            flex: 1;
+            margin: 0 10px;
+        }
+        
+        .chart-container {
+            height: 400px;
+            margin: 20px 0;
+        }
+        
+        table.comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        table.comparison-table th, 
+        table.comparison-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #444;
+        }
+        
+        table.comparison-table th {
+            background-color: #333;
+        }
+        
+        table.comparison-table tr:nth-child(even) {
+            background-color: #2c2c2c;
+        }
+        
+        .metric-name {
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .badge-difference {
+            font-size: 0.8em;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        
+        .difference-positive {
+            background-color: #198754;
+            color: white;
+        }
+        
+        .difference-negative {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-back {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="header">
+            <h1>{{ titulo }}</h1>
+            <p class="text-muted">Comparação de Cenários de Créditos de Carbono</p>
+        </div>
+        
+        <a href="/dashboard" class="btn btn-secondary btn-back"><i class="bi bi-arrow-left"></i> Voltar ao Dashboard</a>
+        
+        <div class="comparison-container">
+            <div class="comparison-header">
+                <div class="scenario-card">
+                    <h3>{{ cenario1.nome_cenario }}</h3>
+                    <p><strong>Total de Créditos:</strong> {{ "%.2f"|format(cenario1.total_creditos) }} tCO₂e</p>
+                    <p><strong>Valor Estimado:</strong> R$ {{ "%.2f"|format(cenario1.valor_estimado) }}</p>
+                    <p><strong>Data do Cálculo:</strong> {{ cenario1.data_calculo.strftime('%d/%m/%Y %H:%M') }}</p>
+                </div>
+                
+                <div class="scenario-card">
+                    <h3>{{ cenario2.nome_cenario }}</h3>
+                    <p><strong>Total de Créditos:</strong> {{ "%.2f"|format(cenario2.total_creditos) }} tCO₂e</p>
+                    <p><strong>Valor Estimado:</strong> R$ {{ "%.2f"|format(cenario2.valor_estimado) }}</p>
+                    <p><strong>Data do Cálculo:</strong> {{ cenario2.data_calculo.strftime('%d/%m/%Y %H:%M') }}</p>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Métrica</th>
+                        <th>{{ cenario1.nome_cenario }}</th>
+                        <th>{{ cenario2.nome_cenario }}</th>
+                        <th>Diferença</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="metric-name">Área de Pastagem (ha)</td>
+                        <td>{{ "%.2f"|format(cenario1.area_pastagem) }}</td>
+                        <td>{{ "%.2f"|format(cenario2.area_pastagem) }}</td>
+                        <td>
+                            {% set diff_pastagem = cenario2.area_pastagem - cenario1.area_pastagem %}
+                            {% if diff_pastagem > 0 %}
+                                <span class="badge-difference difference-positive">+{{ "%.2f"|format(diff_pastagem) }}</span>
+                            {% elif diff_pastagem < 0 %}
+                                <span class="badge-difference difference-negative">{{ "%.2f"|format(diff_pastagem) }}</span>
+                            {% else %}
+                                <span class="badge-difference">0</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="metric-name">Área Florestal (ha)</td>
+                        <td>{{ "%.2f"|format(cenario1.area_florestal) }}</td>
+                        <td>{{ "%.2f"|format(cenario2.area_florestal) }}</td>
+                        <td>
+                            {% set diff_florestal = cenario2.area_florestal - cenario1.area_florestal %}
+                            {% if diff_florestal > 0 %}
+                                <span class="badge-difference difference-positive">+{{ "%.2f"|format(diff_florestal) }}</span>
+                            {% elif diff_florestal < 0 %}
+                                <span class="badge-difference difference-negative">{{ "%.2f"|format(diff_florestal) }}</span>
+                            {% else %}
+                                <span class="badge-difference">0</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="metric-name">Área de Renovação de Cultura (ha)</td>
+                        <td>{{ "%.2f"|format(cenario1.area_renovacao_cultura) }}</td>
+                        <td>{{ "%.2f"|format(cenario2.area_renovacao_cultura) }}</td>
+                        <td>
+                            {% set diff_renovacao = cenario2.area_renovacao_cultura - cenario1.area_renovacao_cultura %}
+                            {% if diff_renovacao > 0 %}
+                                <span class="badge-difference difference-positive">+{{ "%.2f"|format(diff_renovacao) }}</span>
+                            {% elif diff_renovacao < 0 %}
+                                <span class="badge-difference difference-negative">{{ "%.2f"|format(diff_renovacao) }}</span>
+                            {% else %}
+                                <span class="badge-difference">0</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="metric-name">Área de Integração Lavoura-Pecuária (ha)</td>
+                        <td>{{ "%.2f"|format(cenario1.area_integracao_lavoura) }}</td>
+                        <td>{{ "%.2f"|format(cenario2.area_integracao_lavoura) }}</td>
+                        <td>
+                            {% set diff_integracao = cenario2.area_integracao_lavoura - cenario1.area_integracao_lavoura %}
+                            {% if diff_integracao > 0 %}
+                                <span class="badge-difference difference-positive">+{{ "%.2f"|format(diff_integracao) }}</span>
+                            {% elif diff_integracao < 0 %}
+                                <span class="badge-difference difference-negative">{{ "%.2f"|format(diff_integracao) }}</span>
+                            {% else %}
+                                <span class="badge-difference">0</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="metric-name">Créditos de Pastagem (tCO₂e)</td>
+                        <td>{{ "%.2f"|format(cenario1.credito_pastagem) }}</td>
+                        <td>{{ "%.2f"|format(cenario2.credito_pastagem) }}</td>
+                        <td>
+                            {% set diff_credito_pastagem = cenario2.credito_pastagem - cenario1.credito_pastagem %}
+                            {% if diff_credito_pastagem > 0 %}
+                                <span class="badge-difference difference-positive">+{{ "%.2f"|format(diff_credito_pastagem) }}</span>
+                            {% elif diff_credito_pastagem < 0 %}
+                                <span class="badge-difference difference-negative">{{ "%.2f"|format(diff_credito_pastagem) }}</span>
+                            {% else %}
+                                <span class="badge-difference">0</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="metric-name">Créditos Florestais (tCO₂e)</td>
+                        <td>{{ "%.2f"|format(cenario1.credito_florestal) }}</td>
+                        <td>{{ "%.2f"|format(cenario2.credito_florestal) }}</td>
+                        <td>
+                            {% set diff_credito_florestal = cenario2.credito_florestal - cenario1.credito_florestal %}
+                            {% if diff_credito_florestal > 0 %}
+                                <span class="badge-difference difference-positive">+{{ "%.2f"|format(diff_credito_florestal) }}</span>
+                            {% elif diff_credito_florestal < 0 %}
+                                <span class="badge-difference difference-negative">{{ "%.2f"|format(diff_credito_florestal) }}</span>
+                            {% else %}
+                                <span class="badge-difference">0</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="metric-name">Créditos de Renovação (tCO₂e)</td>
+                        <td>{{ "%.2f"|format(cenario1.credito_renovacao) }}</td>
+                        <td>{{ "%.2f"|format(cenario2.credito_renovacao) }}</td>
+                        <td>
+                            {% set diff_credito_renovacao = cenario2.credito_renovacao - cenario1.credito_renovacao %}
+                            {% if diff_credito_renovacao > 0 %}
+                                <span class="badge-difference difference-positive">+{{ "%.2f"|format(diff_credito_renovacao) }}</span>
+                            {% elif diff_credito_renovacao < 0 %}
+                                <span class="badge-difference difference-negative">{{ "%.2f"|format(diff_credito_renovacao) }}</span>
+                            {% else %}
+                                <span class="badge-difference">0</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="metric-name">Créditos de Integração (tCO₂e)</td>
+                        <td>{{ "%.2f"|format(cenario1.credito_integracao) }}</td>
+                        <td>{{ "%.2f"|format(cenario2.credito_integracao) }}</td>
+                        <td>
+                            {% set diff_credito_integracao = cenario2.credito_integracao - cenario1.credito_integracao %}
+                            {% if diff_credito_integracao > 0 %}
+                                <span class="badge-difference difference-positive">+{{ "%.2f"|format(diff_credito_integracao) }}</span>
+                            {% elif diff_credito_integracao < 0 %}
+                                <span class="badge-difference difference-negative">{{ "%.2f"|format(diff_credito_integracao) }}</span>
+                            {% else %}
+                                <span class="badge-difference">0</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr class="total-row" style="font-weight: bold; background-color: #333;">
+                        <td class="metric-name">Total de Créditos (tCO₂e)</td>
+                        <td>{{ "%.2f"|format(cenario1.total_creditos) }}</td>
+                        <td>{{ "%.2f"|format(cenario2.total_creditos) }}</td>
+                        <td>
+                            {% set diff_total = cenario2.total_creditos - cenario1.total_creditos %}
+                            {% if diff_total > 0 %}
+                                <span class="badge-difference difference-positive">+{{ "%.2f"|format(diff_total) }}</span>
+                            {% elif diff_total < 0 %}
+                                <span class="badge-difference difference-negative">{{ "%.2f"|format(diff_total) }}</span>
+                            {% else %}
+                                <span class="badge-difference">0</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr class="total-row" style="font-weight: bold; background-color: #333;">
+                        <td class="metric-name">Valor Estimado (R$)</td>
+                        <td>{{ "%.2f"|format(cenario1.valor_estimado) }}</td>
+                        <td>{{ "%.2f"|format(cenario2.valor_estimado) }}</td>
+                        <td>
+                            {% set diff_valor = cenario2.valor_estimado - cenario1.valor_estimado %}
+                            {% if diff_valor > 0 %}
+                                <span class="badge-difference difference-positive">+{{ "%.2f"|format(diff_valor) }}</span>
+                            {% elif diff_valor < 0 %}
+                                <span class="badge-difference difference-negative">{{ "%.2f"|format(diff_valor) }}</span>
+                            {% else %}
+                                <span class="badge-difference">0</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dados para o gráfico de comparação
+            const comparisonData = {
+                labels: ['Pastagem', 'Florestal', 'Renovação', 'Integração', 'Total'],
+                datasets: [
+                    {
+                        label: '{{ cenario1.nome_cenario }}',
+                        data: [
+                            {{ cenario1.credito_pastagem }},
+                            {{ cenario1.credito_florestal }},
+                            {{ cenario1.credito_renovacao }},
+                            {{ cenario1.credito_integracao }},
+                            {{ cenario1.total_creditos }}
+                        ],
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: '{{ cenario2.nome_cenario }}',
+                        data: [
+                            {{ cenario2.credito_pastagem }},
+                            {{ cenario2.credito_florestal }},
+                            {{ cenario2.credito_renovacao }},
+                            {{ cenario2.credito_integracao }},
+                            {{ cenario2.total_creditos }}
+                        ],
+                        backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            };
+            
+            // Configuração do gráfico
+            const comparisonConfig = {
+                type: 'bar',
+                data: comparisonData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Créditos de Carbono (tCO₂e)',
+                                color: '#fff'
+                            },
+                            ticks: {
+                                color: '#fff'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#fff'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#fff'
+                            }
+                        }
+                    }
+                }
+            };
+            
+            // Renderizar o gráfico
+            new Chart(
+                document.getElementById('comparisonChart'),
+                comparisonConfig
+            );
+        });
+    </script>
+</body>
+</html>
