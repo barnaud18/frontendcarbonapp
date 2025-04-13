@@ -93,14 +93,14 @@
             <div class="col-md-6">
                 <div class="card bg-success result-box">
                     <h3>Total de Créditos de Carbono</h3>
-                    <div class="result-value">{{ potencial_credito|round(2) }}</div>
+                    <div class="result-value">{{ "%.2f"|format(potencial_credito) }}</div>
                     <div class="result-unit">tCO₂e (toneladas de CO₂ equivalente)</div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="card bg-info result-box">
                     <h3>Valor Potencial Estimado</h3>
-                    <div class="result-value">R$ {{ valor_estimado|round(2) }}</div>
+                    <div class="result-value">R$ {{ "%.2f"|format(valor_estimado) }}</div>
                     <div class="result-unit">considerando R$ 50,00 por tCO₂e</div>
                 </div>
             </div>
@@ -125,44 +125,44 @@
                                 {% if resultados.get('pastagem') %}
                                 <tr>
                                     <td class="text-light">Recuperação de pastagens</td>
-                                    <td class="text-light">{{ resultados.pastagem.area|round(2) }}</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.pastagem.area) }}</td>
                                     <td class="text-light">{{ resultados.pastagem.fator }} tCO₂e/ha/ano</td>
-                                    <td class="text-light">{{ resultados.pastagem.creditos|round(2) }}</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.pastagem.creditos) }}</td>
                                 </tr>
                                 {% endif %}
                                 
                                 {% if resultados.get('florestal') %}
                                 <tr>
                                     <td class="text-light">Florestamento/Reflorestamento</td>
-                                    <td class="text-light">{{ resultados.florestal.area|round(2) }}</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.florestal.area) }}</td>
                                     <td class="text-light">{{ resultados.florestal.fator }} tCO₂e/ha/ano</td>
-                                    <td class="text-light">{{ resultados.florestal.creditos|round(2) }}</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.florestal.creditos) }}</td>
                                 </tr>
                                 {% endif %}
                                 
                                 {% if resultados.get('renovacao') %}
                                 <tr>
                                     <td class="text-light">Renovação/Rotação de culturas</td>
-                                    <td class="text-light">{{ resultados.renovacao.area|round(2) }}</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.renovacao.area) }}</td>
                                     <td class="text-light">{{ resultados.renovacao.fator }} tCO₂e/ha/ano</td>
-                                    <td class="text-light">{{ resultados.renovacao.creditos|round(2) }}</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.renovacao.creditos) }}</td>
                                 </tr>
                                 {% endif %}
                                 
                                 {% if resultados.get('integracao') %}
                                 <tr>
                                     <td class="text-light">Integração lavoura-pecuária</td>
-                                    <td class="text-light">{{ resultados.integracao.area|round(2) }}</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.integracao.area) }}</td>
                                     <td class="text-light">{{ resultados.integracao.fator }} tCO₂e/ha/ano</td>
-                                    <td class="text-light">{{ resultados.integracao.creditos|round(2) }}</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.integracao.creditos) }}</td>
                                 </tr>
                                 {% endif %}
                                 
                                 <tr class="table-active">
                                     <td class="text-light"><strong>Total</strong></td>
-                                    <td class="text-light"><strong>{{ (area_pastagem + area_florestal + area_renovacao_cultura + area_integracao_lavoura)|round(2) }}</strong></td>
+                                    <td class="text-light"><strong>{{ "%.2f"|format(area_pastagem + area_florestal + area_renovacao_cultura + area_integracao_lavoura) }}</strong></td>
                                     <td class="text-light">-</td>
-                                    <td class="text-light"><strong>{{ potencial_credito|round(2) }}</strong></td>
+                                    <td class="text-light"><strong>{{ "%.2f"|format(potencial_credito) }}</strong></td>
                                 </tr>
                             </tbody>
                         </table>

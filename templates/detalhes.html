@@ -172,8 +172,8 @@
                             
                             <tr class="table-active text-light">
                                 <td><strong>Total</strong></td>
-                                <td><strong>{{ (cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura)|round(2) }}</strong></td>
-                                <td><strong>{{ cenario.total_creditos|round(2) }}</strong></td>
+                                <td><strong>{{ "%.2f"|format(cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura) }}</strong></td>
+                                <td><strong>{{ "%.2f"|format(cenario.total_creditos) }}</strong></td>
                             </tr>
                         </tbody>
                     </table>
