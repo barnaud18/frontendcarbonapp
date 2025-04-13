@@ -469,6 +469,48 @@ def creditos():
 def serve_static(filename):
     return send_from_directory('static', filename)
 
+# Exclusão de cenário
+@app.route('/apagar-cenario/<int:id>', methods=['POST'])
+def apagar_cenario(id):
+    """Apaga um cenário específico do banco de dados"""
+    try:
+        app.logger.debug(f"Apagando cenário {id}")
+        
+        # Buscar cenário
+        cenario = CalculoCarbono.query.get_or_404(id)
+        
+        # Apagar do banco de dados
+        db.session.delete(cenario)
+        db.session.commit()
+        
+        flash(f"Cenário '{cenario.nome_cenario}' apagado com sucesso!", 'success')
+        return redirect(url_for('dashboard'))
+    except Exception as e:
+        app.logger.error(f"Erro ao apagar cenário {id}: {str(e)}")
+        flash(f"Erro ao apagar cenário: {str(e)}", 'error')
+        return redirect(url_for('dashboard'))
+
+# Exclusão de todos os cenários
+@app.route('/apagar-todos-cenarios', methods=['POST'])
+def apagar_todos_cenarios():
+    """Apaga todos os cenários do banco de dados"""
+    try:
+        app.logger.debug("Apagando todos os cenários")
+        
+        # Contar cenários antes de apagar
+        total = CalculoCarbono.query.count()
+        
+        # Apagar todos os registros da tabela
+        CalculoCarbono.query.delete()
+        db.session.commit()
+        
+        flash(f"{total} cenários foram apagados com sucesso!", 'success')
+        return redirect(url_for('dashboard'))
+    except Exception as e:
+        app.logger.error(f"Erro ao apagar todos os cenários: {str(e)}")
+        flash(f"Erro ao apagar cenários: {str(e)}", 'error')
+        return redirect(url_for('dashboard'))
+
 # Exportação de PDF
 @app.route('/exportar-pdf/creditos/<int:id>')
 def exportar_pdf_creditos(id):

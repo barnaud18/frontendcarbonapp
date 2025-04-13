@@ -129,7 +129,14 @@
         <div class="row mt-4">
             <div class="col-12">
                 <div class="card">
-                    <h2 class="text-info">Cenários Calculados</h2>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="text-info mb-0">Cenários Calculados</h2>
+                        <form action="/apagar-todos-cenarios" method="post" onsubmit="return confirm('ATENÇÃO: Esta ação irá apagar TODOS os cenários! Tem certeza que deseja continuar?');">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Apagar Todos os Cenários
+                            </button>
+                        </form>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -151,9 +158,16 @@
                                     <td class="text-light">{{ "%.2f"|format(cenario.total_creditos) }}</td>
                                     <td class="text-light">R$ {{ "%.2f"|format(cenario.valor_estimado) }}</td>
                                     <td class="text-light">
-                                        <a href="/detalhes/{{ cenario.id }}" class="btn btn-sm btn-info">
-                                            <i class="bi bi-eye"></i> Detalhes
-                                        </a>
+                                        <div class="d-flex gap-1">
+                                            <a href="/detalhes/{{ cenario.id }}" class="btn btn-sm btn-info">
+                                                <i class="bi bi-eye"></i> Detalhes
+                                            </a>
+                                            <form action="/apagar-cenario/{{ cenario.id }}" method="post" onsubmit="return confirm('Tem certeza que deseja apagar este cenário?');">
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="bi bi-trash"></i> Apagar
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                                 {% endfor %}
