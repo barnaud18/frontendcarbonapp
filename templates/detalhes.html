@@ -16,12 +16,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
-        .theme-toggle {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-        }
+        /* Modo escuro permanente */
         
         .chart-container {
             position: relative;
@@ -169,9 +164,9 @@
                             {% endif %}
                             
                             <tr class="table-active text-light">
-                                <td><strong>Total</strong></td>
-                                <td><strong>{{ "%.2f"|format(cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura) }}</strong></td>
-                                <td><strong>{{ "%.2f"|format(cenario.total_creditos) }}</strong></td>
+                                <td class="text-light"><strong>Total</strong></td>
+                                <td class="text-light"><strong>{{ "%.2f"|format(cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura) }}</strong></td>
+                                <td class="text-light"><strong>{{ "%.2f"|format(cenario.total_creditos) }}</strong></td>
                             </tr>
                         </tbody>
                     </table>
@@ -287,7 +282,7 @@
                     legend: {
                         position: 'bottom',
                         labels: {
-                            color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                            color: '#fff' // Modo escuro permanente
                         }
                     }
                 }
@@ -305,7 +300,7 @@
                     legend: {
                         position: 'bottom',
                         labels: {
-                            color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                            color: '#fff' // Modo escuro permanente
                         }
                     }
                 }
