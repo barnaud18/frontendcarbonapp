@@ -162,6 +162,9 @@
                                             <a href="/detalhes/{{ cenario.id }}" class="btn btn-sm btn-info">
                                                 <i class="bi bi-eye"></i> Detalhes
                                             </a>
+                                            <a href="/impacto-real/{{ cenario.id }}" class="btn btn-sm btn-success">
+                                                <i class="bi bi-globe"></i> Impacto
+                                            </a>
                                             <form action="/apagar-cenario/{{ cenario.id }}" method="post" onsubmit="return confirm('Tem certeza que deseja apagar este cenário?');">
                                                 <button type="submit" class="btn btn-sm btn-danger">
                                                     <i class="bi bi-trash"></i> Apagar

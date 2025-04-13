@@ -511,6 +511,33 @@ def apagar_todos_cenarios():
         flash(f"Erro ao apagar cenários: {str(e)}", 'error')
         return redirect(url_for('dashboard'))
 
+# Visualização de Impacto Real
+@app.route('/impacto-real/<int:id>')
+def visualizar_impacto_real(id):
+    """Exibe visualização do impacto real dos créditos de carbono"""
+    try:
+        app.logger.debug(f"Acessando visualização de impacto real para cenário {id}")
+        
+        # Importar calculadora de impacto
+        from utils.impact_calculator import calcular_impacto_real
+        
+        # Buscar cenário
+        cenario = CalculoCarbono.query.get_or_404(id)
+        
+        # Calcular impacto real
+        impacto_real = calcular_impacto_real(cenario.total_creditos)
+        
+        # Renderizar template
+        return render_template(
+            'impacto_real.html',
+            cenario=cenario,
+            impacto_real=impacto_real
+        )
+    except Exception as e:
+        app.logger.error(f"Erro ao visualizar impacto real: {str(e)}")
+        flash(f"Erro ao visualizar impacto real: {str(e)}", 'error')
+        return redirect(url_for('detalhes_cenario', id=id))
+
 # Exportação de PDF
 @app.route('/exportar-pdf/creditos/<int:id>')
 def exportar_pdf_creditos(id):

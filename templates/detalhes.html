@@ -200,6 +200,9 @@
                     <div class="d-grid gap-2">
                         <a href="/dashboard" class="btn btn-secondary">Voltar ao Dashboard</a>
                         <a href="/creditos" class="btn btn-primary">Novo Cálculo</a>
+                        <a href="/impacto-real/{{ cenario.id }}" class="btn btn-info">
+                            <i class="bi bi-globe"></i> Visualizar Impacto Real
+                        </a>
                         <a href="/exportar-pdf/creditos/{{ cenario.id }}" class="btn btn-success" target="_blank">Exportar PDF</a>
                         <form action="/apagar-cenario/{{ cenario.id }}" method="post" onsubmit="return confirm('Tem certeza que deseja apagar este cenário?');">
                             <button type="submit" class="btn btn-danger w-100">
