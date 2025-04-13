@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, send_from_directory, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from flask_restful import Api, Resource
@@ -6,6 +6,7 @@ from flask_swagger_ui import get_swaggerui_blueprint
 import os
 import logging
 from datetime import datetime
+from utils.pdf_generator import gerar_pdf_relatorio_creditos, gerar_pdf_relatorio_emissoes
 
 # Auxiliar para templates
 def now():
