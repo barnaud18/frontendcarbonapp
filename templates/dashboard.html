@@ -321,12 +321,13 @@
             console.log("Cenário 2:", cenario2Id);
             
             if (cenario1Id && cenario2Id && cenario1Id !== cenario2Id) {
-                // Adicionar indicador de carregamento
-                document.getElementById('comparacaoResultado').style.display = 'block';
-                document.getElementById('comparacaoResultado').innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-light">Carregando dados dos cenários...</p></div>';
-                
-                // Fazer requisições para obter dados dos cenários
-                console.log("Fazendo requisição para o cenário 1: /api/cenarios/" + cenario1Id);
+                try {
+                    // Adicionar indicador de carregamento
+                    document.getElementById('comparacaoResultado').style.display = 'block';
+                    document.getElementById('comparacaoResultado').innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-light">Carregando dados dos cenários...</p></div>';
+                    
+                    // Fazer requisições para obter dados dos cenários
+                    console.log("Fazendo requisição para o cenário 1: /api/cenarios/" + cenario1Id);
                 
                 fetch(`/api/cenarios/${cenario1Id}`)
                     .then(response => {
@@ -350,6 +351,10 @@
                             })
                             .then(cenario2 => {
                                 console.log("Dados do cenário 2:", cenario2);
+                                
+                                // Verificar dados dos cenários
+                                console.log("Cenário 1 OK:", cenario1 && typeof cenario1 === 'object');
+                                console.log("Cenário 2 OK:", cenario2 && typeof cenario2 === 'object');
                                 
                                 // Configurar e mostrar o gráfico de comparação
                                 const comparacaoData = {
@@ -384,51 +389,89 @@
                                     ]
                                 };
                                 
-                                // Primeiro, limpar o contêiner e criar o canvas
-                                document.getElementById('comparacaoResultado').innerHTML = '<div class="chart-container"><canvas id="comparacaoChart"></canvas></div>';
-                                
-                                // Depois de criar o canvas, renderizar o gráfico
-                                setTimeout(() => {
-                                    window.comparacaoChart = new Chart(
-                                        document.getElementById('comparacaoChart'),
-                                        {
-                                            type: 'bar',
-                                            data: comparacaoData,
-                                            options: {
-                                                responsive: true,
-                                                maintainAspectRatio: false,
-                                                scales: {
-                                                    y: {
-                                                        beginAtZero: true,
-                                                        title: {
-                                                            display: true,
-                                                            text: 'Créditos de Carbono (tCO₂e)',
-                                                            color: '#fff' // Modo escuro permanente
+                                try {
+                                    // Primeiro, limpar o contêiner e criar o canvas com um ID único
+                                    const canvasId = 'comparacaoChart' + new Date().getTime();
+                                    document.getElementById('comparacaoResultado').innerHTML = 
+                                        `<div class="chart-container" style="position: relative; height:400px; width:100%">
+                                           <canvas id="${canvasId}"></canvas>
+                                         </div>`;
+                                    
+                                    console.log("Canvas criado com ID:", canvasId);
+                                    
+                                    // Verificar se o canvas foi criado corretamente
+                                    const canvasElement = document.getElementById(canvasId);
+                                    console.log("Canvas encontrado:", canvasElement !== null);
+                                    
+                                    if (!canvasElement) {
+                                        throw new Error("Não foi possível encontrar o elemento canvas");
+                                    }
+                                    
+                                    // Depois de criar o canvas, renderizar o gráfico
+                                    setTimeout(() => {
+                                        try {
+                                            console.log("Iniciando criação do gráfico no canvas:", canvasId);
+                                            window.comparacaoChart = new Chart(
+                                                canvasElement,
+                                                {
+                                                    type: 'bar',
+                                                    data: comparacaoData,
+                                                    options: {
+                                                        responsive: true,
+                                                        maintainAspectRatio: false,
+                                                        scales: {
+                                                            y: {
+                                                                beginAtZero: true,
+                                                                title: {
+                                                                    display: true,
+                                                                    text: 'Créditos de Carbono (tCO₂e)',
+                                                                    color: '#fff' // Modo escuro permanente
+                                                                },
+                                                                ticks: {
+                                                                    color: '#fff' // Modo escuro permanente
+                                                                }
+                                                            },
+                                                            x: {
+                                                                ticks: {
+                                                                    color: '#fff' // Modo escuro permanente
+                                                                }
+                                                            }
                                                         },
-                                                        ticks: {
-                                                            color: '#fff' // Modo escuro permanente
-                                                        }
-                                                    },
-                                                    x: {
-                                                        ticks: {
-                                                            color: '#fff' // Modo escuro permanente
-                                                        }
-                                                    }
-                                                },
-                                                plugins: {
-                                                    legend: {
-                                                        position: 'bottom',
-                                                        labels: {
-                                                            color: '#fff' // Modo escuro permanente
+                                                        plugins: {
+                                                            legend: {
+                                                                position: 'bottom',
+                                                                labels: {
+                                                                    color: '#fff' // Modo escuro permanente
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            }
+                                            );
+                                            console.log("Gráfico de comparação criado com sucesso");
+                                        } catch (graphError) {
+                                            console.error("Erro ao criar o gráfico:", graphError);
+                                            document.getElementById('comparacaoResultado').innerHTML = 
+                                                `<div class="alert alert-danger">Erro ao criar o gráfico: ${graphError.message}</div>`;
                                         }
-                                    );
-                                }, 100); // Pequeno atraso para garantir que o DOM foi atualizado
+                                    }, 200); // Aumentar o tempo de espera para garantir que o DOM foi atualizado
+                                } catch (error) {
+                                    console.error("Erro ao processar a comparação:", error);
+                                    document.getElementById('comparacaoResultado').innerHTML = 
+                                        `<div class="alert alert-danger">Erro ao processar a comparação: ${error.message}</div>`;
+                                }
                             });
+                    })
+                    .catch(error => {
+                        console.error("Erro ao buscar dados dos cenários:", error);
+                        document.getElementById('comparacaoResultado').innerHTML = 
+                            `<div class="alert alert-danger">Erro ao buscar dados dos cenários: ${error.message}</div>`;
                     });
+                } catch (mainError) {
+                    console.error("Erro principal:", mainError);
+                    document.getElementById('comparacaoResultado').innerHTML = 
+                        `<div class="alert alert-danger">Erro ao processar a requisição: ${mainError.message}</div>`;
+                }
             } else {
                 alert('Por favor, selecione dois cenários diferentes para comparar.');
             }
