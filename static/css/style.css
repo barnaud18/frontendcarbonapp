@@ -51,3 +51,8 @@ body {
 .header-actions {
     margin-bottom: 20px;
 }
+
+/* Estilo para corrigir a cor do texto nos selects em modo escuro */
+[data-bs-theme="dark"] .form-select {
+    color: #fff !important;
+}

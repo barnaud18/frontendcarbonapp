@@ -65,9 +65,7 @@
 </head>
 <body data-bs-theme="dark">
     <div class="container py-4">
-        <button class="btn btn-outline-light theme-toggle" id="themeToggle">
-            <i class="bi bi-sun"></i> Modo Claro
-        </button>
+        <!-- Modo escuro ativado permanentemente -->
         
         <h1 class="mb-4">Dashboard de Créditos de Carbono</h1>
         
@@ -179,17 +177,17 @@
                     <form id="compararForm" class="row g-3">
                         <div class="col-md-5">
                             <select class="form-select" id="cenario1">
-                                <option value="" class="text-dark">Selecione o primeiro cenário</option>
+                                <option value="">Selecione o primeiro cenário</option>
                                 {% for cenario in cenarios %}
-                                <option value="{{ cenario.id }}" class="text-dark">{{ cenario.nome_cenario }}</option>
+                                <option value="{{ cenario.id }}">{{ cenario.nome_cenario }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="col-md-5">
                             <select class="form-select" id="cenario2">
-                                <option value="" class="text-dark">Selecione o segundo cenário</option>
+                                <option value="">Selecione o segundo cenário</option>
                                 {% for cenario in cenarios %}
-                                <option value="{{ cenario.id }}" class="text-dark">{{ cenario.nome_cenario }}</option>
+                                <option value="{{ cenario.id }}">{{ cenario.nome_cenario }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -309,44 +307,14 @@
             timeSeriesConfig
         );
         
-        // Função para alternar entre modos claro e escuro
-        document.getElementById('themeToggle').addEventListener('click', function() {
-            const body = document.body;
-            const theme = body.getAttribute('data-bs-theme');
-            const themeToggle = document.getElementById('themeToggle');
-            
-            if (theme === 'dark') {
-                body.setAttribute('data-bs-theme', 'light');
-                themeToggle.innerHTML = '<i class="bi bi-moon"></i> Modo Escuro';
-                themeToggle.classList.remove('btn-outline-light');
-                themeToggle.classList.add('btn-outline-dark');
-                
-                // Atualizar charts para modo claro
-                document.querySelectorAll('canvas').forEach(canvas => {
-                    const chart = Chart.getChart(canvas);
-                    if (chart) {
-                        chart.options.plugins.legend.labels.color = '#000';
-                        chart.options.scales.x.ticks.color = '#000';
-                        chart.options.scales.y.ticks.color = '#000';
-                        chart.update();
-                    }
-                });
-            } else {
-                body.setAttribute('data-bs-theme', 'dark');
-                themeToggle.innerHTML = '<i class="bi bi-sun"></i> Modo Claro';
-                themeToggle.classList.remove('btn-outline-dark');
-                themeToggle.classList.add('btn-outline-light');
-                
-                // Atualizar charts para modo escuro
-                document.querySelectorAll('canvas').forEach(canvas => {
-                    const chart = Chart.getChart(canvas);
-                    if (chart) {
-                        chart.options.plugins.legend.labels.color = '#fff';
-                        chart.options.scales.x.ticks.color = '#fff';
-                        chart.options.scales.y.ticks.color = '#fff';
-                        chart.update();
-                    }
-                });
+        // Aplicar modo escuro permanentemente
+        document.querySelectorAll('canvas').forEach(canvas => {
+            const chart = Chart.getChart(canvas);
+            if (chart) {
+                chart.options.plugins.legend.labels.color = '#fff';
+                chart.options.scales.x.ticks.color = '#fff';
+                chart.options.scales.y.ticks.color = '#fff';
+                chart.update();
             }
         });
         
