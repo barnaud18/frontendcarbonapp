@@ -157,7 +157,7 @@
                                     <td class="text-light">{{ (cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura)|round(1) }}</td>
                                     <td class="text-light">{{ cenario.total_creditos|round(2) }}</td>
                                     <td class="text-light">R$ {{ cenario.valor_estimado|round(2) }}</td>
-                                    <td>
+                                    <td class="text-light">
                                         <a href="/detalhes/{{ cenario.id }}" class="btn btn-sm btn-info">
                                             <i class="bi bi-eye"></i> Detalhes
                                         </a>
@@ -179,17 +179,17 @@
                     <form id="compararForm" class="row g-3">
                         <div class="col-md-5">
                             <select class="form-select" id="cenario1">
-                                <option value="">Selecione o primeiro cenário</option>
+                                <option value="" class="text-dark">Selecione o primeiro cenário</option>
                                 {% for cenario in cenarios %}
-                                <option value="{{ cenario.id }}">{{ cenario.nome_cenario }}</option>
+                                <option value="{{ cenario.id }}" class="text-dark">{{ cenario.nome_cenario }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="col-md-5">
                             <select class="form-select" id="cenario2">
-                                <option value="">Selecione o segundo cenário</option>
+                                <option value="" class="text-dark">Selecione o segundo cenário</option>
                                 {% for cenario in cenarios %}
-                                <option value="{{ cenario.id }}">{{ cenario.nome_cenario }}</option>
+                                <option value="{{ cenario.id }}" class="text-dark">{{ cenario.nome_cenario }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -244,6 +244,9 @@
                 plugins: {
                     legend: {
                         position: 'bottom',
+                        labels: {
+                            color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                        }
                     }
                 }
             }
@@ -276,12 +279,23 @@
                 maintainAspectRatio: false,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: {
+                            color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                        }
                     }
                 },
                 plugins: {
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                        }
                     }
                 }
             }
@@ -398,13 +412,25 @@
                                                     beginAtZero: true,
                                                     title: {
                                                         display: true,
-                                                        text: 'Créditos de Carbono (tCO₂e)'
+                                                        text: 'Créditos de Carbono (tCO₂e)',
+                                                        color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                                                    },
+                                                    ticks: {
+                                                        color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                                                    }
+                                                },
+                                                x: {
+                                                    ticks: {
+                                                        color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
                                                     }
                                                 }
                                             },
                                             plugins: {
                                                 legend: {
-                                                    position: 'bottom'
+                                                    position: 'bottom',
+                                                    labels: {
+                                                        color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                                                    }
                                                 }
                                             }
                                         }
