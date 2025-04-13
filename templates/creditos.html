@@ -64,9 +64,7 @@
 </head>
 <body data-bs-theme="dark">
     <div class="container py-4">
-        <button class="btn btn-outline-light theme-toggle" id="themeToggle">
-            <i class="bi bi-sun"></i> Modo Claro
-        </button>
+        <!-- Modo escuro ativado permanentemente -->
         
         <div class="row">
             <div class="col-12 mb-4">
@@ -348,40 +346,12 @@
             creditosConfig
         );
         
-        // Função para alternar entre modos claro e escuro
-        document.getElementById('themeToggle').addEventListener('click', function() {
-            const body = document.body;
-            const theme = body.getAttribute('data-bs-theme');
-            const themeToggle = document.getElementById('themeToggle');
-            
-            if (theme === 'dark') {
-                body.setAttribute('data-bs-theme', 'light');
-                themeToggle.innerHTML = '<i class="bi bi-moon"></i> Modo Escuro';
-                themeToggle.classList.remove('btn-outline-light');
-                themeToggle.classList.add('btn-outline-dark');
-                
-                // Atualizar charts para modo claro
-                document.querySelectorAll('canvas').forEach(canvas => {
-                    const chart = Chart.getChart(canvas);
-                    if (chart) {
-                        chart.options.plugins.legend.labels.color = '#000';
-                        chart.update();
-                    }
-                });
-            } else {
-                body.setAttribute('data-bs-theme', 'dark');
-                themeToggle.innerHTML = '<i class="bi bi-sun"></i> Modo Claro';
-                themeToggle.classList.remove('btn-outline-dark');
-                themeToggle.classList.add('btn-outline-light');
-                
-                // Atualizar charts para modo escuro
-                document.querySelectorAll('canvas').forEach(canvas => {
-                    const chart = Chart.getChart(canvas);
-                    if (chart) {
-                        chart.options.plugins.legend.labels.color = '#fff';
-                        chart.update();
-                    }
-                });
+        // Aplicar modo escuro permanentemente
+        document.querySelectorAll('canvas').forEach(canvas => {
+            const chart = Chart.getChart(canvas);
+            if (chart) {
+                chart.options.plugins.legend.labels.color = '#fff';
+                chart.update();
             }
         });
     </script>
