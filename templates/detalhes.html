@@ -205,7 +205,7 @@
                     <div class="d-grid gap-2">
                         <a href="/dashboard" class="btn btn-secondary">Voltar ao Dashboard</a>
                         <a href="/creditos" class="btn btn-primary">Novo Cálculo</a>
-                        <button class="btn btn-success" id="btnExportar">Exportar Relatório</button>
+                        <a href="/exportar-pdf/creditos/{{ cenario.id }}" class="btn btn-success" target="_blank">Exportar PDF</a>
                     </div>
                 </div>
             </div>
@@ -334,10 +334,7 @@
             }
         });
         
-        // Função para exportar relatório
-        document.getElementById('btnExportar').addEventListener('click', function() {
-            alert('Em um sistema completo, esta funcionalidade permitiria exportar este relatório em formato PDF ou Excel.');
-        });
+        // Configuração para exportação de PDF implementada via servidor
     </script>
 </body>
 </html>

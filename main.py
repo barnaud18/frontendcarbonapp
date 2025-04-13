@@ -467,6 +467,26 @@ def creditos():
 def serve_static(filename):
     return send_from_directory('static', filename)
 
+# Exportação de PDF
+@app.route('/exportar-pdf/creditos/<int:id>')
+def exportar_pdf_creditos(id):
+    """Exporta relatório de créditos de carbono em PDF"""
+    try:
+        app.logger.debug(f"Exportando relatório PDF de créditos para cenário {id}")
+        
+        # Buscar cenário
+        cenario = CalculoCarbono.query.get_or_404(id)
+        
+        # Gerar PDF
+        pdf_path = gerar_pdf_relatorio_creditos(cenario)
+        
+        # Enviar arquivo
+        return send_file(pdf_path, download_name=f"relatorio_creditos_{id}.pdf", as_attachment=True)
+    except Exception as e:
+        app.logger.error(f"Erro ao gerar PDF de créditos: {str(e)}")
+        flash(f"Erro ao gerar relatório PDF: {str(e)}", 'error')
+        return redirect(url_for('detalhes_cenario', id=id))
+
 # Configuração da API RESTful
 api = Api(app, prefix='/api')
 
