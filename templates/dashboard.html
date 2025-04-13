@@ -327,9 +327,9 @@
                     document.getElementById('comparacaoResultado').innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2 text-light">Carregando dados dos cenários...</p></div>';
                     
                     // Fazer requisições para obter dados dos cenários
-                    console.log("Fazendo requisição para o cenário 1: /api/cenarios/" + cenario1Id);
+                    console.log("Fazendo requisição para o cenário 1: /cenarios/" + cenario1Id);
                 
-                fetch(`/api/cenarios/${cenario1Id}`)
+                fetch(`/cenarios/${cenario1Id}`)
                     .then(response => {
                         console.log("Resposta do cenário 1:", response.status);
                         if (!response.ok) {
@@ -339,9 +339,9 @@
                     })
                     .then(cenario1 => {
                         console.log("Dados do cenário 1:", cenario1);
-                        console.log("Fazendo requisição para o cenário 2: /api/cenarios/" + cenario2Id);
+                        console.log("Fazendo requisição para o cenário 2: /cenarios/" + cenario2Id);
                         
-                        return fetch(`/api/cenarios/${cenario2Id}`)
+                        return fetch(`/cenarios/${cenario2Id}`)
                             .then(response => {
                                 console.log("Resposta do cenário 2:", response.status);
                                 if (!response.ok) {
