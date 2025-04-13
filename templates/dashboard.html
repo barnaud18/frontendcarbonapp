@@ -93,21 +93,21 @@
             <div class="col-md-3">
                 <div class="card bg-success dashboard-stat">
                     <div class="stat-title">Total de Créditos</div>
-                    <div class="stat-value">{{ total_creditos|round(1) }}</div>
+                    <div class="stat-value">{{ "%.2f"|format(total_creditos) }}</div>
                     <div class="stat-unit">tCO₂e potenciais</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card bg-info dashboard-stat">
                     <div class="stat-title">Valor Estimado</div>
-                    <div class="stat-value">R$ {{ valor_estimado|round(2)|int }}</div>
+                    <div class="stat-value">R$ {{ "%.2f"|format(valor_estimado) }}</div>
                     <div class="stat-unit">em créditos de carbono</div>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="card bg-warning dashboard-stat">
                     <div class="stat-title">Área Total</div>
-                    <div class="stat-value">{{ area_total|round(1) }}</div>
+                    <div class="stat-value">{{ "%.2f"|format(area_total) }}</div>
                     <div class="stat-unit">hectares monitorados</div>
                 </div>
             </div>
@@ -154,7 +154,7 @@
                                 <tr>
                                     <td class="text-light">{{ cenario.nome_cenario }}</td>
                                     <td class="text-light">{{ cenario.data_calculo }}</td>
-                                    <td class="text-light">{{ (cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura)|round(1) }}</td>
+                                    <td class="text-light">{{ "%.2f"|format(cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura) }}</td>
                                     <td class="text-light">{{ "%.2f"|format(cenario.total_creditos) }}</td>
                                     <td class="text-light">R$ {{ "%.2f"|format(cenario.valor_estimado) }}</td>
                                     <td class="text-light">
@@ -214,10 +214,12 @@
             labels: ['Pastagem', 'Floresta', 'Renovação', 'Integração'],
             datasets: [{
                 label: 'Créditos por Metodologia (tCO₂e)',
-                data: [{{ totais.credito_pastagem|default(0) }}, 
-                      {{ totais.credito_florestal|default(0) }}, 
-                      {{ totais.credito_renovacao|default(0) }}, 
-                      {{ totais.credito_integracao|default(0) }}],
+                data: [
+                      {{ "%.2f"|format(totais.credito_pastagem|default(0)) }}, 
+                      {{ "%.2f"|format(totais.credito_florestal|default(0)) }}, 
+                      {{ "%.2f"|format(totais.credito_renovacao|default(0)) }}, 
+                      {{ "%.2f"|format(totais.credito_integracao|default(0)) }}
+                     ],
                 backgroundColor: [
                     'rgba(75, 192, 192, 0.7)',
                     'rgba(54, 162, 235, 0.7)',

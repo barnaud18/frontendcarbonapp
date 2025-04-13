@@ -82,7 +82,7 @@
             <div class="col-md-3">
                 <div class="card bg-primary stat-block">
                     <div class="stat-label">Total de Créditos</div>
-                    <div class="stat-value">{{ cenario.total_creditos|round(1) }}</div>
+                    <div class="stat-value">{{ "%.2f"|format(cenario.total_creditos) }}</div>
                     <div class="stat-unit">tCO₂e</div>
                 </div>
             </div>
@@ -96,7 +96,7 @@
             <div class="col-md-3">
                 <div class="card bg-info stat-block">
                     <div class="stat-label">Área Total</div>
-                    <div class="stat-value">{{ (cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura)|round(1) }}</div>
+                    <div class="stat-value">{{ "%.2f"|format(cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura) }}</div>
                     <div class="stat-unit">hectares</div>
                 </div>
             </div>
