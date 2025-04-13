@@ -164,39 +164,7 @@
             </div>
         </div>
         
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <h2 class="text-info">Comparação de Cenários</h2>
-                    <p class="text-light">Selecione dois cenários para comparar:</p>
-                    <form id="compararForm" class="row g-3">
-                        <div class="col-md-5">
-                            <select class="form-select" id="cenario1">
-                                <option value="">Selecione o primeiro cenário</option>
-                                {% for cenario in cenarios %}
-                                <option value="{{ cenario.id }}">{{ cenario.nome_cenario }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-5">
-                            <select class="form-select" id="cenario2">
-                                <option value="">Selecione o segundo cenário</option>
-                                {% for cenario in cenarios %}
-                                <option value="{{ cenario.id }}">{{ cenario.nome_cenario }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-primary" id="compararBtn">Comparar</button>
-                        </div>
-                    </form>
-                    
-                    <div id="comparacaoResultado" class="mt-4" style="display: none;">
-                        <!-- Aqui será inserido o gráfico de comparação ou o indicador de carregamento -->
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Funcionalidade de comparação de cenários removida conforme solicitado -->
     </div>
     
     <script>
@@ -311,23 +279,7 @@
             }
         });
         
-        // Manipulador para o botão de comparação - Versão simplificada
-        document.getElementById('compararBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            const cenario1Id = document.getElementById('cenario1').value;
-            const cenario2Id = document.getElementById('cenario2').value;
-            
-            console.log("Botão comparar clicado");
-            console.log("Cenário 1:", cenario1Id);
-            console.log("Cenário 2:", cenario2Id);
-            
-            if (cenario1Id && cenario2Id && cenario1Id !== cenario2Id) {
-                // Usar redirecionamento para página de comparação
-                window.location.href = `/comparar-cenarios?id1=${cenario1Id}&id2=${cenario2Id}`;
-            } else {
-                alert('Por favor, selecione dois cenários diferentes para comparar.');
-            }
-        });
+        // Funcionalidade de comparação removida
     </script>
 </body>
 </html>

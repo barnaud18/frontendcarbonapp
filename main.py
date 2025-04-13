@@ -364,38 +364,7 @@ def detalhes_cenario(id):
         flash(f"Erro ao carregar detalhes: {str(e)}", 'error')
         return redirect(url_for('dashboard'))
 
-@app.route('/comparar-cenarios')
-def comparar_cenarios():
-    """Exibe comparação entre dois cenários"""
-    try:
-        # Obter os IDs dos cenários a serem comparados
-        id1 = request.args.get('id1', type=int)
-        id2 = request.args.get('id2', type=int)
-        
-        if not id1 or not id2:
-            flash('É necessário selecionar dois cenários para comparação', 'warning')
-            return redirect(url_for('dashboard'))
-            
-        # Buscar dados dos cenários
-        cenario1 = CalculoCarbono.query.get(id1)
-        cenario2 = CalculoCarbono.query.get(id2)
-        
-        if not cenario1 or not cenario2:
-            flash('Um ou ambos os cenários não foram encontrados', 'danger')
-            return redirect(url_for('dashboard'))
-            
-        app.logger.debug(f"Comparando cenários {id1} e {id2}")
-        
-        return render_template(
-            'comparacao.html',
-            cenario1=cenario1,
-            cenario2=cenario2,
-            titulo=f"Comparação: {cenario1.nome_cenario} vs {cenario2.nome_cenario}"
-        )
-    except Exception as e:
-        app.logger.error(f"Erro ao comparar cenários: {str(e)}")
-        flash(f"Erro ao comparar cenários: {str(e)}", 'danger')
-        return redirect(url_for('dashboard'))
+# Funcionalidade de comparação de cenários removida conforme solicitado pelo usuário
 
 @app.route('/propriedades')
 def listar_propriedades():
