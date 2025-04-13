@@ -13,4 +13,7 @@ dependencies = [
     "flask-swagger-ui>=4.11.1",
     "sqlalchemy>=2.0.40",
     "flask-restful>=0.3.10",
+    "pdfkit>=1.0.0",
+    "pypdf2>=3.0.1",
+    "weasyprint>=65.0",
 ]
