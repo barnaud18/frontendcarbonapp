@@ -151,18 +151,18 @@
                                 
                                 {% if resultados.get('integracao') %}
                                 <tr>
-                                    <td>Integração lavoura-pecuária</td>
-                                    <td>{{ resultados.integracao.area|round(2) }}</td>
-                                    <td>{{ resultados.integracao.fator }} tCO₂e/ha/ano</td>
-                                    <td>{{ resultados.integracao.creditos|round(2) }}</td>
+                                    <td class="text-light">Integração lavoura-pecuária</td>
+                                    <td class="text-light">{{ resultados.integracao.area|round(2) }}</td>
+                                    <td class="text-light">{{ resultados.integracao.fator }} tCO₂e/ha/ano</td>
+                                    <td class="text-light">{{ resultados.integracao.creditos|round(2) }}</td>
                                 </tr>
                                 {% endif %}
                                 
                                 <tr class="table-active">
-                                    <td><strong>Total</strong></td>
-                                    <td><strong>{{ (area_pastagem + area_florestal + area_renovacao_cultura + area_integracao_lavoura)|round(2) }}</strong></td>
-                                    <td>-</td>
-                                    <td><strong>{{ potencial_credito|round(2) }}</strong></td>
+                                    <td class="text-light"><strong>Total</strong></td>
+                                    <td class="text-light"><strong>{{ (area_pastagem + area_florestal + area_renovacao_cultura + area_integracao_lavoura)|round(2) }}</strong></td>
+                                    <td class="text-light">-</td>
+                                    <td class="text-light"><strong>{{ potencial_credito|round(2) }}</strong></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -193,7 +193,7 @@
                         {% endif %}
                     </div>
                     
-                    <p class="mt-3">
+                    <p class="mt-3 text-light">
                         As metodologias utilizadas são reconhecidas internacionalmente e seguem os padrões estabelecidos 
                         por organizações como o Verified Carbon Standard (VCS) e o Clean Development Mechanism (CDM).
                     </p>
@@ -210,7 +210,7 @@
             <div class="col-md-5">
                 <div class="card">
                     <h2 class="text-info mb-3">Próximos Passos</h2>
-                    <p>Para monetizar os créditos de carbono calculados, recomendamos os seguintes passos:</p>
+                    <p class="text-light">Para monetizar os créditos de carbono calculados, recomendamos os seguintes passos:</p>
                     
                     <ol class="list-group list-group-numbered mb-4">
                         <li class="list-group-item">Documentar as práticas implementadas com evidências (fotografias, mapas, registros de manejo)</li>
@@ -220,7 +220,7 @@
                         <li class="list-group-item">Comercializar os créditos emitidos em plataformas de negociação ou venda direta</li>
                     </ol>
                     
-                    <h4>Recursos Úteis</h4>
+                    <h4 class="text-light">Recursos Úteis</h4>
                     <ul class="list-group mb-4">
                         <li class="list-group-item">
                             <a href="https://verra.org/" target="_blank" class="text-info">Verified Carbon Standard (Verra)</a>

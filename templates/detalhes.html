@@ -132,33 +132,33 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Metodologia</th>
-                                <th>Área (ha)</th>
-                                <th>Créditos (tCO₂e)</th>
+                                <th class="text-light">Metodologia</th>
+                                <th class="text-light">Área (ha)</th>
+                                <th class="text-light">Créditos (tCO₂e)</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% if cenario.area_pastagem > 0 %}
                             <tr>
-                                <td>Recuperação de pastagens</td>
-                                <td>{{ cenario.area_pastagem|round(2) }}</td>
-                                <td>{{ cenario.credito_pastagem|round(2) }}</td>
+                                <td class="text-light">Recuperação de pastagens</td>
+                                <td class="text-light">{{ cenario.area_pastagem|round(2) }}</td>
+                                <td class="text-light">{{ cenario.credito_pastagem|round(2) }}</td>
                             </tr>
                             {% endif %}
                             
                             {% if cenario.area_florestal > 0 %}
                             <tr>
-                                <td>Florestamento/Reflorestamento</td>
-                                <td>{{ cenario.area_florestal|round(2) }}</td>
-                                <td>{{ cenario.credito_florestal|round(2) }}</td>
+                                <td class="text-light">Florestamento/Reflorestamento</td>
+                                <td class="text-light">{{ cenario.area_florestal|round(2) }}</td>
+                                <td class="text-light">{{ cenario.credito_florestal|round(2) }}</td>
                             </tr>
                             {% endif %}
                             
                             {% if cenario.area_renovacao_cultura > 0 %}
                             <tr>
-                                <td>Renovação/Rotação de culturas</td>
-                                <td>{{ cenario.area_renovacao_cultura|round(2) }}</td>
-                                <td>{{ cenario.credito_renovacao|round(2) }}</td>
+                                <td class="text-light">Renovação/Rotação de culturas</td>
+                                <td class="text-light">{{ cenario.area_renovacao_cultura|round(2) }}</td>
+                                <td class="text-light">{{ cenario.credito_renovacao|round(2) }}</td>
                             </tr>
                             {% endif %}
                             
