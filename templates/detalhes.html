@@ -164,13 +164,13 @@
                             
                             {% if cenario.area_integracao_lavoura > 0 %}
                             <tr>
-                                <td>Integração lavoura-pecuária</td>
-                                <td>{{ cenario.area_integracao_lavoura|round(2) }}</td>
-                                <td>{{ cenario.credito_integracao|round(2) }}</td>
+                                <td class="text-light">Integração lavoura-pecuária</td>
+                                <td class="text-light">{{ cenario.area_integracao_lavoura|round(2) }}</td>
+                                <td class="text-light">{{ cenario.credito_integracao|round(2) }}</td>
                             </tr>
                             {% endif %}
                             
-                            <tr class="table-active">
+                            <tr class="table-active text-light">
                                 <td><strong>Total</strong></td>
                                 <td><strong>{{ (cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura)|round(2) }}</strong></td>
                                 <td><strong>{{ cenario.total_creditos|round(2) }}</strong></td>

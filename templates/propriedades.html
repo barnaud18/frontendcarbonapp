@@ -79,21 +79,21 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Tamanho Total (ha)</th>
-                            <th>Data de Registro</th>
-                            <th>Emissões Totais (kg CO₂e)</th>
+                            <th class="text-light">ID</th>
+                            <th class="text-light">Nome</th>
+                            <th class="text-light">Tamanho Total (ha)</th>
+                            <th class="text-light">Data de Registro</th>
+                            <th class="text-light">Emissões Totais (kg CO₂e)</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for prop in propriedades %}
                             <tr>
-                                <td>{{ prop.id }}</td>
-                                <td>{{ prop.nome }}</td>
-                                <td>{{ prop.tamanho_total }}</td>
-                                <td>{{ prop.data_registro.strftime('%d/%m/%Y') }}</td>
-                                <td>{{ "%.2f"|format(prop.emissao.total_emissao) if prop.emissao else 'Não calculado' }}</td>
+                                <td class="text-light">{{ prop.id }}</td>
+                                <td class="text-light">{{ prop.nome }}</td>
+                                <td class="text-light">{{ prop.tamanho_total }}</td>
+                                <td class="text-light">{{ prop.data_registro.strftime('%d/%m/%Y') }}</td>
+                                <td class="text-light">{{ "%.2f"|format(prop.emissao.total_emissao) if prop.emissao else 'Não calculado' }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

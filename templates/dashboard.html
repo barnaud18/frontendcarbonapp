@@ -141,22 +141,22 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Nome</th>
-                                    <th>Data</th>
-                                    <th>Área Total (ha)</th>
-                                    <th>Créditos (tCO₂e)</th>
-                                    <th>Valor (R$)</th>
-                                    <th>Ações</th>
+                                    <th class="text-light">Nome</th>
+                                    <th class="text-light">Data</th>
+                                    <th class="text-light">Área Total (ha)</th>
+                                    <th class="text-light">Créditos (tCO₂e)</th>
+                                    <th class="text-light">Valor (R$)</th>
+                                    <th class="text-light">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for cenario in cenarios %}
                                 <tr>
-                                    <td>{{ cenario.nome_cenario }}</td>
-                                    <td>{{ cenario.data_calculo }}</td>
-                                    <td>{{ (cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura)|round(1) }}</td>
-                                    <td>{{ cenario.total_creditos|round(2) }}</td>
-                                    <td>R$ {{ cenario.valor_estimado|round(2) }}</td>
+                                    <td class="text-light">{{ cenario.nome_cenario }}</td>
+                                    <td class="text-light">{{ cenario.data_calculo }}</td>
+                                    <td class="text-light">{{ (cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura)|round(1) }}</td>
+                                    <td class="text-light">{{ cenario.total_creditos|round(2) }}</td>
+                                    <td class="text-light">R$ {{ cenario.valor_estimado|round(2) }}</td>
                                     <td>
                                         <a href="/detalhes/{{ cenario.id }}" class="btn btn-sm btn-info">
                                             <i class="bi bi-eye"></i> Detalhes
@@ -175,7 +175,7 @@
             <div class="col-12">
                 <div class="card">
                     <h2 class="text-info">Comparação de Cenários</h2>
-                    <p>Selecione dois cenários para comparar:</p>
+                    <p class="text-light">Selecione dois cenários para comparar:</p>
                     <form id="compararForm" class="row g-3">
                         <div class="col-md-5">
                             <select class="form-select" id="cenario1">
