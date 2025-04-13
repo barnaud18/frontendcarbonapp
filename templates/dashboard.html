@@ -192,9 +192,7 @@
                     </form>
                     
                     <div id="comparacaoResultado" class="mt-4" style="display: none;">
-                        <div class="chart-container">
-                            <canvas id="comparacaoChart"></canvas>
-                        </div>
+                        <!-- Aqui será inserido o gráfico de comparação ou o indicador de carregamento -->
                     </div>
                 </div>
             </div>
@@ -386,49 +384,49 @@
                                     ]
                                 };
                                 
-                                if (window.comparacaoChart) {
-                                    window.comparacaoChart.destroy();
-                                }
+                                // Primeiro, limpar o contêiner e criar o canvas
+                                document.getElementById('comparacaoResultado').innerHTML = '<div class="chart-container"><canvas id="comparacaoChart"></canvas></div>';
                                 
-                                window.comparacaoChart = new Chart(
-                                    document.getElementById('comparacaoChart'),
-                                    {
-                                        type: 'bar',
-                                        data: comparacaoData,
-                                        options: {
-                                            responsive: true,
-                                            maintainAspectRatio: false,
-                                            scales: {
-                                                y: {
-                                                    beginAtZero: true,
-                                                    title: {
-                                                        display: true,
-                                                        text: 'Créditos de Carbono (tCO₂e)',
-                                                        color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                                // Depois de criar o canvas, renderizar o gráfico
+                                setTimeout(() => {
+                                    window.comparacaoChart = new Chart(
+                                        document.getElementById('comparacaoChart'),
+                                        {
+                                            type: 'bar',
+                                            data: comparacaoData,
+                                            options: {
+                                                responsive: true,
+                                                maintainAspectRatio: false,
+                                                scales: {
+                                                    y: {
+                                                        beginAtZero: true,
+                                                        title: {
+                                                            display: true,
+                                                            text: 'Créditos de Carbono (tCO₂e)',
+                                                            color: '#fff' // Modo escuro permanente
+                                                        },
+                                                        ticks: {
+                                                            color: '#fff' // Modo escuro permanente
+                                                        }
                                                     },
-                                                    ticks: {
-                                                        color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                                                    x: {
+                                                        ticks: {
+                                                            color: '#fff' // Modo escuro permanente
+                                                        }
                                                     }
                                                 },
-                                                x: {
-                                                    ticks: {
-                                                        color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
-                                                    }
-                                                }
-                                            },
-                                            plugins: {
-                                                legend: {
-                                                    position: 'bottom',
-                                                    labels: {
-                                                        color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'bottom',
+                                                        labels: {
+                                                            color: '#fff' // Modo escuro permanente
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
-                                );
-                                
-                                document.getElementById('comparacaoResultado').innerHTML = '<div class="chart-container"><canvas id="comparacaoChart"></canvas></div>';
+                                    );
+                                }, 100); // Pequeno atraso para garantir que o DOM foi atualizado
                             });
                     });
             } else {
