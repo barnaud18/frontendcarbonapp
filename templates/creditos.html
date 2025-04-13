@@ -112,40 +112,40 @@
                     <h2 class="text-info mb-4">Detalhamento por Metodologia</h2>
                     
                     <div class="table-responsive">
-                        <table class="table table-hover">
+                        <table class="table table-hover text-light">
                             <thead>
                                 <tr>
-                                    <th>Metodologia</th>
-                                    <th>Área (ha)</th>
-                                    <th>Fator</th>
-                                    <th>Créditos (tCO₂e)</th>
+                                    <th class="text-light">Metodologia</th>
+                                    <th class="text-light">Área (ha)</th>
+                                    <th class="text-light">Fator</th>
+                                    <th class="text-light">Créditos (tCO₂e)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% if resultados.get('pastagem') %}
                                 <tr>
-                                    <td>Recuperação de pastagens</td>
-                                    <td>{{ resultados.pastagem.area|round(2) }}</td>
-                                    <td>{{ resultados.pastagem.fator }} tCO₂e/ha/ano</td>
-                                    <td>{{ resultados.pastagem.creditos|round(2) }}</td>
+                                    <td class="text-light">Recuperação de pastagens</td>
+                                    <td class="text-light">{{ resultados.pastagem.area|round(2) }}</td>
+                                    <td class="text-light">{{ resultados.pastagem.fator }} tCO₂e/ha/ano</td>
+                                    <td class="text-light">{{ resultados.pastagem.creditos|round(2) }}</td>
                                 </tr>
                                 {% endif %}
                                 
                                 {% if resultados.get('florestal') %}
                                 <tr>
-                                    <td>Florestamento/Reflorestamento</td>
-                                    <td>{{ resultados.florestal.area|round(2) }}</td>
-                                    <td>{{ resultados.florestal.fator }} tCO₂e/ha/ano</td>
-                                    <td>{{ resultados.florestal.creditos|round(2) }}</td>
+                                    <td class="text-light">Florestamento/Reflorestamento</td>
+                                    <td class="text-light">{{ resultados.florestal.area|round(2) }}</td>
+                                    <td class="text-light">{{ resultados.florestal.fator }} tCO₂e/ha/ano</td>
+                                    <td class="text-light">{{ resultados.florestal.creditos|round(2) }}</td>
                                 </tr>
                                 {% endif %}
                                 
                                 {% if resultados.get('renovacao') %}
                                 <tr>
-                                    <td>Renovação/Rotação de culturas</td>
-                                    <td>{{ resultados.renovacao.area|round(2) }}</td>
-                                    <td>{{ resultados.renovacao.fator }} tCO₂e/ha/ano</td>
-                                    <td>{{ resultados.renovacao.creditos|round(2) }}</td>
+                                    <td class="text-light">Renovação/Rotação de culturas</td>
+                                    <td class="text-light">{{ resultados.renovacao.area|round(2) }}</td>
+                                    <td class="text-light">{{ resultados.renovacao.fator }} tCO₂e/ha/ano</td>
+                                    <td class="text-light">{{ resultados.renovacao.creditos|round(2) }}</td>
                                 </tr>
                                 {% endif %}
                                 
