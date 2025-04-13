@@ -155,8 +155,8 @@
                                     <td class="text-light">{{ cenario.nome_cenario }}</td>
                                     <td class="text-light">{{ cenario.data_calculo }}</td>
                                     <td class="text-light">{{ (cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura)|round(1) }}</td>
-                                    <td class="text-light">{{ cenario.total_creditos|round(2) }}</td>
-                                    <td class="text-light">R$ {{ cenario.valor_estimado|round(2) }}</td>
+                                    <td class="text-light">{{ "%.2f"|format(cenario.total_creditos) }}</td>
+                                    <td class="text-light">R$ {{ "%.2f"|format(cenario.valor_estimado) }}</td>
                                     <td class="text-light">
                                         <a href="/detalhes/{{ cenario.id }}" class="btn btn-sm btn-info">
                                             <i class="bi bi-eye"></i> Detalhes

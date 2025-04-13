@@ -89,7 +89,7 @@
             <div class="col-md-3">
                 <div class="card bg-success stat-block">
                     <div class="stat-label">Valor Estimado</div>
-                    <div class="stat-value">R$ {{ cenario.valor_estimado|round(2)|int }}</div>
+                    <div class="stat-value">R$ {{ "%.2f"|format(cenario.valor_estimado) }}</div>
                     <div class="stat-unit">Valor potencial</div>
                 </div>
             </div>
@@ -103,7 +103,7 @@
             <div class="col-md-3">
                 <div class="card bg-warning stat-block">
                     <div class="stat-label">Eficiência</div>
-                    <div class="stat-value">{{ (cenario.total_creditos / (cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura))|round(2) if (cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura) > 0 else 0 }}</div>
+                    <div class="stat-value">{{ "%.2f"|format(cenario.total_creditos / (cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura)) if (cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura) > 0 else "0.00" }}</div>
                     <div class="stat-unit">tCO₂e/ha</div>
                 </div>
             </div>
@@ -141,32 +141,32 @@
                             {% if cenario.area_pastagem > 0 %}
                             <tr>
                                 <td class="text-light">Recuperação de pastagens</td>
-                                <td class="text-light">{{ cenario.area_pastagem|round(2) }}</td>
-                                <td class="text-light">{{ cenario.credito_pastagem|round(2) }}</td>
+                                <td class="text-light">{{ "%.2f"|format(cenario.area_pastagem) }}</td>
+                                <td class="text-light">{{ "%.2f"|format(cenario.credito_pastagem) }}</td>
                             </tr>
                             {% endif %}
                             
                             {% if cenario.area_florestal > 0 %}
                             <tr>
                                 <td class="text-light">Florestamento/Reflorestamento</td>
-                                <td class="text-light">{{ cenario.area_florestal|round(2) }}</td>
-                                <td class="text-light">{{ cenario.credito_florestal|round(2) }}</td>
+                                <td class="text-light">{{ "%.2f"|format(cenario.area_florestal) }}</td>
+                                <td class="text-light">{{ "%.2f"|format(cenario.credito_florestal) }}</td>
                             </tr>
                             {% endif %}
                             
                             {% if cenario.area_renovacao_cultura > 0 %}
                             <tr>
                                 <td class="text-light">Renovação/Rotação de culturas</td>
-                                <td class="text-light">{{ cenario.area_renovacao_cultura|round(2) }}</td>
-                                <td class="text-light">{{ cenario.credito_renovacao|round(2) }}</td>
+                                <td class="text-light">{{ "%.2f"|format(cenario.area_renovacao_cultura) }}</td>
+                                <td class="text-light">{{ "%.2f"|format(cenario.credito_renovacao) }}</td>
                             </tr>
                             {% endif %}
                             
                             {% if cenario.area_integracao_lavoura > 0 %}
                             <tr>
                                 <td class="text-light">Integração lavoura-pecuária</td>
-                                <td class="text-light">{{ cenario.area_integracao_lavoura|round(2) }}</td>
-                                <td class="text-light">{{ cenario.credito_integracao|round(2) }}</td>
+                                <td class="text-light">{{ "%.2f"|format(cenario.area_integracao_lavoura) }}</td>
+                                <td class="text-light">{{ "%.2f"|format(cenario.credito_integracao) }}</td>
                             </tr>
                             {% endif %}
                             
