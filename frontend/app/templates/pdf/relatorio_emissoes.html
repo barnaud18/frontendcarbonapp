@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Emissões de Carbono</title>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>Calculadora de Pegada de Carbono</h1>
+            <p>Relatório detalhado de emissões</p>
+        </div>
+        
+        <div class="data-geracao">
+            Data de geração: {{ data_geracao }}
+        </div>
+        
+        <h2>Informações da Propriedade</h2>
+        <table>
+            <tr>
+                <th>Nome da Propriedade</th>
+                <td>{{ propriedade.nome }}</td>
+            </tr>
+            <tr>
+                <th>Tamanho Total</th>
+                <td>{{ "%.2f"|format(propriedade.tamanho_total) }} hectares</td>
+            </tr>
+            <tr>
+                <th>Data de Registro</th>
+                <td>{{ propriedade.data_registro.strftime('%d/%m/%Y') }}</td>
+            </tr>
+        </table>
+        
+        <h2>Dados Agrícolas</h2>
+        <table>
+            <tr>
+                <th>Área Agrícola</th>
+                <td>{{ "%.2f"|format(agricultura.area_agricola) }} hectares</td>
+            </tr>
+            <tr>
+                <th>Uso de Fertilizantes</th>
+                <td>{{ "%.2f"|format(agricultura.uso_fertilizante) }} kg/ha/ano</td>
+            </tr>
+            <tr>
+                <th>Consumo de Combustível</th>
+                <td>{{ "%.2f"|format(agricultura.consumo_combustivel) }} litros/ano</td>
+            </tr>
+            {% if agricultura.area_pastagem %}
+            <tr>
+                <th>Área de Pastagem</th>
+                <td>{{ "%.2f"|format(agricultura.area_pastagem) }} hectares</td>
+            </tr>
+            {% endif %}
+            {% if agricultura.area_florestal %}
+            <tr>
+                <th>Área Florestal</th>
+                <td>{{ "%.2f"|format(agricultura.area_florestal) }} hectares</td>
+            </tr>
+            {% endif %}
+        </table>
+        
+        <h2>Dados de Pecuária</h2>
+        <table>
+            <tr>
+                <th>Número de Bovinos</th>
+                <td>{{ pecuaria.num_bovinos }}</td>
+            </tr>
+        </table>
+        
+        <h2>Resultados das Emissões</h2>
+        <table>
+            <tr>
+                <th>Categoria</th>
+                <th>Emissões (kg CO₂e/ano)</th>
+                <th>Percentual</th>
+            </tr>
+            <tr>
+                <td>Emissões Agrícolas (fertilizantes)</td>
+                <td>{{ "%.2f"|format(emissao.emissao_agricultura) }}</td>
+                <td>{{ "%.1f"|format((emissao.emissao_agricultura / emissao.total_emissao) * 100) }}%</td>
+            </tr>
+            <tr>
+                <td>Emissões da Pecuária</td>
+                <td>{{ "%.2f"|format(emissao.emissao_pecuaria) }}</td>
+                <td>{{ "%.1f"|format((emissao.emissao_pecuaria / emissao.total_emissao) * 100) }}%</td>
+            </tr>
+            <tr>
+                <td>Emissões de Combustível</td>
+                <td>{{ "%.2f"|format(emissao.emissao_combustivel) }}</td>
+                <td>{{ "%.1f"|format((emissao.emissao_combustivel / emissao.total_emissao) * 100) }}%</td>
+            </tr>
+            <tr class="destaque">
+                <td>Total de Emissões</td>
+                <td>{{ "%.2f"|format(emissao.total_emissao) }}</td>
+                <td>100%</td>
+            </tr>
+        </table>
+        
+        <h3>Emissões per hectare</h3>
+        <p>Intensidade de emissão: {{ "%.2f"|format(emissao.total_emissao / propriedade.tamanho_total) }} kg CO₂e/ha/ano</p>
+        
+        {% if emissao.potencial_credito %}
+        <h3>Potencial de Créditos de Carbono</h3>
+        <p>Estimativa de créditos: {{ "%.2f"|format(emissao.potencial_credito) }} tCO₂e/ano</p>
+        {% endif %}
+        
+        <div class="pagina"></div>
+        
+        <h2>Recomendações para Mitigação</h2>
+        {% if recomendacoes %}
+            {% for rec in recomendacoes %}
+            <div class="recomendacao">
+                <h3>{{ rec.acao }}</h3>
+                <p>{{ rec.descricao }}</p>
+                <p><strong>Potencial de redução:</strong> {{ "%.2f"|format(rec.potencial_reducao) }} kg CO₂e</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>Nenhuma recomendação específica disponível para esta propriedade.</p>
+        {% endif %}
+        
+        <h2>Metodologia de Cálculo</h2>
+        <div class="info-box">
+            <p>Os cálculos de emissão são baseados na metodologia Tier 1 do IPCC (Painel Intergovernamental sobre Mudanças Climáticas), com os seguintes fatores de emissão:</p>
+            <ul>
+                <li>Fertilizantes nitrogenados: Fator de emissão de N₂O de 0,01 kg N₂O-N/kg N aplicado, convertido para CO₂e usando GWP de 298</li>
+                <li>Fermentação entérica de bovinos: 56 kg CH₄/cabeça/ano, convertido para CO₂e usando GWP de 25</li>
+                <li>Combustível (diesel): 3,17 kg CO₂e/litro</li>
+            </ul>
+        </div>
+        
+        <h3>Notas sobre os cálculos</h3>
+        <ul>
+            <li>GWP = Global Warming Potential (Potencial de Aquecimento Global)</li>
+            <li>O potencial de aquecimento global do metano (CH₄) é 25 vezes maior que o CO₂ em um horizonte de 100 anos</li>
+            <li>O potencial de aquecimento global do óxido nitroso (N₂O) é 298 vezes maior que o CO₂ em um horizonte de 100 anos</li>
+        </ul>
+        
+        <footer>
+            <p>© Calculadora de Pegada de Carbono - Todos os direitos reservados</p>
+            <p>Gerado em: {{ data_geracao }}</p>
+        </footer>
+    </div>
+</body>
+</html>

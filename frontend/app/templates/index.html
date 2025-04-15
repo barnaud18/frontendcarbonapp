@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Créditos de Carbono Agrícola</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <style>
+        .card {
+            background-color: #2c2c2c;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body data-bs-theme="dark">
+    <div class="container py-4">
+        <button class="btn btn-outline-light theme-toggle" id="themeToggle">
+            <i class="bi bi-sun"></i> Modo Claro
+        </button>
+        
+        <h1 class="mb-4">Calculadora de Créditos de Carbono Agrícola</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <h2 class="text-info">Calculadora de Créditos de Carbono</h2>
+                    <p>Calcule os potenciais créditos de carbono baseados em diferentes metodologias:</p>
+                    
+                    <a href="/creditos" class="btn btn-success btn-block">
+                        Calculadora Multi-Metodologias
+                    </a>
+                    
+                    <a href="http://localhost:5000/api/docs" class="btn btn-info btn-block" target="_blank">
+                        Documentação da API
+                    </a>
+                    
+                    <a href="/dashboard" class="btn btn-primary btn-block">
+                        Dashboard de Análise
+                    </a>
+                    
+                    <form action="/creditos" method="post">
+                        <div class="mb-3">
+                            <label for="area_pastagem" class="form-label">Cálculo Rápido - Área de Pastagem (ha):</label>
+                            <input type="number" class="form-control" id="area_pastagem" name="area_pastagem" min="0.1" step="0.1" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Calcular Créditos de Carbono</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <h2 class="text-info">Metodologia</h2>
+                    <p class="text-light">Os cálculos de créditos de carbono são baseados nas seguintes metodologias reconhecidas:</p>
+                    <ul class="text-light">
+                        <li><strong>VCS VM0032:</strong> Recuperação de pastagens degradadas (0,5 tCO2e/ha/ano)</li>
+                        <li><strong>AR-ACM0003:</strong> Florestamento e reflorestamento (8,0 tCO2e/ha/ano)</li>
+                        <li><strong>CDM AMS-III.AU:</strong> Práticas agrícolas de baixo carbono (1,2 tCO2e/ha/ano)</li>
+                        <li><strong>VCS VM0017:</strong> Sistemas de integração lavoura-pecuária (3,0 tCO2e/ha/ano)</li>
+                    </ul>
+                    <p class="text-light">Estes valores representam estimativas conservadoras do potencial de sequestro de carbono para cada atividade.</p>
+                </div>
+                
+                <div class="card">
+                    <h2 class="text-info">Instruções</h2>
+                    <p class="text-light">Para utilizar a calculadora:</p>
+                    <ol class="text-light">
+                        <li>Acesse a <strong>Calculadora Multi-Metodologias</strong> para inserir dados de diferentes práticas sustentáveis.</li>
+                        <li>Ou utilize o <strong>Cálculo Rápido</strong> para estimar créditos baseados apenas na área de pastagem.</li>
+                        <li>Informe as áreas em hectares para cada tipo de atividade que implementa em sua propriedade.</li>
+                        <li>Obtenha estimativas do potencial de créditos de carbono e valor financeiro aproximado.</li>
+                        <li>Utilize o <strong>Dashboard</strong> para visualizar e comparar diferentes cenários.</li>
+                    </ol>
+                    <p class="text-light">Lembre-se que para monetizar créditos de carbono, é necessário seguir protocolos específicos e obter certificação por entidades credenciadas.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <h2 class="text-info">Estudos de Caso</h2>
+                    <p class="text-light">Confira exemplos reais de implementação das metodologias de crédito de carbono:</p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title text-light">Recuperação de Pastagens em MG</h5>
+                                    <p class="card-text text-light">Projeto com 500 hectares de pastagens recuperadas, com sequestro médio de 0,7 tCO2e/ha/ano.</p>
+                                    <a href="/estudos-caso/1" class="btn btn-sm btn-info">Ver Detalhes</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title text-light">Reflorestamento no PR</h5>
+                                    <p class="card-text text-light">Reflorestamento de 200 hectares com espécies nativas, sequestro de 10 tCO2e/ha/ano.</p>
+                                    <a href="/estudos-caso/2" class="btn btn-sm btn-info">Ver Detalhes</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title text-light">Integração Lavoura-Pecuária em MT</h5>
+                                    <p class="card-text text-light">Implementação em 1.200 hectares, redução de fertilizantes e aumento da produtividade.</p>
+                                    <a href="/estudos-caso/3" class="btn btn-sm btn-info">Ver Detalhes</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Função para alternar entre modos claro e escuro
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            const body = document.body;
+            const theme = body.getAttribute('data-bs-theme');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (theme === 'dark') {
+                body.setAttribute('data-bs-theme', 'light');
+                themeToggle.innerHTML = '<i class="bi bi-moon"></i> Modo Escuro';
+                themeToggle.classList.remove('btn-outline-light');
+                themeToggle.classList.add('btn-outline-dark');
+            } else {
+                body.setAttribute('data-bs-theme', 'dark');
+                themeToggle.innerHTML = '<i class="bi bi-sun"></i> Modo Claro';
+                themeToggle.classList.remove('btn-outline-dark');
+                themeToggle.classList.add('btn-outline-light');
+            }
+        });
+    </script>
+</body>
+</html>

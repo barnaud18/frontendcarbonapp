@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estudos de Caso - Créditos de Carbono</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <style>
+        .card {
+            background-color: #2c2c2c;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-title {
+            color: #17a2b8;
+            margin-bottom: 15px;
+        }
+        
+        .badge {
+            font-size: 0.9em;
+            padding: 5px 10px;
+            margin-right: 5px;
+        }
+        
+        .resultados-card {
+            background-color: #1a1a1a;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .btn-voltar {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body data-bs-theme="dark">
+    <div class="container py-4">
+        <a href="/" class="btn btn-outline-light btn-voltar">
+            <i class="bi bi-arrow-left"></i> Voltar para Início
+        </a>
+        
+        <h1 class="mb-4">Estudos de Caso</h1>
+        <p class="lead mb-4">Conheça projetos reais de implementação de créditos de carbono no Brasil</p>
+        
+        <div class="row">
+            {% for estudo in estudos %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ estudo.titulo }}</h5>
+                        <p class="text-light">{{ estudo.descricao }}</p>
+                        
+                        <div class="mb-3">
+                            <span class="badge bg-info">{{ estudo.localizacao }}</span>
+                            <span class="badge bg-success">{{ estudo.area }} hectares</span>
+                            <span class="badge bg-primary">{{ estudo.metodologia }}</span>
+                        </div>
+                        
+                        <div class="resultados-card">
+                            <h6 class="text-info">Resultados:</h6>
+                            <p class="mb-1 text-light">
+                                <strong>Créditos Gerados:</strong> {{ estudo.resultados.creditos_gerados }} tCO2e
+                            </p>
+                            <p class="mb-1 text-light">
+                                <strong>Valor Estimado:</strong> R$ {{ "%.2f"|format(estudo.resultados.valor_estimado) }}
+                            </p>
+                            <p class="mb-0 text-light">
+                                <strong>Período:</strong> {{ estudo.resultados.periodo }}
+                            </p>
+                        </div>
+                        
+                        <a href="/estudos-caso/{{ estudo.id }}" class="btn btn-info mt-3">
+                            Ver Detalhes
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html> 

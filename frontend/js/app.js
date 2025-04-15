@@ -156,16 +156,31 @@ async function registerProperty(formData) {
  */
 async function calculateCarbonCredits() {
     try {
+        // Obter todos os campos necessários
         const areaPastagem = parseFloat(document.getElementById('area_pastagem').value) || 0;
+        const areaFlorestal = parseFloat(document.getElementById('area_florestal').value) || 0;
+        const areaRenovacao = parseFloat(document.getElementById('area_renovacao_cultura').value) || 0;
+        const areaIntegracao = parseFloat(document.getElementById('area_integracao_lavoura').value) || 0;
         
-        if (areaPastagem <= 0) {
-            throw new Error('A área de pastagem deve ser maior que zero para calcular o potencial de créditos de carbono.');
+        // Verificar se pelo menos uma área foi fornecida
+        if (areaPastagem <= 0 && areaFlorestal <= 0 && areaRenovacao <= 0 && areaIntegracao <= 0) {
+            throw new Error('Pelo menos uma área deve ser maior que zero para calcular o potencial de créditos de carbono.');
         }
         
-        console.log("Calculating carbon credits for area:", areaPastagem);
+        console.log("Calculating carbon credits for areas:", {
+            area_pastagem: areaPastagem,
+            area_florestal: areaFlorestal,
+            area_renovacao_cultura: areaRenovacao,
+            area_integracao_lavoura: areaIntegracao
+        });
         
         // Make API request
-        const result = await apiCalculateCredits({ area_pastagem: areaPastagem });
+        const result = await apiCalculateCredits({
+            area_pastagem: areaPastagem,
+            area_florestal: areaFlorestal,
+            area_renovacao_cultura: areaRenovacao,
+            area_integracao_lavoura: areaIntegracao
+        });
         console.log("Credits calculation result:", result);
         
         // Display results
@@ -173,10 +188,12 @@ async function calculateCarbonCredits() {
         resultadoCreditos.innerHTML = `
             <div class="alert alert-success">
                 <h5>Potencial de Créditos de Carbono</h5>
-                <p><strong>Área de Pastagem:</strong> ${result.area_pastagem_ha} hectares</p>
-                <p><strong>Potencial de Créditos:</strong> ${result.potencial_credito_tco2e} tCO₂e</p>
-                <p><strong>Valor Estimado:</strong> R$ ${result.valor_estimado_reais.toFixed(2)}</p>
-                <p class="mb-0"><small>*Baseado na metodologia VCS VM0032 para recuperação de pastagens degradadas.</small></p>
+                <p><strong>Área de Pastagem:</strong> ${result.pastagem.area} hectares (${result.pastagem.creditos.toFixed(2)} créditos)</p>
+                <p><strong>Área Florestal:</strong> ${result.florestal.area} hectares (${result.florestal.creditos.toFixed(2)} créditos)</p>
+                <p><strong>Área de Renovação:</strong> ${result.renovacao.area} hectares (${result.renovacao.creditos.toFixed(2)} créditos)</p>
+                <p><strong>Área de Integração:</strong> ${result.integracao.area} hectares (${result.integracao.creditos.toFixed(2)} créditos)</p>
+                <p><strong>Total de Créditos:</strong> ${result.total_creditos.toFixed(2)} tCO₂e</p>
+                <p><strong>Valor Estimado:</strong> $ ${result.valor_estimado.toFixed(2)} USD</p>
             </div>
         `;
     } catch (error) {

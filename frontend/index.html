@@ -195,6 +195,27 @@
                 <div class="card">
                     <h2>Créditos de Carbono</h2>
                     <p>Calcule os potenciais créditos de carbono da sua propriedade:</p>
+                    
+                    <div class="form-group">
+                        <label for="area_pastagem_creditos">Área de Pastagem (ha):</label>
+                        <input type="number" id="area_pastagem" min="0" step="0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="area_florestal">Área Florestal (ha):</label>
+                        <input type="number" id="area_florestal" min="0" step="0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="area_renovacao_cultura">Área de Renovação de Cultura (ha):</label>
+                        <input type="number" id="area_renovacao_cultura" min="0" step="0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="area_integracao_lavoura">Área de Integração Lavoura-Pecuária (ha):</label>
+                        <input type="number" id="area_integracao_lavoura" min="0" step="0.1">
+                    </div>
+                    
                     <button onclick="calcularCreditos()" class="btn-success">Calcular Créditos de Carbono</button>
                     <div id="resultado-creditos" style="margin-top: 15px;"></div>
                 </div>
@@ -283,37 +304,67 @@
         async function calcularCreditos() {
             try {
                 const areaPastagem = parseFloat(document.getElementById('area_pastagem').value) || 0;
+                const areaFlorestal = parseFloat(document.getElementById('area_florestal').value) || 0;
+                const areaRenovacao = parseFloat(document.getElementById('area_renovacao_cultura').value) || 0;
+                const areaIntegracao = parseFloat(document.getElementById('area_integracao_lavoura').value) || 0;
                 
-                if (areaPastagem <= 0) {
-                    throw new Error('A área de pastagem deve ser maior que zero');
+                // Verificar se pelo menos uma área foi fornecida
+                if (areaPastagem <= 0 && areaFlorestal <= 0 && areaRenovacao <= 0 && areaIntegracao <= 0) {
+                    showAlert('Erro: Pelo menos uma área deve ser maior que zero', 'danger');
+                    return; // Retornar sem fazer a requisição
                 }
                 
-                console.log('Calculando créditos para área:', areaPastagem);
+                console.log('Calculando créditos para áreas:', {
+                    area_pastagem: areaPastagem,
+                    area_florestal: areaFlorestal,
+                    area_renovacao_cultura: areaRenovacao,
+                    area_integracao_lavoura: areaIntegracao
+                });
                 
                 // Make API request
-                const response = await fetch('/api/calcular-creditos', {
+                const response = await fetch('/api/calcular', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ area_pastagem: areaPastagem })
+                    body: JSON.stringify({
+                        area_pastagem: areaPastagem,
+                        area_florestal: areaFlorestal,
+                        area_renovacao_cultura: areaRenovacao,
+                        area_integracao_lavoura: areaIntegracao
+                    })
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Falha ao calcular créditos de carbono');
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Falha ao calcular créditos de carbono');
                 }
                 
                 const result = await response.json();
                 console.log('Credits result:', result);
                 
-                // Display credit results
-                const creditosContainer = document.getElementById('resultado-creditos');
-                creditosContainer.innerHTML = `
+                // Redirecionar para a página de detalhes se o ID estiver presente
+                if (result.id) {
+                    window.location.href = `/detalhes/${result.id}`;
+                    return;
+                }
+                
+                // Exibir os resultados na página se não houver ID
+                const resultadoCreditos = document.getElementById('resultado-creditos');
+                resultadoCreditos.innerHTML = `
                     <div class="alert alert-success">
-                        <strong>Potencial de Créditos:</strong> ${result.potencial_credito_tco2e} tCO₂e<br>
-                        <strong>Valor Estimado:</strong> R$ ${result.valor_estimado_reais.toFixed(2)}
+                        <h5>Potencial de Créditos de Carbono</h5>
+                        <p><strong>Área de Pastagem:</strong> ${result.pastagem.area} hectares (${result.pastagem.creditos.toFixed(2)} créditos)</p>
+                        <p><strong>Área Florestal:</strong> ${result.florestal.area} hectares (${result.florestal.creditos.toFixed(2)} créditos)</p>
+                        <p><strong>Área de Renovação:</strong> ${result.renovacao.area} hectares (${result.renovacao.creditos.toFixed(2)} créditos)</p>
+                        <p><strong>Área de Integração:</strong> ${result.integracao.area} hectares (${result.integracao.creditos.toFixed(2)} créditos)</p>
+                        <p><strong>Total de Créditos:</strong> ${result.total_creditos.toFixed(2)} tCO₂e</p>
+                        <p><strong>Valor Estimado:</strong> $ ${result.valor_estimado.toFixed(2)} USD</p>
                     </div>
                 `;
+                
+                // Mostrar mensagem de sucesso
+                showAlert('Cálculo de créditos realizado com sucesso!', 'success');
             } catch (error) {
                 console.error('Error:', error);
                 showAlert('Erro ao calcular créditos: ' + error.message, 'danger');

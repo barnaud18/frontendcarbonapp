@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado - Calculadora de Pegada de Carbono</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1e1e1e;
+            color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #0d6efd;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #0dcaf0;
+        }
+        
+        .card {
+            background-color: #2c2c2c;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        table, th, td {
+            border: 1px solid #444;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #333;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #0d6efd;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        
+        .col-md-6 {
+            flex: 0 0 100%;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        
+        @media (min-width: 768px) {
+            .col-md-6 {
+                flex: 0 0 50%;
+            }
+        }
+        
+        .progress-container {
+            margin-top: 10px;
+            width: 100%;
+            background-color: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background-color: #198754;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .alert-success {
+            background-color: rgba(25, 135, 84, 0.2);
+            border: 1px solid #198754;
+            color: #75b798;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Resultado do Cálculo de Créditos de Carbono</h1>
+        
+        <div class="card">
+            <h2>Informações do Cenário</h2>
+            {% if nome_cenario %}
+            <p><strong>Nome do Cenário:</strong> {{ nome_cenario }}</p>
+            {% else %}
+            <p><strong>Data do Cálculo:</strong> {{ now().strftime('%d/%m/%Y às %H:%M') }}</p>
+            {% endif %}
+            
+            <p><strong>Área de Pastagem:</strong> {{ "%.2f"|format(resultados.resultados.pastagem.area) }} ha</p>
+            <p><strong>Área Florestal:</strong> {{ "%.2f"|format(resultados.resultados.florestal.area) }} ha</p>
+            <p><strong>Área de Renovação de Cultura:</strong> {{ "%.2f"|format(resultados.resultados.renovacao.area) }} ha</p>
+            <p><strong>Área de Integração Lavoura-Pecuária:</strong> {{ "%.2f"|format(resultados.resultados.integracao.area) }} ha</p>
+        </div>
+        
+        <div class="card">
+            <h2>Créditos de Carbono Totais: {{ "%.2f"|format(resultados.total_creditos) }} tCO₂e</h2>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metodologia</th>
+                        <th>Créditos (tCO₂e)</th>
+                        <th>% do Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Pastagem (VCS VM0032)</td>
+                        <td>{{ "%.2f"|format(resultados.resultados.pastagem.creditos) }}</td>
+                        <td>{{ "%.1f"|format((resultados.resultados.pastagem.creditos / resultados.total_creditos * 100) if resultados.total_creditos > 0 else 0) }}%</td>
+                    </tr>
+                    <tr>
+                        <td>Floresta (AR-ACM0003)</td>
+                        <td>{{ "%.2f"|format(resultados.resultados.florestal.creditos) }}</td>
+                        <td>{{ "%.1f"|format((resultados.resultados.florestal.creditos / resultados.total_creditos * 100) if resultados.total_creditos > 0 else 0) }}%</td>
+                    </tr>
+                    <tr>
+                        <td>Renovação de Cultura (CDM AMS-III.AU)</td>
+                        <td>{{ "%.2f"|format(resultados.resultados.renovacao.creditos) }}</td>
+                        <td>{{ "%.1f"|format((resultados.resultados.renovacao.creditos / resultados.total_creditos * 100) if resultados.total_creditos > 0 else 0) }}%</td>
+                    </tr>
+                    <tr>
+                        <td>Integração Lavoura-Pecuária (VCS VM0017)</td>
+                        <td>{{ "%.2f"|format(resultados.resultados.integracao.creditos) }}</td>
+                        <td>{{ "%.1f"|format((resultados.resultados.integracao.creditos / resultados.total_creditos * 100) if resultados.total_creditos > 0 else 0) }}%</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>Distribuição de Créditos</h3>
+            <div>
+                <p>Pastagem ({{ "%.1f"|format((resultados.resultados.pastagem.creditos / resultados.total_creditos * 100) if resultados.total_creditos > 0 else 0) }}%)</p>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: {{ (resultados.resultados.pastagem.creditos / resultados.total_creditos * 100) if resultados.total_creditos > 0 else 0 }}%;"></div>
+                </div>
+                
+                <p>Floresta ({{ "%.1f"|format((resultados.resultados.florestal.creditos / resultados.total_creditos * 100) if resultados.total_creditos > 0 else 0) }}%)</p>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: {{ (resultados.resultados.florestal.creditos / resultados.total_creditos * 100) if resultados.total_creditos > 0 else 0 }}%;"></div>
+                </div>
+                
+                <p>Renovação de Cultura ({{ "%.1f"|format((resultados.resultados.renovacao.creditos / resultados.total_creditos * 100) if resultados.total_creditos > 0 else 0) }}%)</p>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: {{ (resultados.resultados.renovacao.creditos / resultados.total_creditos * 100) if resultados.total_creditos > 0 else 0 }}%;"></div>
+                </div>
+                
+                <p>Integração Lavoura-Pecuária ({{ "%.1f"|format((resultados.resultados.integracao.creditos / resultados.total_creditos * 100) if resultados.total_creditos > 0 else 0) }}%)</p>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: {{ (resultados.resultados.integracao.creditos / resultados.total_creditos * 100) if resultados.total_creditos > 0 else 0 }}%;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <h2>Valor Estimado dos Créditos</h2>
+                    <div class="alert alert-success">
+                        <p><strong>Valor Estimado:</strong> R$ {{ "%.2f"|format(resultados.valor_estimado) }}</p>
+                        <p><strong>Preço por Crédito:</strong> R$ 50,00/tCO₂e</p>
+                    </div>
+                    <p>Este valor é uma estimativa baseada no preço médio atual de créditos de carbono no mercado voluntário. Os preços reais podem variar dependendo de diversos fatores como qualidade do projeto, localização, metodologia utilizada e condições de mercado.</p>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <h2>Detalhamento por Metodologia</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Metodologia</th>
+                                <th>Fator (tCO₂e/ha)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>VCS VM0032 - Recuperação de Pastagens</td>
+                                <td>{{ "%.2f"|format(resultados.resultados.pastagem.fator) }}</td>
+                            </tr>
+                            <tr>
+                                <td>AR-ACM0003 - Florestamento/Reflorestamento</td>
+                                <td>{{ "%.2f"|format(resultados.resultados.florestal.fator) }}</td>
+                            </tr>
+                            <tr>
+                                <td>CDM AMS-III.AU - Práticas Agrícolas</td>
+                                <td>{{ "%.2f"|format(resultados.resultados.renovacao.fator) }}</td>
+                            </tr>
+                            <tr>
+                                <td>VCS VM0017 - Integração Lavoura-Pecuária</td>
+                                <td>{{ "%.2f"|format(resultados.resultados.integracao.fator) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/creditos" class="btn">Novo Cálculo</a>
+        </div>
+    </div>
+</body>
+</html>

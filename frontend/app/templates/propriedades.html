@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propriedades Cadastradas - Calculadora de Pegada de Carbono</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1e1e1e;
+            color: #f8f9fa;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #0d6efd;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            color: #0dcaf0;
+        }
+        
+        .card {
+            background-color: #2c2c2c;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        table, th, td {
+            border: 1px solid #444;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #333;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #333;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #0d6efd;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Propriedades Cadastradas</h1>
+        
+        <div class="card">
+            {% if propriedades %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="text-light">ID</th>
+                            <th class="text-light">Nome</th>
+                            <th class="text-light">Tamanho Total (ha)</th>
+                            <th class="text-light">Data de Registro</th>
+                            <th class="text-light">Emissões Totais (kg CO₂e)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prop in propriedades %}
+                            <tr>
+                                <td class="text-light">{{ prop.id }}</td>
+                                <td class="text-light">{{ prop.nome }}</td>
+                                <td class="text-light">{{ prop.tamanho_total }}</td>
+                                <td class="text-light">{{ prop.data_registro.strftime('%d/%m/%Y') }}</td>
+                                <td class="text-light">{{ "%.2f"|format(prop.emissao.total_emissao) if prop.emissao else 'Não calculado' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Nenhuma propriedade cadastrada.</p>
+            {% endif %}
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/" class="btn">Voltar para Calculadora</a>
+        </div>
+    </div>
+</body>
+</html>

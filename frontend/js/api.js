@@ -76,7 +76,7 @@ async function apiRegisterProperty(propertyData) {
  * @returns {Promise} - Carbon credit results
  */
 async function apiCalculateCredits(data) {
-    return await apiRequest('/calcular-creditos', 'POST', data);
+    return await apiRequest('/calcular', 'POST', data);
 }
 
 /**
