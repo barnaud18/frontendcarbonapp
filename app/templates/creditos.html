@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado - Créditos de Carbono</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/grafico_creditos.js') }}"></script>
+    <style>
+        .card {
+            background-color: #2c2c2c;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+        
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .result-box {
+            text-align: center;
+            padding: 30px 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background-color: #2c2c2c;
+            transition: transform 0.3s;
+        }
+        
+        .result-box:hover {
+            transform: translateY(-5px);
+        }
+        
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .result-unit {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .methodology-badge {
+            font-size: 0.8rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body data-bs-theme="dark">
+    <div class="container py-4">
+        <!-- Modo escuro ativado permanentemente -->
+        
+        <div class="row">
+            <div class="col-12 mb-4">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Início</a></li>
+                        <li class="breadcrumb-item"><a href="/creditos">Calculadora</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Resultado</li>
+                    </ol>
+                </nav>
+                
+                <h1 class="mb-4">Resultado do Cálculo de Créditos de Carbono</h1>
+                <p class="lead">
+                    {% if nome_cenario %}
+                    <strong>{{ nome_cenario }}</strong>
+                    {% else %}
+                    <strong>Cálculo realizado em {{ now().strftime('%d/%m/%Y às %H:%M') }}</strong>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card bg-success result-box">
+                    <h3>Total de Créditos de Carbono</h3>
+                    <div class="result-value">{{ "%.2f"|format(potencial_credito) }}</div>
+                    <div class="result-unit">tCO₂e (toneladas de CO₂ equivalente)</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-info result-box">
+                    <h3>Valor Potencial Estimado</h3>
+                    <div class="result-value">R$ {{ "%.2f"|format(valor_estimado) }}</div>
+                    <div class="result-unit">considerando R$ 50,00 por tCO₂e</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card">
+                    <h2 class="text-info mb-4">Detalhamento por Metodologia</h2>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover text-light">
+                            <thead>
+                                <tr>
+                                    <th class="text-light">Metodologia</th>
+                                    <th class="text-light">Área (ha)</th>
+                                    <th class="text-light">Fator</th>
+                                    <th class="text-light">Créditos (tCO₂e)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if resultados.get('pastagem') %}
+                                <tr>
+                                    <td class="text-light">Recuperação de pastagens</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.pastagem.area) }}</td>
+                                    <td class="text-light">{{ resultados.pastagem.fator }} tCO₂e/ha/ano</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.pastagem.creditos) }}</td>
+                                </tr>
+                                {% endif %}
+                                
+                                {% if resultados.get('florestal') %}
+                                <tr>
+                                    <td class="text-light">Florestamento/Reflorestamento</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.florestal.area) }}</td>
+                                    <td class="text-light">{{ resultados.florestal.fator }} tCO₂e/ha/ano</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.florestal.creditos) }}</td>
+                                </tr>
+                                {% endif %}
+                                
+                                {% if resultados.get('renovacao') %}
+                                <tr>
+                                    <td class="text-light">Renovação/Rotação de culturas</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.renovacao.area) }}</td>
+                                    <td class="text-light">{{ resultados.renovacao.fator }} tCO₂e/ha/ano</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.renovacao.creditos) }}</td>
+                                </tr>
+                                {% endif %}
+                                
+                                {% if resultados.get('integracao') %}
+                                <tr>
+                                    <td class="text-light">Integração lavoura-pecuária</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.integracao.area) }}</td>
+                                    <td class="text-light">{{ resultados.integracao.fator }} tCO₂e/ha/ano</td>
+                                    <td class="text-light">{{ "%.2f"|format(resultados.integracao.creditos) }}</td>
+                                </tr>
+                                {% endif %}
+                                
+                                <tr class="table-active">
+                                    <td class="text-light"><strong>Total</strong></td>
+                                    <td class="text-light"><strong>{{ "%.2f"|format(area_pastagem + area_florestal + area_renovacao_cultura + area_integracao_lavoura) }}</strong></td>
+                                    <td class="text-light">-</td>
+                                    <td class="text-light"><strong>{{ "%.2f"|format(potencial_credito) }}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="chart-container mt-4">
+                        <canvas id="creditosChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <h2 class="text-info mb-3">Metodologias Utilizadas</h2>
+                    <div>
+                        {% if resultados.get('pastagem') %}
+                        <span class="badge bg-primary methodology-badge">{{ resultados.pastagem.metodologia }}</span>
+                        {% endif %}
+                        
+                        {% if resultados.get('florestal') %}
+                        <span class="badge bg-primary methodology-badge">{{ resultados.florestal.metodologia }}</span>
+                        {% endif %}
+                        
+                        {% if resultados.get('renovacao') %}
+                        <span class="badge bg-primary methodology-badge">{{ resultados.renovacao.metodologia }}</span>
+                        {% endif %}
+                        
+                        {% if resultados.get('integracao') %}
+                        <span class="badge bg-primary methodology-badge">{{ resultados.integracao.metodologia }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="mt-3 text-light">
+                        As metodologias utilizadas são reconhecidas internacionalmente e seguem os padrões estabelecidos 
+                        por organizações como o Verified Carbon Standard (VCS) e o Clean Development Mechanism (CDM).
+                    </p>
+                    
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> <strong>Importante:</strong> 
+                        Os resultados apresentados são estimativas baseadas em metodologias científicas. 
+                        A certificação oficial para comercialização de créditos de carbono exige validação 
+                        por entidades acreditadas.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-5">
+                <div class="card">
+                    <h2 class="text-info mb-3">Próximos Passos</h2>
+                    <p class="text-light">Para monetizar os créditos de carbono calculados, recomendamos os seguintes passos:</p>
+                    
+                    <ol class="list-group list-group-numbered mb-4">
+                        <li class="list-group-item text-light">Documentar as práticas implementadas com evidências (fotografias, mapas, registros de manejo)</li>
+                        <li class="list-group-item text-light">Contratar uma entidade verificadora credenciada para validar o projeto</li>
+                        <li class="list-group-item text-light">Registrar o projeto em um dos padrões de certificação (VCS, Gold Standard, etc.)</li>
+                        <li class="list-group-item text-light">Monitorar e reportar regularmente o desempenho das atividades de mitigação</li>
+                        <li class="list-group-item text-light">Comercializar os créditos emitidos em plataformas de negociação ou venda direta</li>
+                    </ol>
+                    
+                    <h4 class="text-light">Recursos Úteis</h4>
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item text-light">
+                            <a href="https://verra.org/" target="_blank" class="text-info">Verified Carbon Standard (Verra)</a>
+                        </li>
+                        <li class="list-group-item text-light">
+                            <a href="https://www.goldstandard.org/" target="_blank" class="text-info">Gold Standard</a>
+                        </li>
+                        <li class="list-group-item text-light">
+                            <a href="https://cdm.unfccc.int/" target="_blank" class="text-info">Clean Development Mechanism</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card mt-4">
+                    <h2 class="text-info mb-3">Recomendações para Aumentar Créditos</h2>
+                    
+                    {% if resultados.get('pastagem') %}
+                    <div class="alert alert-success mb-3">
+                        <h5 class="text-light"><i class="bi bi-check-circle"></i> Pastagens</h5>
+                        <p class="text-light">Implemente manejo rotacionado de pastagens e corrija o solo para aumentar o potencial de sequestro de carbono.</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if resultados.get('florestal') %}
+                    <div class="alert alert-success mb-3">
+                        <h5 class="text-light"><i class="bi bi-check-circle"></i> Florestamento</h5>
+                        <p class="text-light">Priorize espécies nativas e consórcios diversificados para aumentar a biomassa e a biodiversidade.</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if resultados.get('renovacao') %}
+                    <div class="alert alert-success mb-3">
+                        <h5><i class="bi bi-check-circle"></i> Rotação de Culturas</h5>
+                        <p>Combine com práticas de plantio direto e cultivo de coberturas verdes para maximizar o carbono no solo.</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if resultados.get('integracao') %}
+                    <div class="alert alert-success mb-3">
+                        <h5><i class="bi bi-check-circle"></i> Integração</h5>
+                        <p>Expanda para sistemas ILPF (integração lavoura-pecuária-floresta) para potencializar os benefícios.</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="alert alert-info">
+                        <h5><i class="bi bi-info-circle"></i> Potencial adicional</h5>
+                        <p>Considere implementar outras práticas como sistemas agroflorestais, biocarvão, 
+                        ou compostagem para aumentar ainda mais o sequestro de carbono.</p>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <h2 class="text-info mb-3">Ações</h2>
+                    <div class="d-grid gap-2">
+                        <a href="/dashboard" class="btn btn-primary">Ver Dashboard</a>
+                        <a href="/creditos" class="btn btn-success">Calcular Novamente</a>
+                        <a href="/exportar-pdf/creditos" class="btn btn-warning">
+                            <i class="bi bi-file-pdf"></i> Exportar PDF
+                        </a>
+                        <a href="/" class="btn btn-outline-info">Voltar à Página Inicial</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="grafico-container" 
+        data-pastagem="{{ resultados.resultados.get('pastagem', {}).get('creditos', 0)|tojson }}"
+        data-florestal="{{ resultados.resultados.get('florestal', {}).get('creditos', 0)|tojson }}"
+        data-renovacao="{{ resultados.resultados.get('renovacao', {}).get('creditos', 0)|tojson }}"
+        data-integracao="{{ resultados.resultados.get('integracao', {}).get('creditos', 0)|tojson }}"
+        data-total="{{ resultados.total_creditos|tojson }}">
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('grafico-container');
+            const dadosGrafico = {
+                pastagem: Number(container.dataset.pastagem),
+                florestal: Number(container.dataset.florestal),
+                renovacao: Number(container.dataset.renovacao),
+                integracao: Number(container.dataset.integracao)
+            };
+            const totalCreditos = Number(container.dataset.total);
+            criarGraficoCreditos(dadosGrafico, totalCreditos);
+        });
+    </script>
+</body>
+</html>

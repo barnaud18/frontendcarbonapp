@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Créditos de Carbono</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .card {
+            background-color: #2c2c2c;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        /* Modo escuro permanente ativado */
+        
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .dashboard-stat {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+        
+        .dashboard-stat:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-title {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .stat-unit {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body data-bs-theme="dark">
+    <div class="container py-4">
+        <!-- Modo escuro ativado permanentemente -->
+        
+        <h1 class="mb-4">Dashboard de Créditos de Carbono</h1>
+        
+        <div class="row">
+            <div class="col-12 mb-4">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/">Início</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary dashboard-stat">
+                    <div class="stat-title">Total de Cenários</div>
+                    <div class="stat-value">{{ total_cenarios }}</div>
+                    <div class="stat-unit">cenários calculados</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success dashboard-stat">
+                    <div class="stat-title">Total de Créditos</div>
+                    <div class="stat-value">{{ "%.2f"|format(total_creditos) }}</div>
+                    <div class="stat-unit">tCO₂e potenciais</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info dashboard-stat">
+                    <div class="stat-title">Valor Estimado</div>
+                    <div class="stat-value">R$ {{ "%.2f"|format(valor_estimado) }}</div>
+                    <div class="stat-unit">em créditos de carbono</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning dashboard-stat">
+                    <div class="stat-title">Área Total</div>
+                    <div class="stat-value">{{ "%.2f"|format(area_total) }}</div>
+                    <div class="stat-unit">hectares monitorados</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <h2 class="text-info">Distribuição de Créditos por Metodologia</h2>
+                    <div class="chart-container">
+                        <canvas id="metodologiasChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <h2 class="text-info">Evolução de Cenários ao Longo do Tempo</h2>
+                    <div class="chart-container">
+                        <canvas id="timeSeriesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="text-info mb-0">Cenários Calculados</h2>
+                        <form action="/apagar-todos-cenarios" method="post" onsubmit="return confirm('ATENÇÃO: Esta ação irá apagar TODOS os cenários! Tem certeza que deseja continuar?');">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Apagar Todos os Cenários
+                            </button>
+                        </form>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="text-light">Nome</th>
+                                    <th class="text-light">Data</th>
+                                    <th class="text-light">Área Total (ha)</th>
+                                    <th class="text-light">Créditos (tCO₂e)</th>
+                                    <th class="text-light">Valor (R$)</th>
+                                    <th class="text-light">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cenario in cenarios %}
+                                <tr>
+                                    <td class="text-light">{{ cenario.nome_cenario }}</td>
+                                    <td class="text-light">{{ cenario.data_calculo }}</td>
+                                    <td class="text-light">{{ "%.2f"|format(cenario.area_pastagem + cenario.area_florestal + cenario.area_renovacao_cultura + cenario.area_integracao_lavoura) }}</td>
+                                    <td class="text-light">{{ "%.2f"|format(cenario.total_creditos) }}</td>
+                                    <td class="text-light">R$ {{ "%.2f"|format(cenario.valor_estimado) }}</td>
+                                    <td class="text-light">
+                                        <div class="d-flex gap-1">
+                                            <a href="/detalhes/{{ cenario.id }}" class="btn btn-sm btn-info">
+                                                <i class="bi bi-eye"></i> Detalhes
+                                            </a>
+                                            <a href="/impacto-real/{{ cenario.id }}" class="btn btn-sm btn-success">
+                                                <i class="bi bi-globe"></i> Impacto
+                                            </a>
+                                            <form action="/apagar-cenario/{{ cenario.id }}" method="post" onsubmit="return confirm('Tem certeza que deseja apagar este cenário?');">
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="bi bi-trash"></i> Apagar
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Funcionalidade de comparação de cenários removida conforme solicitado -->
+    </div>
+    
+    <script>
+        // Dados para os gráficos
+        const metodologiasData = {
+            labels: ['Pastagem', 'Floresta', 'Renovação', 'Integração'],
+            datasets: [{
+                label: 'Créditos por Metodologia (tCO₂e)',
+                data: [
+                      {{ "%.2f"|format(totais.credito_pastagem|default(0)) }}, 
+                      {{ "%.2f"|format(totais.credito_florestal|default(0)) }}, 
+                      {{ "%.2f"|format(totais.credito_renovacao|default(0)) }}, 
+                      {{ "%.2f"|format(totais.credito_integracao|default(0)) }}
+                     ],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+        
+        // Configuração para o gráfico de metodologias
+        const metodologiasConfig = {
+            type: 'pie',
+            data: metodologiasData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Renderizar o gráfico de metodologias
+        const metodologiasChart = new Chart(
+            document.getElementById('metodologiasChart'),
+            metodologiasConfig
+        );
+        
+        // Configuração para o gráfico de séries temporais
+        const timeSeriesData = {
+            labels: {{ datas|safe }},
+            datasets: [{
+                label: 'Créditos Acumulados (tCO₂e)',
+                data: {{ creditos_acumulados|safe }},
+                fill: true,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.4
+            }]
+        };
+        
+        const timeSeriesConfig = {
+            type: 'line',
+            data: timeSeriesData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: document.body.getAttribute('data-bs-theme') === 'dark' ? '#fff' : '#000'
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Renderizar o gráfico de séries temporais
+        const timeSeriesChart = new Chart(
+            document.getElementById('timeSeriesChart'),
+            timeSeriesConfig
+        );
+        
+        // Aplicar modo escuro permanentemente
+        document.querySelectorAll('canvas').forEach(canvas => {
+            const chart = Chart.getChart(canvas);
+            if (chart) {
+                chart.options.plugins.legend.labels.color = '#fff';
+                chart.options.scales.x.ticks.color = '#fff';
+                chart.options.scales.y.ticks.color = '#fff';
+                chart.update();
+            }
+        });
+        
+        // Funcionalidade de comparação removida
+    </script>
+</body>
+</html>
