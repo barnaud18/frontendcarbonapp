@@ -3,7 +3,9 @@ import json
 import os
 from backend.app import app, db
 from backend.models import Propriedade, Agricultura, Pecuaria, Emissao, Recomendacao
-from backend.utils import calcular_emissoes, gerar_recomendacoes, calcular_creditos_carbono
+from backend.utils import calcular_emissoes, gerar_recomendacoes
+from backend.app.models.calculo_carbono import calcular_creditos
+from datetime import datetime
 
 
 @app.route('/')
@@ -143,7 +145,7 @@ def calcular():
         )
         
         # Calculate carbon credits if pasture area is provided
-        potencial_credito = calcular_creditos_carbono(
+        potencial_credito = calcular_creditos(
             area_pastagem=propriedade.agricultura.area_pastagem
         ) if propriedade.agricultura.area_pastagem else 0
         
@@ -226,25 +228,40 @@ def buscar_usuario(propriedade_id):
 
 
 @app.route('/calcular-creditos', methods=['POST'])
-def calcular_creditos():
+def calcular_creditos_route():
     """
     Calculate carbon credits potential
     ---
     """
     try:
         data = request.get_json()
-        area_pastagem = data.get('area_pastagem', 0)
         
-        creditos = calcular_creditos_carbono(area_pastagem)
+        # Extrair e validar áreas
+        try:
+            area_pastagem = float(data.get('area_pastagem', 0) or 0)
+            area_florestal = float(data.get('area_florestal', 0) or 0)
+            area_renovacao_cultura = float(data.get('area_renovacao_cultura', 0) or 0)
+            area_integracao_lavoura = float(data.get('area_integracao_lavoura', 0) or 0)
+        except (ValueError, TypeError):
+            return jsonify({"error": "Valores inválidos fornecidos para as áreas"}), 400
         
-        return jsonify({
-            "area_pastagem_ha": area_pastagem,
-            "potencial_credito_tco2e": round(creditos, 2),
-            "valor_estimado_reais": round(creditos * 50, 2)  # Assuming R$50 per tCO2e
-        }), 200
+        # Verificar se pelo menos uma área foi fornecida
+        if area_pastagem <= 0 and area_florestal <= 0 and area_renovacao_cultura <= 0 and area_integracao_lavoura <= 0:
+            return jsonify({"error": "Pelo menos uma área deve ser maior que zero"}), 400
+        
+        # Calcular créditos
+        resultados = calcular_creditos(
+            area_pastagem=area_pastagem,
+            area_florestal=area_florestal,
+            area_renovacao_cultura=area_renovacao_cultura,
+            area_integracao_lavoura=area_integracao_lavoura
+        )
+        
+        return jsonify(resultados), 200
         
     except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        app.logger.error(f"Erro ao calcular créditos: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/propriedades', methods=['GET'])
@@ -259,3 +276,86 @@ def listar_propriedades():
         
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+@app.route('/api/cenarios', methods=['GET'])
+def listar_cenarios():
+    """
+    List all calculation scenarios
+    ---
+    """
+    try:
+        # Por enquanto, retornar dados de exemplo
+        cenarios = [
+            {
+                "id": 1,
+                "nome": "Cenário Base",
+                "data_calculo": datetime.now().strftime("%Y-%m-%d"),
+                "area_pastagem": 100.0,
+                "area_florestal": 50.0,
+                "area_renovacao_cultura": 30.0,
+                "area_integracao_lavoura": 20.0,
+                "credito_pastagem": 50.0,
+                "credito_florestal": 400.0,
+                "credito_renovacao": 36.0,
+                "credito_integracao": 60.0,
+                "total_creditos": 546.0,
+                "valor_estimado": 27300.0
+            },
+            {
+                "id": 2,
+                "nome": "Cenário Otimizado",
+                "data_calculo": datetime.now().strftime("%Y-%m-%d"),
+                "area_pastagem": 150.0,
+                "area_florestal": 80.0,
+                "area_renovacao_cultura": 50.0,
+                "area_integracao_lavoura": 40.0,
+                "credito_pastagem": 75.0,
+                "credito_florestal": 640.0,
+                "credito_renovacao": 60.0,
+                "credito_integracao": 120.0,
+                "total_creditos": 895.0,
+                "valor_estimado": 44750.0
+            }
+        ]
+        return jsonify(cenarios), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route('/api/cenarios/<int:id>', methods=['GET'])
+def obter_cenario(id):
+    """
+    Retrieve a specific scenario by ID
+    ---
+    """
+    try:
+        # Buscar o cenário no banco de dados
+        cenario = db.session.query(CalculoCarbono).filter_by(id=id).first()
+        
+        if not cenario:
+            return jsonify({"error": "Cenário não encontrado"}), 404
+            
+        # Converter para dict
+        cenario_dict = {
+            "id": cenario.id,
+            "nome_cenario": cenario.nome_cenario,
+            "area_pastagem": cenario.area_pastagem,
+            "area_florestal": cenario.area_florestal,
+            "area_renovacao_cultura": cenario.area_renovacao_cultura,
+            "area_integracao_lavoura": cenario.area_integracao_lavoura,
+            "credito_pastagem": cenario.credito_pastagem,
+            "credito_florestal": cenario.credito_florestal,
+            "credito_renovacao": cenario.credito_renovacao,
+            "credito_integracao": cenario.credito_integracao,
+            "total_creditos": cenario.total_creditos,
+            "valor_estimado": cenario.valor_estimado,
+            "data_calculo": cenario.data_calculo.isoformat() if cenario.data_calculo else None
+        }
+        
+        return jsonify(cenario_dict), 200
+        
+    except Exception as e:
+        app.logger.error(f"Erro ao buscar cenário: {str(e)}")
+        return jsonify({"error": "Erro ao buscar cenário"}), 500

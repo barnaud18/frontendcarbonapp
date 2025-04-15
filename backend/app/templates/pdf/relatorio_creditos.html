@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Créditos de Carbono</title>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>Calculadora de Créditos de Carbono</h1>
+            <p>Relatório detalhado de créditos de carbono</p>
+        </div>
+        
+        <div class="data-geracao">
+            Data de geração: {{ data_geracao }}
+        </div>
+        
+        <h2>Informações do Cenário</h2>
+        <table>
+            <tr>
+                <th>Nome do Cenário</th>
+                <td>{{ cenario.nome_cenario or "Cenário sem nome" }}</td>
+            </tr>
+            <tr>
+                <th>Data do Cálculo</th>
+                <td>{{ cenario.data_calculo.strftime('%d/%m/%Y %H:%M') }}</td>
+            </tr>
+        </table>
+        
+        <h2>Detalhes das Áreas</h2>
+        <table>
+            <tr>
+                <th>Tipo de Área</th>
+                <th>Tamanho (ha)</th>
+            </tr>
+            {% if cenario.area_pastagem > 0 %}
+            <tr>
+                <td>Área de pastagem recuperada</td>
+                <td>{{ "%.2f"|format(cenario.area_pastagem) }}</td>
+            </tr>
+            {% endif %}
+            
+            {% if cenario.area_florestal > 0 %}
+            <tr>
+                <td>Área florestal / reflorestamento</td>
+                <td>{{ "%.2f"|format(cenario.area_florestal) }}</td>
+            </tr>
+            {% endif %}
+            
+            {% if cenario.area_renovacao_cultura > 0 %}
+            <tr>
+                <td>Área de renovação de cultura</td>
+                <td>{{ "%.2f"|format(cenario.area_renovacao_cultura) }}</td>
+            </tr>
+            {% endif %}
+            
+            {% if cenario.area_integracao_lavoura > 0 %}
+            <tr>
+                <td>Área de integração lavoura-pecuária</td>
+                <td>{{ "%.2f"|format(cenario.area_integracao_lavoura) }}</td>
+            </tr>
+            {% endif %}
+        </table>
+        
+        <h2>Potencial de Créditos de Carbono</h2>
+        <table>
+            <tr>
+                <th>Categoria</th>
+                <th>Créditos (tCO₂e/ano)</th>
+            </tr>
+            {% if cenario.credito_pastagem > 0 %}
+            <tr>
+                <td>Recuperação de pastagens</td>
+                <td>{{ "%.2f"|format(cenario.credito_pastagem) }}</td>
+            </tr>
+            {% endif %}
+            
+            {% if cenario.credito_florestal > 0 %}
+            <tr>
+                <td>Florestamento/Reflorestamento</td>
+                <td>{{ "%.2f"|format(cenario.credito_florestal) }}</td>
+            </tr>
+            {% endif %}
+            
+            {% if cenario.credito_renovacao > 0 %}
+            <tr>
+                <td>Renovação de cultura</td>
+                <td>{{ "%.2f"|format(cenario.credito_renovacao) }}</td>
+            </tr>
+            {% endif %}
+            
+            {% if cenario.credito_integracao > 0 %}
+            <tr>
+                <td>Integração lavoura-pecuária</td>
+                <td>{{ "%.2f"|format(cenario.credito_integracao) }}</td>
+            </tr>
+            {% endif %}
+            
+            <tr class="destaque">
+                <td>Total de Créditos</td>
+                <td>{{ "%.2f"|format(cenario.total_creditos) }} tCO₂e/ano</td>
+            </tr>
+        </table>
+        
+        <h2>Valor Estimado dos Créditos</h2>
+        <div class="info-box">
+            <p>Com base no valor médio atual de R$ 50,00 por tonelada de CO₂ equivalente no mercado voluntário de carbono, o potencial de valor estimado anual é de:</p>
+            <h3>R$ {{ "%.2f"|format(cenario.valor_estimado or 0) }}</h3>
+            <p><small>Observação: O valor real pode variar conforme condições de mercado, certificação, tipo de projeto e outros fatores.</small></p>
+        </div>
+        
+        <h2>Metodologias de Cálculo</h2>
+        <table>
+            <tr>
+                <th>Categoria</th>
+                <th>Metodologia</th>
+                <th>Fator (tCO₂e/ha/ano)</th>
+            </tr>
+            <tr>
+                <td>Recuperação de pastagens</td>
+                <td>VCS VM0032 (Verified Carbon Standard)</td>
+                <td>0,5</td>
+            </tr>
+            <tr>
+                <td>Florestamento/Reflorestamento</td>
+                <td>AR-ACM0003 (CDM)</td>
+                <td>2,0</td>
+            </tr>
+            <tr>
+                <td>Renovação de cultura</td>
+                <td>CDM AMS-III.AU</td>
+                <td>0,7</td>
+            </tr>
+            <tr>
+                <td>Integração lavoura-pecuária</td>
+                <td>VCS VM0017</td>
+                <td>1,0</td>
+            </tr>
+        </table>
+        
+        <div class="pagina"></div>
+        
+        <h2>Notas Importantes</h2>
+        <ul>
+            <li>Este relatório representa uma estimativa baseada em fatores médios e metodologias científicas reconhecidas.</li>
+            <li>Para a certificação e comercialização efetiva de créditos de carbono, é necessário seguir protocolos específicos de MRV (Monitoramento, Reporte e Verificação).</li>
+            <li>Os valores podem variar de acordo com a implementação específica das práticas, condições climáticas e características do solo.</li>
+            <li>Recomenda-se a consulta a especialistas em créditos de carbono para a implementação de projetos com finalidade comercial.</li>
+        </ul>
+        
+        <footer>
+            <p>© Calculadora de Créditos de Carbono - Todos os direitos reservados</p>
+            <p>Gerado em: {{ data_geracao }}</p>
+        </footer>
+    </div>
+</body>
+</html>

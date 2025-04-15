@@ -1,0 +1,164 @@
+swagger: '2.0'
+info:
+  title: 'API de Calculadora de Créditos de Carbono Agrícola'
+  description: 'API para calcular emissões e créditos de carbono em atividades agrícolas'
+  version: '1.0'
+host: 'localhost:5000'
+basePath: '/api'
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /calcular-creditos:
+    post:
+      summary: 'Calcula créditos de carbono com base em diferentes metodologias'
+      description: 'Calcula potenciais créditos de carbono com base nas áreas informadas para diferentes atividades de mitigação'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              nome_cenario:
+                type: string
+                description: 'Nome descritivo do cenário de cálculo'
+              area_pastagem:
+                type: number
+                format: float
+                description: 'Área de pastagem recuperada em hectares'
+              area_florestal:
+                type: number
+                format: float
+                description: 'Área de florestamento/reflorestamento em hectares'
+              area_renovacao_cultura:
+                type: number
+                format: float
+                description: 'Área com renovação/rotação de culturas em hectares'
+              area_integracao_lavoura:
+                type: number
+                format: float
+                description: 'Área com integração lavoura-pecuária em hectares'
+      responses:
+        200:
+          description: 'Cálculo realizado com sucesso'
+          schema:
+            type: object
+            properties:
+              total_creditos:
+                type: number
+                format: float
+                description: 'Total de créditos de carbono em tCO2e'
+              resultados:
+                type: object
+                description: 'Detalhamento dos créditos por metodologia'
+              valor_estimado:
+                type: number
+                format: float
+                description: 'Valor estimado em R$ baseado nos créditos calculados'
+              id:
+                type: integer
+                description: 'ID do cálculo no banco de dados'
+              
+  /cenarios:
+    get:
+      summary: 'Lista todos os cenários de cálculo'
+      description: 'Retorna todos os cenários de cálculo de créditos de carbono previamente calculados'
+      responses:
+        200:
+          description: 'Lista de cenários'
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: 'ID do cálculo'
+                nome_cenario:
+                  type: string
+                  description: 'Nome do cenário'
+                total_creditos:
+                  type: number
+                  format: float
+                  description: 'Total de créditos de carbono em tCO2e'
+                valor_estimado:
+                  type: number
+                  format: float
+                  description: 'Valor estimado em R$'
+                data_calculo:
+                  type: string
+                  format: date-time
+                  description: 'Data e hora do cálculo'
+                  
+  /cenarios/{id}:
+    get:
+      summary: 'Obtém detalhes de um cenário específico'
+      description: 'Retorna os detalhes completos de um cenário de cálculo específico'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          description: 'ID do cenário'
+      responses:
+        200:
+          description: 'Detalhes do cenário'
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: 'ID do cálculo'
+              nome_cenario:
+                type: string
+                description: 'Nome do cenário'
+              area_pastagem:
+                type: number
+                format: float
+                description: 'Área de pastagem recuperada em hectares'
+              area_florestal:
+                type: number
+                format: float
+                description: 'Área de florestamento/reflorestamento em hectares'
+              area_renovacao_cultura:
+                type: number
+                format: float
+                description: 'Área com renovação/rotação de culturas em hectares'
+              area_integracao_lavoura:
+                type: number
+                format: float
+                description: 'Área com integração lavoura-pecuária em hectares'
+              credito_pastagem:
+                type: number
+                format: float
+                description: 'Créditos da pastagem recuperada'
+              credito_florestal:
+                type: number
+                format: float
+                description: 'Créditos do florestamento/reflorestamento'
+              credito_renovacao:
+                type: number
+                format: float
+                description: 'Créditos da renovação/rotação de culturas'
+              credito_integracao:
+                type: number
+                format: float
+                description: 'Créditos da integração lavoura-pecuária'
+              total_creditos:
+                type: number
+                format: float
+                description: 'Total de créditos de carbono em tCO2e'
+              valor_estimado:
+                type: number
+                format: float
+                description: 'Valor estimado em R$'
+              data_calculo:
+                type: string
+                format: date-time
+                description: 'Data e hora do cálculo'
+        404:
+          description: 'Cenário não encontrado'

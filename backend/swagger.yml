@@ -136,42 +136,25 @@
     },
     "/calcular-creditos": {
       "post": {
-        "summary": "Calcular potencial de créditos de carbono",
-        "description": "Calcula o potencial de créditos de carbono com base na área de pastagem",
+        "summary": "Calcular pegada de carbono (alias)",
+        "description": "Alias para o endpoint /calcular. Calcula a pegada de carbono com base nos dados da propriedade",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "area_pastagem": {
-                    "type": "number",
-                    "description": "Área de pastagem em hectares"
-                  }
-                }
+                "$ref": "#/components/schemas/CalculoInput"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Cálculo de créditos realizado com sucesso",
+            "description": "Cálculo realizado com sucesso",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "area_pastagem_ha": {
-                      "type": "number"
-                    },
-                    "potencial_credito_tco2e": {
-                      "type": "number"
-                    },
-                    "valor_estimado_reais": {
-                      "type": "number"
-                    }
-                  }
+                  "$ref": "#/components/schemas/CalculoOutput"
                 }
               }
             }
@@ -213,6 +196,293 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calcular": {
+      "post": {
+        "summary": "Calcular créditos de carbono",
+        "description": "Calcula os créditos de carbono com base nas áreas fornecidas",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["area_pastagem", "area_florestal", "area_renovacao_cultura", "area_integracao_lavoura"],
+                "properties": {
+                  "area_pastagem": {
+                    "type": "number",
+                    "description": "Área de pastagem em hectares",
+                    "minimum": 0
+                  },
+                  "area_florestal": {
+                    "type": "number",
+                    "description": "Área florestal em hectares",
+                    "minimum": 0
+                  },
+                  "area_renovacao_cultura": {
+                    "type": "number",
+                    "description": "Área de renovação de cultura em hectares",
+                    "minimum": 0
+                  },
+                  "area_integracao_lavoura": {
+                    "type": "number",
+                    "description": "Área de integração lavoura-pecuária em hectares",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cálculo realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pastagem": {
+                      "type": "object",
+                      "properties": {
+                        "area": {"type": "number"},
+                        "creditos": {"type": "number"},
+                        "metodologia": {"type": "string"}
+                      }
+                    },
+                    "florestal": {
+                      "type": "object",
+                      "properties": {
+                        "area": {"type": "number"},
+                        "creditos": {"type": "number"},
+                        "metodologia": {"type": "string"}
+                      }
+                    },
+                    "renovacao": {
+                      "type": "object",
+                      "properties": {
+                        "area": {"type": "number"},
+                        "creditos": {"type": "number"},
+                        "metodologia": {"type": "string"}
+                      }
+                    },
+                    "integracao": {
+                      "type": "object",
+                      "properties": {
+                        "area": {"type": "number"},
+                        "creditos": {"type": "number"},
+                        "metodologia": {"type": "string"}
+                      }
+                    },
+                    "total_creditos": {"type": "number"},
+                    "valor_estimado": {"type": "number"}
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro no cálculo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calcular-creditos": {
+      "post": {
+        "summary": "Calcular créditos de carbono (alias)",
+        "description": "Alias para /api/calcular - Calcula os créditos de carbono com base nas áreas fornecidas",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["area_pastagem", "area_florestal", "area_renovacao_cultura", "area_integracao_lavoura"],
+                "properties": {
+                  "area_pastagem": {
+                    "type": "number",
+                    "description": "Área de pastagem em hectares",
+                    "minimum": 0
+                  },
+                  "area_florestal": {
+                    "type": "number",
+                    "description": "Área florestal em hectares",
+                    "minimum": 0
+                  },
+                  "area_renovacao_cultura": {
+                    "type": "number",
+                    "description": "Área de renovação de cultura em hectares",
+                    "minimum": 0
+                  },
+                  "area_integracao_lavoura": {
+                    "type": "number",
+                    "description": "Área de integração lavoura-pecuária em hectares",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cálculo realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "pastagem": {
+                      "type": "object",
+                      "properties": {
+                        "area": {"type": "number"},
+                        "creditos": {"type": "number"},
+                        "metodologia": {"type": "string"}
+                      }
+                    },
+                    "florestal": {
+                      "type": "object",
+                      "properties": {
+                        "area": {"type": "number"},
+                        "creditos": {"type": "number"},
+                        "metodologia": {"type": "string"}
+                      }
+                    },
+                    "renovacao": {
+                      "type": "object",
+                      "properties": {
+                        "area": {"type": "number"},
+                        "creditos": {"type": "number"},
+                        "metodologia": {"type": "string"}
+                      }
+                    },
+                    "integracao": {
+                      "type": "object",
+                      "properties": {
+                        "area": {"type": "number"},
+                        "creditos": {"type": "number"},
+                        "metodologia": {"type": "string"}
+                      }
+                    },
+                    "total_creditos": {"type": "number"},
+                    "valor_estimado": {"type": "number"}
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Erro no cálculo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cenarios": {
+      "get": {
+        "summary": "Listar cenários calculados",
+        "description": "Retorna a lista de todos os cenários de cálculo de créditos de carbono",
+        "responses": {
+          "200": {
+            "description": "Lista de cenários recuperada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {"type": "integer"},
+                      "nome_cenario": {"type": "string"},
+                      "area_pastagem": {"type": "number"},
+                      "area_florestal": {"type": "number"},
+                      "area_renovacao_cultura": {"type": "number"},
+                      "area_integracao_lavoura": {"type": "number"},
+                      "credito_pastagem": {"type": "number"},
+                      "credito_florestal": {"type": "number"},
+                      "credito_renovacao": {"type": "number"},
+                      "credito_integracao": {"type": "number"},
+                      "total_creditos": {"type": "number"},
+                      "valor_estimado": {"type": "number"},
+                      "data_calculo": {"type": "string", "format": "date-time"}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cenarios/{id}": {
+      "get": {
+        "summary": "Obter detalhes de um cenário",
+        "description": "Retorna os detalhes de um cenário específico de cálculo de créditos de carbono",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID do cenário"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes do cenário recuperados com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {"type": "integer"},
+                    "nome_cenario": {"type": "string"},
+                    "area_pastagem": {"type": "number"},
+                    "area_florestal": {"type": "number"},
+                    "area_renovacao_cultura": {"type": "number"},
+                    "area_integracao_lavoura": {"type": "number"},
+                    "credito_pastagem": {"type": "number"},
+                    "credito_florestal": {"type": "number"},
+                    "credito_renovacao": {"type": "number"},
+                    "credito_integracao": {"type": "number"},
+                    "total_creditos": {"type": "number"},
+                    "valor_estimado": {"type": "number"},
+                    "data_calculo": {"type": "string", "format": "date-time"}
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Cenário não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {"type": "string"}
+                  }
                 }
               }
             }
