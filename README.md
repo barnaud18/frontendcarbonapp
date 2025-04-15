@@ -1,71 +1,148 @@
-# Calculadora de Pegada de Carbono e Créditos de Carbono Agrícolas
+# Frontend da Calculadora de Pegada de Carbono e Créditos de Carbono Agrícolas
 
-Uma plataforma web avançada para calcular, analisar e visualizar a pegada de carbono e o potencial de créditos de carbono para propriedades rurais, com foco em sustentabilidade ambiental e geração de valor para produtores agrícolas.
+Interface de usuário intuitiva e interativa para cálculo, visualização e gestão de pegada de carbono e potencial de créditos de carbono para propriedades rurais.
 
-## Descrição do Projeto
+## Visão Geral
 
-Este sistema foi desenvolvido para ajudar produtores rurais, consultores ambientais e empresas agrícolas a:
+Este frontend foi desenvolvido para oferecer uma experiência de usuário rica e informativa, permitindo que produtores rurais, consultores ambientais e empresas agrícolas possam:
 
-1. **Calcular emissões de carbono** para diferentes fontes agrícolas (fertilizantes, pecuária, combustíveis)
-2. **Estimar potencial de créditos de carbono** usando múltiplas metodologias reconhecidas internacionalmente
-3. **Visualizar impactos reais** das reduções de carbono em termos tangíveis e compreensíveis
-4. **Obter recomendações personalizadas** para redução de emissões
-5. **Gerar relatórios detalhados** para documentação e certificação
+- Calcular emissões de carbono de suas atividades agrícolas
+- Estimar o potencial de geração de créditos de carbono usando diversas metodologias
+- Visualizar o impacto real de suas reduções de carbono de forma tangível
+- Gerenciar diferentes cenários de cálculo
+- Exportar relatórios detalhados em PDF
 
 ## Funcionalidades Principais
 
-### 1. Calculadora de Pegada de Carbono
-- Cálculo de emissões baseado na metodologia Tier 1 do IPCC
-- Avaliação de diferentes fontes: agricultura, pecuária e consumo de combustível
-- Resultados apresentados em CO₂e (dióxido de carbono equivalente)
+### Calculadora de Pegada de Carbono
+- Formulário intuitivo para entrada de dados sobre propriedade rural
+- Cálculo imediato de emissões de diferentes fontes (agricultura, pecuária, combustível)
+- Visualização de gráficos informativos mostrando a distribuição de emissões
 
-### 2. Calculadora de Créditos de Carbono
-- Suporte a múltiplas metodologias:
-  - Recuperação de pastagens degradadas (VCS VM0032)
-  - Florestamento e reflorestamento (AR-ACM0003)
-  - Rotação de culturas (CDM AMS-III.AU)
-  - Sistemas de integração lavoura-pecuária (VCS VM0017)
-- Estimativa de valor monetário dos créditos de carbono
+### Calculadora de Créditos de Carbono
+- Interface para estimativa de potencial de créditos de carbono
+- Suporte a múltiplas metodologias reconhecidas internacionalmente
+- Cálculo automático de valor monetário estimado dos créditos
 
-### 3. Visualizador de Impacto Real
-- Tradução de créditos de carbono em equivalências tangíveis do mundo real
-- Categorias de impacto: Transporte, Energia, Natureza e Consumo
-- Visualizações interativas e contextualizadas
+### Dashboard Analítico
+- Visão consolidada de todos os cenários calculados
+- Gráficos interativos mostrando distribuição de créditos por metodologia
+- Linha do tempo mostrando evolução dos cálculos
+- Estatísticas consolidadas (total de créditos, valor estimado, área total)
 
-### 4. Dashboard Analítico
-- Gráficos interativos de distribuição de créditos por metodologia
-- Evolução temporal dos cálculos realizados
-- Estatísticas consolidadas de área, créditos totais e valor estimado
+### Visualizador de Impacto Real
+- Tradução visual de toneladas de CO₂e em impactos tangíveis
+- Categorias de impacto organizadas por setor (Transporte, Energia, Natureza, Consumo)
+- Visualizações informativas com contexto e comparações
 
-### 5. Sistema de Gestão de Cenários
-- Cadastro e armazenamento de múltiplos cenários de cálculo
+### Gestão de Cenários
+- Lista completa de cenários calculados
+- Funcionalidades para visualizar detalhes de cada cenário
+- Opções para excluir cenários individualmente ou em massa
 - Exportação de relatórios em PDF
-- Funcionalidades de exclusão individual e em massa
 
 ## Tecnologias Utilizadas
 
-- **Backend**: Python, Flask, SQLAlchemy
-- **Frontend**: HTML5, CSS3, JavaScript, Bootstrap, Chart.js
-- **Banco de Dados**: PostgreSQL
-- **Geração de PDFs**: WeasyPrint
-- **API**: RESTful API com documentação Swagger
+- **HTML5/CSS3**: Estrutura e estilização responsiva da interface
+- **JavaScript**: Interatividade e manipulação de dados no lado do cliente
+- **Bootstrap**: Framework CSS para design responsivo e componentes pré-estilizados
+- **Chart.js**: Biblioteca para criação de gráficos interativos
+- **Templates Jinja2**: Renderização HTML no servidor com Flask
 
-## Metodologia e Referências
+## Destaques da Interface
 
-Os cálculos implementados baseiam-se em metodologias científicas reconhecidas:
+- **Modo Escuro**: Interface com tema escuro para redução de fadiga visual
+- **Design Responsivo**: Adaptação para diferentes tamanhos de tela e dispositivos
+- **Visualizações Interativas**: Gráficos e elementos visuais ricos para melhor compreensão
+- **Formulários Intuitivos**: Entrada de dados simplificada e validação em tempo real
+- **Feedback Visual**: Notificações e alertas para manter o usuário informado
 
-- **Emissões Agrícolas**: Baseadas em fatores de emissão do IPCC para fertilizantes nitrogenados (N₂O)
-- **Emissões Pecuárias**: Baseadas em fatores de emissão para fermentação entérica de bovinos (CH₄)
-- **Combustíveis**: Fatores de emissão para diesel utilizado em maquinário agrícola
-- **Créditos de Carbono**: Baseados em metodologias VCS (Verified Carbon Standard) e CDM (Clean Development Mechanism) da UNFCCC
+## Integração com o Backend
+
+O frontend se comunica com a API da Calculadora de Pegada de Carbono através de:
+
+- Solicitações HTTP para cálculo de emissões e créditos
+- Armazenamento de cenários na base de dados
+- Recuperação de dados históricos para o dashboard
+- Geração de relatórios PDF via servidor
 
 ## Próximos Passos
 
-- Implementação de mais metodologias de crédito de carbono
-- Integração com sensores e sistemas de monitoramento em tempo real
-- Marketplace para comercialização de créditos de carbono
-- Aplicativo móvel para coleta de dados em campo
+- Implementação de gráficos de comparação entre múltiplos cenários
+- Adição de mapas interativos para visualização geográfica das propriedades
+- Suporte a mais idiomas para internacionalização
+- Melhorias de acessibilidade para usuários com necessidades especiais
 
-## Equipe
+## Passo a Passo para Execução
 
-Desenvolvido como parte do projeto de sustentabilidade agrícola, esta plataforma visa democratizar o acesso a ferramentas de análise de carbono para produtores de todos os portes, contribuindo para práticas agrícolas mais sustentáveis e a mitigação das mudanças climáticas.
+### Pré-requisitos
+- Python 3.8 ou superior
+- Node.js 14 ou superior
+- pip (gerenciador de pacotes Python)
+- npm (gerenciador de pacotes Node.js)
+
+### 1. Configuração do Ambiente Virtual
+```powershell
+# Criar ambiente virtual
+python -m venv venv
+
+# Ativar ambiente virtual
+.\venv\Scripts\Activate
+```
+
+### 2. Instalação das Dependências
+```powershell
+# Instalar dependências do backend
+cd backend
+pip install -r requirements.txt
+
+# Instalar dependências do frontend
+cd ../frontend
+npm install
+```
+
+### 3. Configuração do Banco de Dados
+```powershell
+# Voltar para a pasta raiz
+cd ..
+
+# Inicializar o banco de dados
+python -m backend.app.db.init_db
+```
+
+### 4. Execução da Aplicação
+```powershell
+# Iniciar o servidor backend (em um terminal)
+cd backend
+python run.py
+
+# Iniciar o servidor frontend (em outro terminal)
+cd frontend
+npm start
+```
+
+### 5. Acessando a Aplicação
+- Frontend: http://localhost:3000
+- API Backend: http://localhost:5000
+- Documentação Swagger: http://localhost:5000/api/docs
+
+### 6. Testando a Aplicação
+1. Acesse a página inicial
+2. Use a calculadora rápida para testar o cálculo básico
+3. Acesse a calculadora completa para testes mais detalhados
+4. Verifique o dashboard para visualização dos resultados
+5. Teste a exportação de relatórios em PDF
+
+### 7. Solução de Problemas Comuns
+- Se o backend não iniciar, verifique se a porta 5000 está disponível
+- Se o frontend não iniciar, verifique se a porta 3000 está disponível
+- Para problemas com o banco de dados, tente reinicializar com `python -m backend.app.db.init_db`
+- Para atualizar dependências, execute `pip install -r requirements.txt --upgrade`
+
+### 8. Desenvolvimento
+- Para desenvolvimento, recomenda-se usar o modo debug do Flask:
+  ```powershell
+  $env:FLASK_ENV = "development"
+  python run.py
+  ```
+  
