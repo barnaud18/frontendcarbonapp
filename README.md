@@ -77,72 +77,76 @@ O frontend se comunica com a API da Calculadora de Pegada de Carbono através de
 
 ### Pré-requisitos
 - Python 3.8 ou superior
-- Node.js 14 ou superior
 - pip (gerenciador de pacotes Python)
-- npm (gerenciador de pacotes Node.js)
+- wkhtmltopdf (para geração de PDFs)
 
 ### 1. Configuração do Ambiente Virtual
+
+**Windows (PowerShell):**
 ```powershell
 # Criar ambiente virtual
 python -m venv venv
 
 # Ativar ambiente virtual
-.\venv\Scripts\Activate
+.\venv\Scripts\activate
+```
+
+**Linux/macOS:**
+```bash
+# Criar ambiente virtual
+python3 -m venv venv
+
+# Ativar ambiente virtual
+source venv/bin/activate
 ```
 
 ### 2. Instalação das Dependências
-```powershell
-# Instalar dependências do backend
-cd backend
+```bash
+# Instalar dependências
 pip install -r requirements.txt
-
-# Instalar dependências do frontend
-cd ../frontend
-npm install
 ```
 
-### 3. Configuração do Banco de Dados
-```powershell
-# Voltar para a pasta raiz
-cd ..
+### 3. Execução da Aplicação
 
-# Inicializar o banco de dados
-python -m backend.app.db.init_db
-```
-
-### 4. Execução da Aplicação
+**Windows (PowerShell):**
 ```powershell
-# Iniciar o servidor backend (em um terminal)
-cd backend
+# Iniciar a aplicação (porta padrão 3001)
 python run.py
-
-# Iniciar o servidor frontend (em outro terminal)
-cd frontend
-npm start
 ```
 
-### 5. Acessando a Aplicação
-- Frontend: http://localhost:3000
-- API Backend: http://localhost:5000
-- Documentação Swagger: http://localhost:5000/api/docs
+**Linux/macOS:**
+```bash
+# Iniciar a aplicação (porta padrão 3001)
+python run.py
+```
 
-### 6. Testando a Aplicação
+### 4. Acessando a Aplicação
+- Interface Web: http://localhost:3000
+
+### 5. Testando a Aplicação
 1. Acesse a página inicial
 2. Use a calculadora rápida para testar o cálculo básico
 3. Acesse a calculadora completa para testes mais detalhados
 4. Verifique o dashboard para visualização dos resultados
 5. Teste a exportação de relatórios em PDF
 
-### 7. Solução de Problemas Comuns
-- Se o backend não iniciar, verifique se a porta 5000 está disponível
-- Se o frontend não iniciar, verifique se a porta 3000 está disponível
-- Para problemas com o banco de dados, tente reinicializar com `python -m backend.app.db.init_db`
+### 6. Solução de Problemas Comuns
+- Se a aplicação não iniciar, verifique se a porta 3001 está disponível
+- Se encontrar erro relacionado ao pdfkit, verifique se o wkhtmltopdf está instalado no sistema
 - Para atualizar dependências, execute `pip install -r requirements.txt --upgrade`
 
-### 8. Desenvolvimento
-- Para desenvolvimento, recomenda-se usar o modo debug do Flask:
-  ```powershell
-  $env:FLASK_ENV = "development"
-  python run.py
-  ```
+### 7. Desenvolvimento
+- Para desenvolvimento, é recomendado usar o modo debug do Flask:
+
+**Windows (PowerShell):**
+```powershell
+$env:FLASK_ENV = "development"
+python run.py
+```
+
+**Linux/macOS:**
+```bash
+export FLASK_ENV="development"
+python run.py
+```
   
